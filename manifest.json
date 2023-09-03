@@ -2,7 +2,7 @@
 	"id": "connections-to-tag",
 	"name": "Connections to Tag",
 	"version": "0.0.1",
-	"minAppVersion": "0.15.0",
+	"minAppVersion": "1.0.0",
 	"description": "add tag for notes that connected with each other. Works with trees and neibors",
 	"author": "lavton",
  "authorUrl": "https://obsidian.md",

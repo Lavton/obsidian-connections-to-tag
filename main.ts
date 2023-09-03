@@ -3,6 +3,7 @@ import * as internal from 'stream';
 import * as settings from 'src/settings'
 import {tagData} from 'src/tagsModifier'
 import * as utils from 'src/utils'
+import {getAllChildrenOfFile} from 'src/parentChild'
 
 export default class ConnectionsToTagPlugin extends Plugin {
 	settings: settings.ConnectionsToTagSettings;
@@ -23,8 +24,9 @@ export default class ConnectionsToTagPlugin extends Plugin {
 				}
 				// console.log(view.file)
 		   		// const sel = editor.getSelection()
-				var logData = await tagData(this.app, initialFile, "parents")
-				console.log(logData)
+				// var logData = await tagData(this.app, initialFile, "parents")
+				// console.log(logData)
+				console.log(await getAllChildrenOfFile(initialFile, this.app, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag))
 				// console.log(`You have selected: ${sel}`);
 			}
 		});
@@ -158,9 +160,9 @@ class ConnectionsToTagSettingTab extends PluginSettingTab {
 		.setDesc('if no tags are inside, use first mention nodes as parents')
 		.addToggle((cb) => {
 			cb 
-			.setValue(this.plugin.settings.isFirstTagParentWhenEmpty)
+			.setValue(this.plugin.settings.isFirstTagLineParentWhenEmpty)
 			.onChange(async (value) => {
-				this.plugin.settings.isFirstTagParentWhenEmpty = value
+				this.plugin.settings.isFirstTagLineParentWhenEmpty = value
 				await this.plugin.saveSettings();
 			})
 		})

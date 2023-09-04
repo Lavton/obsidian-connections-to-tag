@@ -1,7 +1,7 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import * as internal from 'stream';
 import * as settings from 'src/settings'
-import {tagData} from 'src/tagsModifier'
+import {addTagForFile, removeTagFromFile} from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import {findAllSubtree} from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
@@ -16,19 +16,17 @@ export default class ConnectionsToTagPlugin extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new ConnectionsToTagSettingTab(this.app, this));
 		this.addCommand({
-			id: 'add-hashtags',
-			name: 'Adding hashtags to tree',
+			id: 'add-hashtags-tree',
+			name: 'Add hashtag to tree',
 			 editorCallback: async (editor: Editor, view: MarkdownView) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
 				}
-				// console.log(view.file)
-		   		// const sel = editor.getSelection()
-				// var logData = await tagData(this.app, initialFile, "parents")
-				// console.log(logData)
-				console.log("children", await findAllSubtree(this.app, initialFile.path, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag))
-				// console.log(`You have selected: ${sel}`);
+				var subTreeFilesPath: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
+				var withNeiborsTree: string[] = await expandToNeibors(this.app, subTreeFilesPath, this.settings.aroundNumber)
+				var districtFiles: string[] = [...new Set(withNeiborsTree)]
+				districtFiles.forEach(async(fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		});
 		this.addCommand({
@@ -39,58 +37,47 @@ export default class ConnectionsToTagPlugin extends Plugin {
 				if (initialFile == null) {
 					return
 				}
-				// console.log(view.file)
-		   		// const sel = editor.getSelection()
-				// var logData = await tagData(this.app, initialFile, "parents")
-				// if (logData == null) {
-					// return 
-				// }
-				console.log("oooo")
-				console.log("neibors", await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber))
-				// this.app.metadataCache.getFirstLinkpathDest("bbbbb", "ignore_1/note 23.md")?.path <- поиск полного пути.
-				// console.log(utils.getNotePaths(logData, initialFile.path, this.app))
-				// console.log(`You have selected: ${sel}`);
+				var subTreeFilesPath: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
+				var withNeiborsTree: string[] = await expandToNeibors(this.app, subTreeFilesPath, this.settings.aroundNumber)
+				var districtFiles: string[] = [...new Set(withNeiborsTree)]
+				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
+			}
+		})
+		this.addCommand({
+			id: 'add-hastags-to-neibors',
+			name: 'Add hashtag to note and neibors',
+			 editorCallback: async (editor: Editor, view: MarkdownView) => {
+				var initialFile = view.file
+				if (initialFile == null) {
+					return
+				}
+				var withNeiborsTree: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
+				var districtFiles: string[] = [...new Set(withNeiborsTree)]
+				districtFiles.forEach(async(fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
+			}
+		})
+		this.addCommand({
+			id: 'remove-hastags-to-neibors',
+			name: 'Remove hashtag from note and neibors',
+			 editorCallback: async (editor: Editor, view: MarkdownView) => {
+				var initialFile = view.file
+				if (initialFile == null) {
+					return
+				}
+				var withNeiborsTree: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
+				var districtFiles: string[] = [...new Set(withNeiborsTree)]
+				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})
 		this.addCommand({
 			id: 'total-remove-hashtag',
 			name: 'Totally remove the hashtag from tree',
 			callback: () => {
-				console.log("remove hashtag totally")
+				var districtFiles: string[] = utils.getAllFilesWithTag(this.app, this.settings.workingTag)
+				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			// console.log('click', evt);
-		// });
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-		// this.addCommand({
-		// 	id: 'move-files-with-tag-forward',
-		// 	name: 'Forward move files with tags to dir',
-		// 	callback: async () => {
-		// 		var files = forward.getForwardFiles(this.app, this.settings.workingTag, this.settings.workingFolder)
-		// 		await forward.createFolderIfNotExist(this.app, this.settings.workingFolder)
-		// 		console.log("forward files", files)
-		// 		files.forEach(file => {
-		// 			forward.moveFileAndAddMeta(this.app, file, this.settings.workingFolder, this.settings.reverseTag)
-		// 		})
-		// 	}
-		// });
-		// this.addCommand({
-		// 	id: 'move-files-with-tag-backward',
-		// 	name: 'Backward move files with tags to their original dir',
-		// 	callback: async () => {
-		// 		var files = backward.getBackwardFiles(this.app, this.settings.workingFolder)
-		// 		console.log("backward files", files)
-		// 		files.forEach(file => {
-		// 			backward.moveFileAndRemoveMeta(this.app, file, this.settings.workingFolder, this.settings.reverseTag)
-		// 		})
-		// 	}
-		// });
 	}
 
 	onunload() {

@@ -7,7 +7,6 @@ export async function findAllSubtree(app: App, initPath: string, isFirstTagLineP
     var notesQueue: string[] = [initPath]
     while (notesQueue.length != 0) {
         var currentPath = notesQueue.pop()
-        console.log(currentPath)
         if (currentPath == undefined) {
             continue
         }
@@ -18,7 +17,6 @@ export async function findAllSubtree(app: App, initPath: string, isFirstTagLineP
         var noteChildren: string[] = await getAllChildrenOfFile(
             file, app, isFirstTagLineParentWhenEmpty, parentTags
         )
-        console.log("for note", currentPath, "added", noteChildren)
         noteChildren.forEach(nc => {
             if (!(allNotes.contains(nc))) {
                 allNotes.push(nc)

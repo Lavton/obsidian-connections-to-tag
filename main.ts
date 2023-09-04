@@ -4,6 +4,7 @@ import * as settings from 'src/settings'
 import {tagData} from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import {findAllSubtree} from 'src/parentChild'
+import { expandToNeibors } from 'src/neibors';
 
 export default class ConnectionsToTagPlugin extends Plugin {
 	settings: settings.ConnectionsToTagSettings;
@@ -40,12 +41,14 @@ export default class ConnectionsToTagPlugin extends Plugin {
 				}
 				// console.log(view.file)
 		   		// const sel = editor.getSelection()
-				var logData = await tagData(this.app, initialFile, "parents")
-				if (logData == null) {
-					return 
-				}
+				// var logData = await tagData(this.app, initialFile, "parents")
+				// if (logData == null) {
+					// return 
+				// }
+				console.log("oooo")
+				console.log("neibors", await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber))
 				// this.app.metadataCache.getFirstLinkpathDest("bbbbb", "ignore_1/note 23.md")?.path <- поиск полного пути.
-				console.log(utils.getNotePaths(logData, initialFile.path, this.app))
+				// console.log(utils.getNotePaths(logData, initialFile.path, this.app))
 				// console.log(`You have selected: ${sel}`);
 			}
 		})

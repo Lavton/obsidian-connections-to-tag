@@ -33,3 +33,11 @@ export function getNotePaths(linksCandidates: string[], initfilePath: string, ap
         .filter(value => notEmpty(value))
         .map((v): string => v as string)
 }
+
+export function getAllFilesWithTag(app: App, tag: string): string[] {
+    var fileCollection: string[] = app.metadataCache.getCachedFiles()
+    return fileCollection.filter(f => {
+        var tags = app.metadataCache.getCache(f)?.tags?.map(t => t.tag)
+        return tags?.contains(tag)        
+    })
+}

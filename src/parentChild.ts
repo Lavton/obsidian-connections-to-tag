@@ -3,6 +3,9 @@ import * as utils from 'src/utils'
 import {tagData} from 'src/tagsModifier'
 
 export async function findAllSubtree(app: App, initPath: string, isFirstTagLineParentWhenEmpty: boolean, parentTags: string[]): string[] {
+    if (!(initPath.endsWith(".md"))) {
+        return []
+    }
     var allNotes: string[] = [initPath]
     var notesQueue: string[] = [initPath]
     while (notesQueue.length != 0) {
@@ -19,8 +22,10 @@ export async function findAllSubtree(app: App, initPath: string, isFirstTagLineP
         )
         noteChildren.forEach(nc => {
             if (!(allNotes.contains(nc))) {
-                allNotes.push(nc)
-                notesQueue.push(nc)
+                if (nc.endsWith(".md")) {
+                    allNotes.push(nc)
+                    notesQueue.push(nc)
+                }
             }
         })
     }
@@ -29,6 +34,9 @@ export async function findAllSubtree(app: App, initPath: string, isFirstTagLineP
 }
 
 export async function getAllChildrenOfFile(file: TFile, app: App,  isFirstTagLineParentWhenEmpty: boolean, parentTags: string[]): Promise<string[]> {
+    if (!(file.path.endsWith(".md"))) {
+        return []
+    }
     var backlinksObj = app.metadataCache.getBacklinksForFile(file)?.data
     if ((backlinksObj == undefined)) {
         return []

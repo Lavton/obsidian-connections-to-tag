@@ -129,6 +129,9 @@ class ConnectionsToTagSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.workingTag)
 				.onChange(async (value) => {
 					this.plugin.settings.workingTag = value
+					if (!(value.startsWith("#"))) {
+						this.plugin.settings.workingTag = "#" + this.plugin.settings.workingTag
+					}
 					await this.plugin.saveSettings();
 				})
 			})

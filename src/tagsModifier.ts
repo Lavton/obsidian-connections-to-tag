@@ -1,6 +1,9 @@
 import { TFile, App } from "obsidian";
 
 export async function tagData(app: App, file: TFile, tag: string): Promise<string[] | null> {
+    if (!(file.path.endsWith(".md"))) {
+        return null
+    }
     var frontmatterTagInfo = app.metadataCache.getFileCache(file)?.frontmatter
     if (frontmatterTagInfo != null) {
         var frontmatterTagInfo2 = frontmatterTagInfo[tag]
@@ -56,4 +59,49 @@ function getTagOnWholeFile(file: TFile, app: App, lineIndex: number): string[] {
         }
     }
     return parents
+}
+
+
+export async function addTagForFile(app: App, filepath: string, tag: string) {
+    if (!(filepath.endsWith(".md"))) {
+        return
+    }
+    var file = app.vault.getAbstractFileByPath(filepath)
+    if (!(file instanceof TFile)) {
+        return
+    }
+    var content: string = await app.vault.read(file)
+    if (content.contains(tag)) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
+        return
+    }
+    content += "\n"+tag
+    await app.vault.modify(file, content)
+}
+
+export async function removeTagFromFile(app: App, filepath: string, tag: string) {
+    if (!(filepath.endsWith(".md"))) {
+        return
+    }
+    var file = app.vault.getAbstractFileByPath(filepath)
+    if (!(file instanceof TFile)) {
+        return
+    }
+    var content: string = await app.vault.read(file)
+    if (!(content.contains(tag))) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
+        return
+    }
+    var lines = content.split("\n")
+    var newLines: string[] = []
+    lines.forEach(line => {
+        if (!(line.contains(tag))) {
+            newLines.push(line)
+        } else {
+            var modifiedLine = line.replace(tag, "")
+            if (modifiedLine.trim().length != 0) { // there is some content besides tag
+                newLines.push(modifiedLine)
+            }
+        }
+    })
+    await app.vault.modify(file, newLines.join("\n"))
+    
 }

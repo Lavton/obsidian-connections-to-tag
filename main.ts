@@ -3,7 +3,7 @@ import * as internal from 'stream';
 import * as settings from 'src/settings'
 import {tagData} from 'src/tagsModifier'
 import * as utils from 'src/utils'
-import {getAllChildrenOfFile} from 'src/parentChild'
+import {findAllSubtree} from 'src/parentChild'
 
 export default class ConnectionsToTagPlugin extends Plugin {
 	settings: settings.ConnectionsToTagSettings;
@@ -26,7 +26,7 @@ export default class ConnectionsToTagPlugin extends Plugin {
 		   		// const sel = editor.getSelection()
 				// var logData = await tagData(this.app, initialFile, "parents")
 				// console.log(logData)
-				console.log("children", await getAllChildrenOfFile(initialFile, this.app, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag))
+				console.log("children", await findAllSubtree(this.app, initialFile.path, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag))
 				// console.log(`You have selected: ${sel}`);
 			}
 		});

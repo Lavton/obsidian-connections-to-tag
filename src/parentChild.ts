@@ -1,8 +1,32 @@
-import { App, TFile } from "obsidian";
+import { App, Notice, TFile } from "obsidian";
 import * as utils from 'src/utils'
 import {tagData} from 'src/tagsModifier'
 
-export function findAllSubtree(app: App, initPath: string, isFirstTagLineParentWhenEmpty: boolean, parentTags: string[]): string[] {
+export async function findAllSubtree(app: App, initPath: string, isFirstTagLineParentWhenEmpty: boolean, parentTags: string[]): string[] {
+    var allNotes: string[] = [initPath]
+    var notesQueue: string[] = [initPath]
+    while (notesQueue.length != 0) {
+        var currentPath = notesQueue.pop()
+        console.log(currentPath)
+        if (currentPath == undefined) {
+            continue
+        }
+        var file = app.vault.getAbstractFileByPath(currentPath)
+        if (!(file instanceof TFile)) {
+            continue
+        }
+        var noteChildren: string[] = await getAllChildrenOfFile(
+            file, app, isFirstTagLineParentWhenEmpty, parentTags
+        )
+        console.log("for note", currentPath, "added", noteChildren)
+        noteChildren.forEach(nc => {
+            if (!(allNotes.contains(nc))) {
+                allNotes.push(nc)
+                notesQueue.push(nc)
+            }
+        })
+    }
+    return allNotes
 
 }
 

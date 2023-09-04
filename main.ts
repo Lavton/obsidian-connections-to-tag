@@ -23,9 +23,11 @@ export default class ConnectionsToTagPlugin extends Plugin {
 				if (initialFile == null) {
 					return
 				}
-				var subTreeFilesPath: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
+				var subTreeFilesPath: string[] = await findAllSubtree(this.app, initialFile.path, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag)
+				// console.log("files", subTreeFilesPath)
 				var withNeiborsTree: string[] = await expandToNeibors(this.app, subTreeFilesPath, this.settings.aroundNumber)
 				var districtFiles: string[] = [...new Set(withNeiborsTree)]
+				// console.log("will add to", districtFiles)
 				districtFiles.forEach(async(fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		});
@@ -37,9 +39,10 @@ export default class ConnectionsToTagPlugin extends Plugin {
 				if (initialFile == null) {
 					return
 				}
-				var subTreeFilesPath: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
+				var subTreeFilesPath: string[] = await findAllSubtree(this.app, initialFile.path, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag)
 				var withNeiborsTree: string[] = await expandToNeibors(this.app, subTreeFilesPath, this.settings.aroundNumber)
 				var districtFiles: string[] = [...new Set(withNeiborsTree)]
+				// console.log("will remove from", districtFiles)
 				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})

@@ -5,7 +5,6 @@
 	"minAppVersion": "1.0.0",
 	"description": "add tag for notes that connected with each other. Works with trees and neibors",
 	"author": "lavton",
- "authorUrl": "https://obsidian.md",
- "fundingUrl": "https://obsidian.md/pricing",
+	"authorUrl": "https://github.com/Lavton",
 	"isDesktopOnly": false
 }

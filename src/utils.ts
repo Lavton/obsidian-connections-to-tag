@@ -1,4 +1,4 @@
-import { App } from "obsidian"
+import { App, getLinkpath } from "obsidian"
 
 const regexp = /\[\[([^|\^#]*)[\^|#]?(.*?)\]\]/
 function linkToNoteName(link: string): string | null {
@@ -8,6 +8,7 @@ function linkToNoteName(link: string): string | null {
     if (!link.endsWith("]]")) {
         return null
     }
+    // return getLinkpath(link.slice(2, link.length-2))
     var match = link.match(regexp)
     if (match == null) {
         return null

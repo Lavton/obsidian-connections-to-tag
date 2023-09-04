@@ -26,7 +26,7 @@ export default class ConnectionsToTagPlugin extends Plugin {
 		   		// const sel = editor.getSelection()
 				// var logData = await tagData(this.app, initialFile, "parents")
 				// console.log(logData)
-				console.log(await getAllChildrenOfFile(initialFile, this.app, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag))
+				console.log("children", await getAllChildrenOfFile(initialFile, this.app, this.settings.isFirstTagLineParentWhenEmpty, this.settings.parentsTag))
 				// console.log(`You have selected: ${sel}`);
 			}
 		});

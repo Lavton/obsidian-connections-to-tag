@@ -2,7 +2,7 @@ import { App, Notice, TFile } from "obsidian";
 import * as utils from 'src/utils'
 import {tagData} from 'src/tagsModifier'
 
-export async function findAllSubtree(app: App, initPath: string, isFirstTagLineParentWhenEmpty: boolean, parentTags: string[]): string[] {
+export async function findAllSubtree(app: App, initPath: string, isFirstTagLineParentWhenEmpty: boolean, parentTags: string[]): Promise<string[]> {
     if (!(initPath.endsWith(".md"))) {
         return []
     }

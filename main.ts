@@ -1,12 +1,12 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import * as internal from 'stream';
-import * as settings from 'src/settings'
+import * as settings from 'src/settings/settings'
 import {addTagForFile, removeTagFromFile} from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import {findAllSubtree} from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
 
-export default class ConnectionsToTagPlugin extends Plugin {
+export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
 
 	async onload() {
@@ -14,7 +14,7 @@ export default class ConnectionsToTagPlugin extends Plugin {
 
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new ConnectionsToTagSettingTab(this.app, this));
+		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));
 		this.addCommand({
 			id: 'add-hashtags-tree',
 			name: 'Add hashtag to tree',
@@ -96,71 +96,3 @@ export default class ConnectionsToTagPlugin extends Plugin {
 	}
 }
 
-class ConnectionsToTagSettingTab extends PluginSettingTab {
-	plugin: ConnectionsToTagPlugin;
-
-	constructor(app: App, plugin: ConnectionsToTagPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			// as in https://github.com/zsviczian/excalibrain/blob/master/src/Settings.ts
-			.setName('working tag')
-			.setDesc('notes with what tag will be moved')
-			.addText((text) => {
-				text
-				.setPlaceholder('ex. #to_focus_on')
-				.setValue(this.plugin.settings.workingTag)
-				.onChange(async (value) => {
-					this.plugin.settings.workingTag = value
-					if (!(value.startsWith("#"))) {
-						this.plugin.settings.workingTag = "#" + this.plugin.settings.workingTag
-					}
-					await this.plugin.saveSettings();
-				})
-			})
-		new Setting(containerEl)
-		.setName('parents tags')
-		.setDesc('tags of parents, sep by comma')
-			.addText((text) => {
-				text
-				.setValue(this.plugin.settings.parentsTag.join(", "))
-				.onChange(async (value) => {
-					var tagNames = value.split(",").map((t) => t.trim())
-					this.plugin.settings.parentsTag = tagNames
-					await this.plugin.saveSettings();
-				})
-			})
-		new Setting(containerEl)
-		.setName('number of neibors')
-		.setDesc('Number of nodes-neibors that will be connected')
-			.addText((text) => {
-				text
-				.setValue(this.plugin.settings.aroundNumber.toString())
-				.onChange(async (value) => {
-					var num = parseInt(value)
-					if (!Number.isNaN(num)) {
-						this.plugin.settings.aroundNumber = num
-						await this.plugin.saveSettings();
-					}
-				})
-			})
-		new Setting(containerEl)
-		.setName('use first line as parents')
-		.setDesc('if no tags are inside, use first mention nodes as parents')
-		.addToggle((cb) => {
-			cb 
-			.setValue(this.plugin.settings.isFirstTagLineParentWhenEmpty)
-			.onChange(async (value) => {
-				this.plugin.settings.isFirstTagLineParentWhenEmpty = value
-				await this.plugin.saveSettings();
-			})
-		})
-	}
-}

@@ -20,6 +20,8 @@ So, the supposed workflow of the packages is the following:
 5. focus on the subject, do whatever you want to do
 6. do reverse stuff: change ignore filters to a general one, move all notes from the specific folder to their original desitnation, remove the hashtag from the notes 
 
+One another usecase is to show a set of notes in Graph view: just add a tag in graph group and to the notes!
+
 ## settings
 - `working tag` - a hashtag that will be added to/removed from the note
 - `parents tags` - a list of frontmatter YAML tags or `dataview::`-format tags separated by comma, that identify the parent note

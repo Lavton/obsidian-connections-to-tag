@@ -1,6 +1,8 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import esbuildSvelte from 'esbuild-svelte';
+import { sveltePreprocess } from 'svelte-preprocess';
 
 const banner =
 `/*
@@ -16,6 +18,12 @@ const context = await esbuild.context({
 		js: banner,
 	},
 	entryPoints: ["main.ts"],
+	plugins: [
+		esbuildSvelte({
+			compilerOptions: { css: 'injected' },
+			preprocess: sveltePreprocess(),
+		}),
+	],
 	bundle: true,
 	external: [
 		"obsidian",

@@ -1,7 +1,15 @@
 import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
+export interface ResultsSettings {
+	workingTag: string;
+	// goalFolder: string,
+	// autoAddToFolder: boolean; 
+	// reverseFrontmatter: string;
+}
+
 export interface ConnectionsToTagSettings {
-    workingTag: string
+    workingTag: string, // deprecated
+	resultsSettings: ResultsSettings,
     parentsTag: string[],
     aroundNumber: number,
     isFirstTagLineParentWhenEmpty: boolean
@@ -9,6 +17,9 @@ export interface ConnectionsToTagSettings {
 
 export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
     workingTag: "#to_focus_on",
+	resultsSettings: {
+		workingTag: "#to_focus_on",
+	},
     parentsTag: ["parents"],
     aroundNumber: 0,
     isFirstTagLineParentWhenEmpty: true

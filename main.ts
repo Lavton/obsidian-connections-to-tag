@@ -1,10 +1,11 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, getLinkpath, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import * as internal from 'stream';
 import * as settings from 'src/settings/settings'
 import {addTagForFile, removeTagFromFile} from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import {findAllSubtree} from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
+import { getLinksOfFile } from 'src/link_utils';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
@@ -15,6 +16,31 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));
+		this.addCommand({
+			id: 'implement-rule',
+			name: 'Do tree',
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
+				var initialFile = view.file
+				if (initialFile == null) {
+					return
+				}
+				 console.log("aaa")
+			console.log(initialFile);
+	const fileCache = this.app.metadataCache.getFileCache(initialFile);
+	const frontmatter = fileCache?.frontmatter;
+
+
+
+console.log(getLinksOfFile(initialFile, this.app, "next"))
+        var backlinksObj = this.app.metadataCache.getBacklinksForFile(initialFile)?.data
+console.log(backlinksObj)
+			// const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
+		// const connectedFiles = getFilepaths(frontmatterValue, originalFile, app)
+		// return connectedFiles
+	return []
+			}
+
+		})
 		this.addCommand({
 			id: 'add-hashtags-tree',
 			name: 'Add hashtag to tree',

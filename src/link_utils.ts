@@ -1,17 +1,6 @@
 
 import { App, TFile } from "obsidian";
 
-export function getLinksOfFile(originalFile: TFile, app: App, frontMatterKey: string): TFile[] {
-	const fileCache = this.app.metadataCache.getFileCache(originalFile);
-	const frontmatter = fileCache?.frontmatter;
-
-	if (frontmatter) {
-		const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
-		const connectedFiles = getFilepaths(frontmatterValue, originalFile, app)
-		return connectedFiles
-	}
-	return []
-}
 
 export function extractLinksFromFrontmatter(frontmatter: any): string[] {
 	if (!frontmatter) {

@@ -1,11 +1,11 @@
 import { App, Editor, getLinkpath, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import * as internal from 'stream';
 import * as settings from 'src/settings/settings'
-import {addTagForFile, removeTagFromFile} from 'src/tagsModifier'
+import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
-import {findAllSubtree} from 'src/parentChild'
+import { findAllSubtree } from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
-import { getLinksOfFile } from 'src/link_utils';
+import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
@@ -24,27 +24,29 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (initialFile == null) {
 					return
 				}
-				 console.log("aaa")
-			console.log(initialFile);
-	const fileCache = this.app.metadataCache.getFileCache(initialFile);
-	const frontmatter = fileCache?.frontmatter;
+				console.log("aaa")
+				const testForw = getForwardFilesFromFrontmatter(this.app, initialFile, ["prev"])
+				const testBack = getBackwardFilesFromFronmatter(this.app, initialFile, ["parents"])
+				console.log({testForw, testBack})
+				console.log(initialFile);
+				const fileCache = this.app.metadataCache.getFileCache(initialFile);
+				const frontmatter = fileCache?.frontmatter;
 
 
 
-console.log(getLinksOfFile(initialFile, this.app, "next"))
-        var backlinksObj = this.app.metadataCache.getBacklinksForFile(initialFile)?.data
-console.log(backlinksObj)
-			// const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
-		// const connectedFiles = getFilepaths(frontmatterValue, originalFile, app)
-		// return connectedFiles
-	return []
+				var backlinksObj = this.app.metadataCache.getBacklinksForFile(initialFile)?.data
+				console.log(backlinksObj)
+				// const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
+				// const connectedFiles = getFilepaths(frontmatterValue, originalFile, app)
+				// return connectedFiles
+				return []
 			}
 
 		})
 		this.addCommand({
 			id: 'add-hashtags-tree',
 			name: 'Add hashtag to tree',
-			 editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
@@ -54,13 +56,13 @@ console.log(backlinksObj)
 				var withNeiborsTree: string[] = await expandToNeibors(this.app, subTreeFilesPath, this.settings.aroundNumber)
 				var districtFiles: string[] = [...new Set(withNeiborsTree)]
 				// console.log("will add to", districtFiles)
-				districtFiles.forEach(async(fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
+				districtFiles.forEach(async (fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		});
 		this.addCommand({
 			id: 'remove-hashtags-tree',
 			name: 'Remove hashtag from tree',
-			 editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
@@ -69,33 +71,33 @@ console.log(backlinksObj)
 				var withNeiborsTree: string[] = await expandToNeibors(this.app, subTreeFilesPath, this.settings.aroundNumber)
 				var districtFiles: string[] = [...new Set(withNeiborsTree)]
 				// console.log("will remove from", districtFiles)
-				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
+				districtFiles.forEach(async (fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})
 		this.addCommand({
 			id: 'add-hastags-to-neibors',
 			name: 'Add hashtag to note and neibors',
-			 editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
 				}
 				var withNeiborsTree: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
 				var districtFiles: string[] = [...new Set(withNeiborsTree)]
-				districtFiles.forEach(async(fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
+				districtFiles.forEach(async (fp) => addTagForFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})
 		this.addCommand({
 			id: 'remove-hastags-to-neibors',
 			name: 'Remove hashtag from note and neibors',
-			 editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
 				}
 				var withNeiborsTree: string[] = await expandToNeibors(this.app, [initialFile.path], this.settings.aroundNumber)
 				var districtFiles: string[] = [...new Set(withNeiborsTree)]
-				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
+				districtFiles.forEach(async (fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})
 		this.addCommand({
@@ -103,7 +105,7 @@ console.log(backlinksObj)
 			name: 'Totally remove the hashtag from tree',
 			callback: () => {
 				var districtFiles: string[] = utils.getAllFilesWithTag(this.app, this.settings.workingTag)
-				districtFiles.forEach(async(fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
+				districtFiles.forEach(async (fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 			}
 		})
 

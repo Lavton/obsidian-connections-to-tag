@@ -1,11 +1,13 @@
 import { App, Editor, getLinkpath, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import * as internal from 'stream';
 import * as settings from 'src/settings/settings'
 import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import { findAllSubtree } from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
+import { YamlConnectionTag } from 'src/models/connections';
+import { ChainTraversal } from 'src/service/chain_traversal';
+import { getDefaultChain } from 'src/settings/default_chain';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
@@ -24,22 +26,21 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (initialFile == null) {
 					return
 				}
-				console.log("aaa")
-				const testForw = getForwardFilesFromFrontmatter(this.app, initialFile, ["prev"])
-				const testBack = getBackwardFilesFromFronmatter(this.app, initialFile, ["parents"])
-				console.log({testForw, testBack})
-				console.log(initialFile);
-				const fileCache = this.app.metadataCache.getFileCache(initialFile);
-				const frontmatter = fileCache?.frontmatter;
+				const traversal = new ChainTraversal(getDefaultChain())
+				const res = await traversal.go(this.app, [initialFile])
+				console.log({res})
+				// const parentYaml = new YamlConnectionTag([], ["parents"])
+				// const nextYaml = new YamlConnectionTag(["next"], [])
 
+				// // "go through parents backward (=on children) to the end"
+				// // "go 'next' forward max 10 steps"
+				// // "go 'base' backward with probability 0.2
 
-
-				var backlinksObj = this.app.metadataCache.getBacklinksForFile(initialFile)?.data
-				console.log(backlinksObj)
-				// const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
-				// const connectedFiles = getFilepaths(frontmatterValue, originalFile, app)
-				// return connectedFiles
-				return []
+				// console.log("aaa", parentYaml, nextYaml)
+				// const testForw = getForwardFilesFromFrontmatter(this.app, initialFile, ["prev"])
+				// const testBack = getBackwardFilesFromFronmatter(this.app, initialFile, ["parents"])
+				// console.log({testForw, testBack})
+				// console.log(initialFile);
 			}
 
 		})

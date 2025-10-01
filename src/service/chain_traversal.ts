@@ -1,88 +1,31 @@
 import { TFile, type App } from "obsidian";
+import * as path from "path";
 import { ChainStep, type Chain } from "src/models/chain";
 import type { Rule } from "src/models/rule";
 import type { Traversal } from "src/models/traversal";
 
-// export class ChainTraversal implements Traversal {
-// 	go(app: App, seed: TFile[]): Promise<TFile[]> {
-// 		var allNotes: string[] = []
-// 		var notesQueue: string[] = []
-// 		for (const f of seed) {
-// 			const absPath = f.path
-// 			if (!(allNotes.contains(absPath))) {
-// 				if (f.extension != "md") continue
-// 				allNotes.push(absPath)
-// 				notesQueue.push(absPath)
-// 			}
-// 		}
-// 		for (const chain_step of this.chain.chainSteps) {
-// 			const rule = chain_step.rule.getRule()
-// 			const connections = chain_step.connections
-// 			const nextCandidates = []
-// 			for (const connection of connections) {
-// 				// connection.get_connected(app, 
-// 			}
+export class ChainTraversal implements Traversal {
+	async go(app: App, seed: TFile[]): Promise<TFile[]> {
+		const result = [...seed]
+		const paths = new Set(seed.map(s => s.path))
+		for (const step of this.chain.chainSteps) {
+			const stepTr = new StepTraversal(step);
+			const stepRes = await stepTr.go(app, result)
+			for (const sr of stepRes) {
+				if (!paths.has(sr.path)) {
+					paths.add(sr.path)
+					result.push(sr)
+				}
+			}
+		}
+		return result
+	}
+	chain: Chain
 
-// 		}
-// 		const result = allNotes.map(n => app.vault.getAbstractFileByPath(n)).filter((file): file is TFile => file !== null);
-// 		return Promise.resolve(result)
-
-// 		// return Promise.resolve([])
-// 		// if (!(initPath.endsWith(".md"))) {
-// 		//     return []
-// 		// }
-// 		// var allNotes: string[] = [initPath]
-// 		// var notesQueue: string[] = [initPath]
-// 		// while (notesQueue.length != 0) {
-// 		//     var currentPath = notesQueue.pop()
-// 		//     if (currentPath == undefined) {
-// 		//         continue
-// 		//     }
-// 		//     var file = app.vault.getAbstractFileByPath(currentPath)
-// 		//     if (!(file instanceof TFile)) {
-// 		//         continue
-// 		//     }
-// 		//     var noteChildren: string[] = await getAllChildrenOfFile(
-// 		//         file, app, isFirstTagLineParentWhenEmpty, parentTags
-// 		//     )
-// 		//     noteChildren.forEach(nc => {
-// 		//         if (!(allNotes.contains(nc))) {
-// 		//             if (nc.endsWith(".md")) {
-// 		//                 allNotes.push(nc)
-// 		//                 notesQueue.push(nc)
-// 		//             }
-// 		//         }
-// 		//     })
-// 		// }
-// 		// return allNotes
-// 	}
-// 	chain: Chain
-
-// 	constructor(chain: Chain) {
-// 		this.chain = chain
-// 	}
-
-// 	private oneSeedGo(app: App, seed: TFile): Promise<TFile[]> {
-// 		var allNotes: string[] = []
-// 		var notesQueue: string[] = []
-// 		const absPath = seed.path
-// 		if (!(allNotes.contains(absPath))) {
-// 			if (seed.extension != "md") continue
-// 			allNotes.push(absPath)
-// 			notesQueue.push(absPath)
-// 		}
-// 		for (const chain_step of this.chain.chainSteps) {
-// 			const rule = chain_step.rule.getRule()
-// 			const connections = chain_step.connections
-// 			const nextCandidates = []
-// 			for (const connection of connections) {
-// 				connection.get_connected(app,)
-// 			}
-
-// 		}
-
-// 	}
-// }
+	constructor(chain: Chain) {
+		this.chain = chain
+	}
+}
 
 export class StepTraversal implements Traversal {
 	async go(app: App, seed: TFile[]): Promise<TFile[]> {

@@ -49,11 +49,14 @@ export function getForwardFilesFromFrontmatter(app: App, initial: TFile, frontKe
 	if (frontKeys.length === 0) return []
 	const fileCache = app.metadataCache.getFileCache(initial);
 	const frontmatter = fileCache?.frontmatter;
+	// console.log({initial, frontKeys})
 
 	var connectedFiles: TFile[] = []
 	if (frontmatter) {
 		for (const frontMatterKey of frontKeys) {
 			const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
+			// console.log({frontmatterValue})
+			// console.log(frontmatter[frontMatterKey])
 			const newFiles = getFilepaths(frontmatterValue, initial, app)
 			connectedFiles.push(...newFiles)
 		}
@@ -65,16 +68,13 @@ export function getForwardFilesFromFrontmatter(app: App, initial: TFile, frontKe
 export function getBackwardLinks(app: App, initial: TFile): TFile[] {
 	// @ts-ignore
 	const backlinksObj = app.metadataCache.getBacklinksForFile(initial)?.data
-	console.log({ backlinksObj })
+	// console.log({ backlinksObj })
 	if (backlinksObj == undefined) {
-		console.log("aaaaaaaaaaaaaaaaaaaa")
 		return []
 	}
 	const backlinks: string[] = [...backlinksObj.keys()]
 	// var backlinks: string[] = Object.keys(backlinksObj)
-	console.log({ backlinks })
 	const backFiles = backlinks.map(s => app.vault.getAbstractFileByPath(s)).filter(item => item !== null)
-	console.log({ backFiles })
 	return backFiles.filter(item => item instanceof TFile)
 }
 
@@ -82,16 +82,17 @@ export function getBackwardFilesFromFronmatter(app: App, initial: TFile, frontKe
 	if (frontKeys.length === 0) return []
 	// смотрим все "обратные" файлы и оставляем те, у которых есть ссылка на initial (через фронтматтер)
 	const backwardLinks = getBackwardLinks(app, initial)
-	console.log({ backwardLinks })
-	return backwardLinks.filter((t) =>
+	const goodBackLinks = backwardLinks.filter((t) =>
 		hasThisFileForwardLink(app, t, initial, frontKeys)
 	)
-	// return []
+	// console.log({ backwardLinks, goodBackLinks })
+	return goodBackLinks
 }
 
 function hasThisFileForwardLink(app: App, source: TFile, dest: TFile, frontKeys: string[]): boolean {
 	const allDestFiles = getForwardFilesFromFrontmatter(app, source, frontKeys)
 	// сравниваем по пути (или по другой уникальной метке, если используете другую)
+	// console.log({allDestFiles})
 	return allDestFiles.map((f) => f.path).includes(dest.path)
 
 }

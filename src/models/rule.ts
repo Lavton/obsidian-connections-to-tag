@@ -6,11 +6,11 @@ export interface RuleFactory {
 
 export interface Rule {
 	needToGo(): boolean
-	go(): void
-	// entities: Array<Entity>
-	// needToGo(entity: Entity): boolean 
+	go(): Rule
 }
 
+	// entities: Array<Entity>
+	// needToGo(entity: Entity): boolean 
 // export interface RuleChain {
 // 	rules: Rule[];
 // }
@@ -20,8 +20,8 @@ export class RuleToTheEnd implements Rule {
     needToGo(): boolean {
 		return true
     }
-    go() {
-		// pass
+    go(): RuleToTheEnd {
+		return this
     }
 }
 export class FactoryRuleToTheEnd implements RuleFactory {
@@ -34,8 +34,8 @@ export class RuleProbability implements Rule {
     needToGo(): boolean {
 		return Math.random() < this.probability;
     }
-    go(): void {
-		// pass
+    go(): RuleProbability {
+		return this 
     }
 	probability: number 
 	constructor(probability: number) {
@@ -56,8 +56,8 @@ export class RuleNSteps implements Rule {
     needToGo(): boolean {
 		return this.steps_left > 0
     }
-    go(): void {
-		this.steps_left -= 1 
+    go(): RuleNSteps {
+		return new RuleNSteps(this.steps_left-1)
     }
 
 	steps_left: number 

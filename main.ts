@@ -6,8 +6,9 @@ import { findAllSubtree } from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
 import { YamlConnectionTag } from 'src/models/connections';
-import { ChainTraversal } from 'src/service/chain_traversal';
+import { StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
+import type { Chain, ChainStep } from 'src/models/chain';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
@@ -26,7 +27,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (initialFile == null) {
 					return
 				}
-				const traversal = new ChainTraversal(getDefaultChain())
+				const chain: Chain = getDefaultChain()
+				const firstStep: ChainStep = chain.chainSteps[0]
+				const traversal = new StepTraversal(firstStep)
 				const res = await traversal.go(this.app, [initialFile])
 				console.log({res})
 				// const parentYaml = new YamlConnectionTag([], ["parents"])

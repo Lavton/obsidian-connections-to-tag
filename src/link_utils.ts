@@ -28,8 +28,12 @@ export function extractLinksFromFrontmatter(frontmatter: any): string[] {
 	}
 
 	// Process all frontmatter properties
-	Object.values(frontmatter).forEach(value => processValue(value));
-
+	// const value = Object.values(frontmatter)
+	const value = frontmatter
+	processValue(value);
+	// Object.values(frontmatter).forEach(value => processValue(value));
+	// console.log({frontmatter, links, value})
+	// console.log("try to extract", frontmatter, "got", links)
 	return Array.from(links);
 }
 

@@ -15,6 +15,13 @@ export interface ConnectionsToTagSettings {
     isFirstTagLineParentWhenEmpty: boolean
 }
 
+export const NEW_DEFAULT_SETTINGS = {
+	resultTag: "#to_focus_on",
+	resultFolder: "base/focusNotes/",
+	addTag: true,
+	moveToFolder: true,
+}
+
 export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
     workingTag: "#to_focus_on",
 	resultsSettings: {

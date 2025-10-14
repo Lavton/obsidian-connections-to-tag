@@ -1,5 +1,6 @@
 import { TFile, App } from "obsidian";
 
+// deprecate
 export async function tagData(app: App, file: TFile, tag: string): Promise<string[] | null> {
     if (!(file.path.endsWith(".md"))) {
         return null
@@ -42,7 +43,7 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
         // }
         // return linesWithTag.join(", ").split(",").map(l => l.trim()) // TODO: тут не обработаются заметки с ',' в названии!
     }
-    return null
+    // return null
 }
 
 function getTagOnWholeFile(file: TFile, app: App, lineIndex: number): string[] {

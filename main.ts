@@ -9,6 +9,7 @@ import { YamlConnectionTag } from 'src/models/connections';
 import { StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
+import { addTagToFileIfNeeded, removeTagFromFileIfNeeded } from 'src/tagsUtils';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
@@ -31,19 +32,12 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				const firstStep: ChainStep = chain.chainSteps[0]
 				const traversal = new StepTraversal(firstStep)
 				const res = await traversal.go(this.app, [initialFile])
+			
 				console.log({res})
-				// const parentYaml = new YamlConnectionTag([], ["parents"])
-				// const nextYaml = new YamlConnectionTag(["next"], [])
-
-				// // "go through parents backward (=on children) to the end"
-				// // "go 'next' forward max 10 steps"
-				// // "go 'base' backward with probability 0.2
-
-				// console.log("aaa", parentYaml, nextYaml)
-				// const testForw = getForwardFilesFromFrontmatter(this.app, initialFile, ["prev"])
-				// const testBack = getBackwardFilesFromFronmatter(this.app, initialFile, ["parents"])
-				// console.log({testForw, testBack})
-				// console.log(initialFile);
+				for (const f of res) {
+					// addTagToFileIfNeeded(this.app, f, "#hello")
+					removeTagFromFileIfNeeded(this.app, f, "#hello")
+				}
 			}
 
 		})

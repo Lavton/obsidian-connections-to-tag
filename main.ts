@@ -10,6 +10,7 @@ import { StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
 import { addTagToFileIfNeeded, removeTagFromFileIfNeeded } from 'src/tagsUtils';
+import { moveFileAndAddMeta, moveFileAndRemoveMeta } from 'src/folderUtils';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
 	settings: settings.ConnectionsToTagSettings;
@@ -35,8 +36,10 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			
 				console.log({res})
 				for (const f of res) {
-					addTagToFileIfNeeded(this.app, f, "hello")
-					// removeTagFromFileIfNeeded(this.app, f, "hello")
+					// addTagToFileIfNeeded(this.app, f, "hello")
+					// moveFileAndAddMeta(this.app, f, "moved", "focuseOn")
+					removeTagFromFileIfNeeded(this.app, f, "hello")
+					moveFileAndRemoveMeta(this.app, f, "focuseOn")
 				}
 			}
 

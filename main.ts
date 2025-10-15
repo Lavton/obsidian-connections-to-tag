@@ -35,8 +35,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			
 				console.log({res})
 				for (const f of res) {
-					// addTagToFileIfNeeded(this.app, f, "#hello")
-					removeTagFromFileIfNeeded(this.app, f, "#hello")
+					addTagToFileIfNeeded(this.app, f, "hello")
+					// removeTagFromFileIfNeeded(this.app, f, "hello")
 				}
 			}
 

@@ -64,7 +64,6 @@ export class StepTraversal implements Traversal {
 				// console.log({c, connection})
 				
 			}
-			console.log({filesToLookAt})
 			for (const file of filesToLookAt) {
 				if (file.extension != "md") continue
 		        if (allNotes.contains(file.path)) continue

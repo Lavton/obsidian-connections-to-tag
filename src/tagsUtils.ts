@@ -5,17 +5,17 @@ import { TFile, App, getAllTags } from "obsidian";
 
 export async function addTagToFileIfNeeded(app: App, file: TFile, tag: string) {
 	if (tag.startsWith("#")) {
-		addTagToFileText(app, file, tag)
+		await addTagToFileText(app, file, tag)
 	} else {
-		addTagToFileFronmatter(app, file, tag)
+		await addTagToFileFronmatter(app, file, tag)
 	}
 }
 
 export async function removeTagFromFileIfNeeded(app: App, file: TFile, tag: string) {
 	if (tag.startsWith("#")) {
-		removeTagFromFileText(app, file, tag)
+		await removeTagFromFileText(app, file, tag)
 	} else {
-		removeTagFromFileFrontmatter(app, file, tag)
+		await removeTagFromFileFrontmatter(app, file, tag)
 	}
 }
 
@@ -95,10 +95,8 @@ function isTagInFile(app: App, file: TFile, tag: string): boolean {
 	const allTagsInFile = getAllTags(fileCache);
 	console.log({allTagsInFile})
 	if (allTagsInFile && allTagsInFile.includes(tag)) {
-		console.log("YYYYYYYYYYYYYYYYYYYYYYYYY")
 		return true;
 	}
-	console.log("NNNNNNNNNNNNNNNNNN")
 	return false
 }
 

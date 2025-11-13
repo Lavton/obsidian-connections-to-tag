@@ -7,6 +7,11 @@ export interface ResultsSettings {
 	// reverseFrontmatter: string;
 }
 
+export enum MarkNoteMode {
+	ADD_TAG,
+	MOVE_TO_FOLDER
+}
+
 export interface ConnectionsToTagSettings {
     workingTag: string, // deprecated
 	resultsSettings: ResultsSettings,
@@ -16,10 +21,14 @@ export interface ConnectionsToTagSettings {
 }
 
 export const NEW_DEFAULT_SETTINGS = {
-	resultTag: "#to_focus_on",
-	resultFolder: "base/focusNotes/",
-	addTag: true,
-	moveToFolder: true,
+	resultTag: "to_focus_on",
+	resultFolder: "focusNotes/",
+	movedNameFrontmatter: "moved_from",
+	markNoteModes: [
+		MarkNoteMode.ADD_TAG,
+		MarkNoteMode.MOVE_TO_FOLDER
+	],
+	dangerConnectionsFolder: "focus_connection_code/"
 }
 
 export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {

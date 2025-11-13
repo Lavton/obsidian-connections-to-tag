@@ -22,54 +22,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));
-		this.addCommand({
-			id: 'implement-chain',
-			name: 'Apply rule chain starts with this file',
-			editorCallback: async (editor: Editor, view: MarkdownView) => {
-				var initialFile = view.file
-				if (initialFile == null) {
-					return
-				}
-				const chain: Chain = getDefaultChain()
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
-				const markModes = current_settings.markNoteModes
-				const traversal = new ChainTraversal(chain)
+		this.updateCommandSettingDependend()
 
-				const derivativeNotes = await traversal.go(this.app, [initialFile])
-				for (const f of derivativeNotes) {
-					if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
-						await addTagToFileIfNeeded(this.app, f, current_settings.resultTag)
-					}
-					if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
-						await moveFileToAndAddMeta(this.app, f, current_settings.resultFolder, current_settings.movedNameFrontmatter)
-					}
-				}
-			}
-		})
-		this.addCommand({
-			id: 'reverse-chain',
-			name: 'Rollback rule chain starts with this file',
-			editorCallback: async (editor: Editor, view: MarkdownView) => {
-				var initialFile = view.file
-				if (initialFile == null) {
-					return
-				}
-				const chain: Chain = getDefaultChain()
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
-				const markModes = current_settings.markNoteModes
-				const traversal = new ChainTraversal(chain)
-
-				const derivativeNotes = await traversal.go(this.app, [initialFile])
-				for (const f of derivativeNotes) {
-					if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
-						await removeTagFromFileIfNeeded(this.app, f, current_settings.resultTag)
-					}
-					if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
-						await moveFileFromAndRemoveMeta(this.app, f, current_settings.movedNameFrontmatter)
-					}
-				}
-			}
-		})
 		// this.addCommand({
 		// 	id: 'implement-rule',
 		// 	name: 'Do tree',
@@ -171,6 +125,73 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+	public updateCommandSettingDependend() {
+		const current_settings = settings.NEW_DEFAULT_SETTINGS
+		const markModes = current_settings.markNoteModes
+		let apply_name: string;
+		let rollback_name: string;
+		if (markModes.contains(settings.MarkNoteMode.ADD_TAG) && (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) ){
+			apply_name = "add tag and move to folder"
+			rollback_name = "remove tag and return to original directory"
+		} else if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
+			apply_name = "add tag"
+			rollback_name = "remove tag"
+		} else if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
+			apply_name = "move to folder"
+			rollback_name = "return to original directory"
+		} else {
+			apply_name = ""
+			rollback_name = ""
+		}
+		this.addCommand({
+			id: 'implement-chain',
+			name: 'Apply rule chain starts with this file: ' + apply_name,
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
+				var initialFile = view.file
+				if (initialFile == null) {
+					return
+				}
+				const chain: Chain = getDefaultChain()
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const markModes = current_settings.markNoteModes
+				const traversal = new ChainTraversal(chain)
+
+				const derivativeNotes = await traversal.go(this.app, [initialFile])
+				for (const f of derivativeNotes) {
+					if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
+						await addTagToFileIfNeeded(this.app, f, current_settings.resultTag)
+					}
+					if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
+						await moveFileToAndAddMeta(this.app, f, current_settings.resultFolder, current_settings.movedNameFrontmatter)
+					}
+				}
+			}
+		})
+		this.addCommand({
+			id: 'reverse-chain',
+			name: 'Rollback rule chain starts with this file: '+ rollback_name,
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
+				var initialFile = view.file
+				if (initialFile == null) {
+					return
+				}
+				const chain: Chain = getDefaultChain()
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const markModes = current_settings.markNoteModes
+				const traversal = new ChainTraversal(chain)
+
+				const derivativeNotes = await traversal.go(this.app, [initialFile])
+				for (const f of derivativeNotes) {
+					if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
+						await removeTagFromFileIfNeeded(this.app, f, current_settings.resultTag)
+					}
+					if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
+						await moveFileFromAndRemoveMeta(this.app, f, current_settings.movedNameFrontmatter)
+					}
+				}
+			}
+		})
 	}
 }
 

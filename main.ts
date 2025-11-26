@@ -1,4 +1,4 @@
-import { App, Editor, getLinkpath, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, getLinkpath, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 import * as settings from 'src/settings/settings'
 import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
@@ -9,8 +9,8 @@ import { YamlConnectionTag } from 'src/models/connections';
 import { ChainTraversal, StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
-import { addTagToFileIfNeeded, removeTagFromFileIfNeeded } from 'src/tagsUtils';
-import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta } from 'src/folderUtils';
+import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
+import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile } from 'src/folderUtils';
 
 
 
@@ -104,14 +104,30 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		// 		districtFiles.forEach(async (fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
 		// 	}
 		// })
-		// this.addCommand({
-		// 	id: 'total-remove-hashtag',
-		// 	name: 'Totally remove the hashtag from tree',
-		// 	callback: () => {
-		// 		var districtFiles: string[] = utils.getAllFilesWithTag(this.app, this.settings.workingTag)
-		// 		districtFiles.forEach(async (fp) => removeTagFromFile(this.app, fp, this.settings.workingTag)) // async!
-		// 	}
-		// })
+		this.addCommand({
+			id: 'total-remove-hashtag',
+			name: 'Totally remove the tag from vault',
+			callback: async () => {
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
+
+				console.log(districtFiles.length)
+				districtFiles.forEach(async (fp) => 
+						await removeTagFromFileIfNeeded(this.app, fp, current_settings.resultTag)
+									 ) // async!
+			}
+		})
+		this.addCommand({
+			id: 'total-move-back-files',
+			name: "Move all files back to original",
+			callback: async() => {
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
+
+				console.log(districtFiles.length)
+				districtFiles.forEach(async (fp) => await moveFileFromAndRemoveMeta(this.app, fp, current_settings.movedNameFrontmatter))
+			}
+		})
 
 	}
 
@@ -190,6 +206,17 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 						await moveFileFromAndRemoveMeta(this.app, f, current_settings.movedNameFrontmatter)
 					}
 				}
+			}
+		})
+		this.addCommand({
+			id: 'total-remove-from-front',
+			name: `Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
+			callback: async() => {
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
+
+				console.log(districtFiles.length)
+				districtFiles.forEach(async (fp) => await removeMetaFromFile(this.app, fp, current_settings.movedNameFrontmatter))
 			}
 		})
 	}

@@ -41,13 +41,29 @@ export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTa
 		// new Notice(`cant move ${filename}\nback to ${originalDist}. \nMaybe original folder was deleted?`)
 	}
 }
-
-export async function removeMeta(app: App, filename: string, reverseTag: string) {
-	var file = app.vault.getAbstractFileByPath(filename)
-	if (!(file instanceof TFile)) {
+export async function removeMetaFromFile(app: App, file: TFile, reverseTag: string) {
+	var frontmatter = app.metadataCache.getFileCache(file)?.frontmatter
+	if (frontmatter == null) {
+		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return
 	}
-	app.fileManager.processFrontMatter(file, (frontmatter) => {
+	await app.fileManager.processFrontMatter(file, (frontmatter) => {
 		delete frontmatter[reverseTag]
 	})
+}
+
+
+function isFrontmatterInFile(app: App, file: TFile, frontmatter: string): boolean {
+	const fileCache = app.metadataCache.getFileCache(file);
+	if (fileCache == null) return false
+	return fileCache.frontmatter?.[frontmatter] !== undefined;
+}
+
+export function getAllFilesWithFrontmatter(app: App, frontmatter: string): TFile[] {
+	const files: TFile[] = this.app.vault.getMarkdownFiles();
+	return files
+		.filter(f => f instanceof TFile)
+		.filter(f =>
+			isFrontmatterInFile(app, f, frontmatter)
+		)
 }

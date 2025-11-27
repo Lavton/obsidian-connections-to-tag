@@ -67,3 +67,20 @@ export function getAllFilesWithFrontmatter(app: App, frontmatter: string): TFile
 			isFrontmatterInFile(app, f, frontmatter)
 		)
 }
+
+export function toCanonicalDir(dirPath: string): string {
+	return dirPath.endsWith("/") ? dirPath : (dirPath + "/")
+}
+function isFileIsChild(file: TFile, parentPath: string): boolean {
+	return file.path.startsWith(toCanonicalDir(parentPath))
+}
+
+export function getAllFilesInFolderWithFrontmatter(app: App, folder: string, frontmatter: string): TFile[] {
+	const files: TFile[] = this.app.vault.getMarkdownFiles();
+	return files
+		.filter(f => f instanceof TFile)
+		.filter(f => isFileIsChild(f, folder))
+		.filter(f =>
+			isFrontmatterInFile(app, f, frontmatter)
+		)
+}

@@ -1,4 +1,4 @@
-import { App, Editor, getLinkpath, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { App, Editor, getLinkpath, MarkdownView, Menu, MenuItem, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
 import * as settings from 'src/settings/settings'
 import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
@@ -12,6 +12,7 @@ import type { Chain, ChainStep } from 'src/models/chain';
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
 import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile } from 'src/folderUtils';
 
+import * as menuItems from 'src/menuItems'
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
@@ -128,6 +129,20 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				districtFiles.forEach(async (fp) => await moveFileFromAndRemoveMeta(this.app, fp, current_settings.movedNameFrontmatter))
 			}
 		})
+		this.registerEvent(
+			this.app.workspace.on("file-menu", (menu: Menu, file) => {
+				const normalizePath = (path: string): string => path.replace(/\/+$/, '');
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				if (file  instanceof TFolder) {
+					if (normalizePath(file.path) === normalizePath(current_settings.resultFolder)) {
+						menu.addItem((item) => menuItems.moveBackFromFolder(item, current_settings.resultFolder, current_settings.movedNameFrontmatter, this.app))
+					}
+
+				}
+						// menu.addItem((item) => menuItems.pureRemovingFromIgnoreList(item, dirpath, ignoreList, this.app));
+
+			})
+		)
 
 	}
 

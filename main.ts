@@ -10,7 +10,7 @@ import { ChainTraversal, StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
-import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile } from 'src/folderUtils';
+import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile, getAllFilesInFolderWithFrontmatter, getAllFilesInFolder } from 'src/folderUtils';
 
 import * as menuItems from 'src/menuItems'
 
@@ -113,15 +113,15 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
 
 				console.log(districtFiles.length)
-				districtFiles.forEach(async (fp) => 
-						await removeTagFromFileIfNeeded(this.app, fp, current_settings.resultTag)
-									 ) // async!
+				districtFiles.forEach(async (fp) =>
+					await removeTagFromFileIfNeeded(this.app, fp, current_settings.resultTag)
+				) // async!
 			}
 		})
 		this.addCommand({
 			id: 'total-move-back-files',
 			name: "Move all files back to original",
-			callback: async() => {
+			callback: async () => {
 				const current_settings = settings.NEW_DEFAULT_SETTINGS
 				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
 
@@ -133,13 +133,13 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
 				const normalizePath = (path: string): string => path.replace(/\/+$/, '');
 				const current_settings = settings.NEW_DEFAULT_SETTINGS
-				if (file  instanceof TFolder) {
+				if (file instanceof TFolder) {
 					if (normalizePath(file.path) === normalizePath(current_settings.resultFolder)) {
 						menu.addItem((item) => menuItems.moveBackFromFolder(item, current_settings.resultFolder, current_settings.movedNameFrontmatter, this.app))
 					}
 
 				}
-						// menu.addItem((item) => menuItems.pureRemovingFromIgnoreList(item, dirpath, ignoreList, this.app));
+				// menu.addItem((item) => menuItems.pureRemovingFromIgnoreList(item, dirpath, ignoreList, this.app));
 
 			})
 		)
@@ -162,7 +162,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		const markModes = current_settings.markNoteModes
 		let apply_name: string;
 		let rollback_name: string;
-		if (markModes.contains(settings.MarkNoteMode.ADD_TAG) && (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) ){
+		if (markModes.contains(settings.MarkNoteMode.ADD_TAG) && (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER))) {
 			apply_name = "add tag and move to folder"
 			rollback_name = "remove tag and return to original directory"
 		} else if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
@@ -201,7 +201,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		})
 		this.addCommand({
 			id: 'reverse-chain',
-			name: 'Rollback rule chain starts with this file: '+ rollback_name,
+			name: 'Rollback rule chain starts with this file: ' + rollback_name,
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				var initialFile = view.file
 				if (initialFile == null) {
@@ -226,12 +226,39 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.addCommand({
 			id: 'total-remove-from-front',
 			name: `Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
-			callback: async() => {
+			callback: async () => {
 				const current_settings = settings.NEW_DEFAULT_SETTINGS
 				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
 
 				console.log(districtFiles.length)
 				districtFiles.forEach(async (fp) => await removeMetaFromFile(this.app, fp, current_settings.movedNameFrontmatter))
+			}
+		})
+
+		this.addCommand({
+			id: 'move-the-tag-to-folder',
+			name: `Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
+			callback: async () => {
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
+
+				console.log(districtFiles.length)
+				districtFiles.forEach(async (fp) =>
+					await moveFileToAndAddMeta(this.app, fp, current_settings.resultFolder, current_settings.movedNameFrontmatter)
+				) // async!
+			}
+		})
+		this.addCommand({
+			id: 'add-tag-to-the-folder',
+			name: `Add for in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
+			callback: async () => {
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				var districtFiles: TFile[] = getAllFilesInFolder(this.app, current_settings.resultFolder)
+
+				console.log(districtFiles.length)
+				districtFiles.forEach(async (fp) =>
+					await addTagToFileIfNeeded(this.app, fp, current_settings.resultTag)
+				) // async!
 			}
 		})
 	}

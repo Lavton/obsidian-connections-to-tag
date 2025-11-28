@@ -26,7 +26,7 @@ export const NEW_DEFAULT_SETTINGS = {
 	movedNameFrontmatter: "moved_from",
 	markNoteModes: [
 		MarkNoteMode.ADD_TAG,
-		MarkNoteMode.MOVE_TO_FOLDER
+		// MarkNoteMode.MOVE_TO_FOLDER
 	],
 	dangerConnectionsFolder: "focus_connection_code/"
 }

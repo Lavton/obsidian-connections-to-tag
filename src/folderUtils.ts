@@ -76,11 +76,17 @@ function isFileIsChild(file: TFile, parentPath: string): boolean {
 }
 
 export function getAllFilesInFolderWithFrontmatter(app: App, folder: string, frontmatter: string): TFile[] {
-	const files: TFile[] = this.app.vault.getMarkdownFiles();
+	const files: TFile[] = app.vault.getMarkdownFiles();
 	return files
 		.filter(f => f instanceof TFile)
 		.filter(f => isFileIsChild(f, folder))
 		.filter(f =>
 			isFrontmatterInFile(app, f, frontmatter)
 		)
+}
+export function getAllFilesInFolder(app: App, folder: string): TFile[] {
+	const files: TFile[] = app.vault.getMarkdownFiles();
+	return files
+		.filter(f => f instanceof TFile)
+		.filter(f => isFileIsChild(f, folder))
 }

@@ -143,7 +143,134 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 			})
 		)
+		// Команда 1: Сохранить текущие фильтры и установить #focus_on
+		this.addCommand({
+			id: 'focus-graph',
+			name: 'Filter graph view to show only selected files',
+			callback: async () => {
+				const graphOptions = this.getGraphOptions()
+				if (!graphOptions) {
+					new Notice("graph view is unavaliable")
+					return;
+				}
+				this.settings.savedFilters = graphOptions.search;
 
+				await this.saveSettings();
+				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const markModes = current_settings.markNoteModes
+				if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
+					graphOptions.search = `tag:${current_settings.resultTag}`
+				} else if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
+					graphOptions.search = `path:${current_settings.resultFolder}`
+				}
+				console.log({ graphOptions })
+				// todo: reload!
+				if (!this.checkGraphPlugin()) return;
+
+
+				const graphLeaf = this.getGraphLeaf();
+				if (!graphLeaf) {
+					// 	new Notice('Open graph view firstly');
+					return;
+				}
+
+				// // Получаем текущую конфигурацию
+				const graphView = (graphLeaf.view as any);
+				const currentFilters = graphView.dataEngine?.options;
+
+				if (!currentFilters) {
+					// 	new Notice('Can\'t get current settings');
+					return;
+				}
+
+				// // Сохраняем текущие фильтры
+				const newFilters = {
+					...currentFilters,
+					search: graphOptions.search
+				};
+				// console.log({currentFilters}, currentFilters.search, graphView)
+				// this.settings.savedFilters = JSON.parse(JSON.stringify(currentFilters));
+
+				// await this.saveSettings();
+
+				// // Устанавливаем новые фильтры (показывать только #focus_on)
+				// const newFilters = {
+				// 	...currentFilters,
+				// 	search: 'tag:#focus_on'
+				// };
+
+				graphView.dataEngine.setOptions(newFilters);
+				// // graphView.renderer.onGraphChanged();
+
+				// new Notice('Фильтры сохранены, показываются заметки с #focus_on');
+			}
+		});
+
+		// Команда 2: Восстановить сохранённые фильтры
+		// this.addCommand({
+		// 	id: 'restore-graph-filters',
+		// 	name: 'Restore previous graph filters',
+		// 	callback: async () => {
+		// 		const graphOptions = this.getGraphOptions()
+		// 		if (!graphOptions) {
+		// 			new Notice("graph view is unavaliable")
+		// 			return;
+		// 		}
+		// 		graphOptions.search = this.settings.savedFilters;
+		// 		// this.settings.savedFilters = graphOptions.search;
+		// 		// if (!this.checkGraphPlugin()) return;
+
+		// 		// if (!this.settings.savedFilters) {
+		// 		// 	new Notice('Нет сохранённых фильтров');
+		// 		// 	return;
+		// 		// }
+
+		// 		// const graphLeaf = this.getGraphLeaf();
+		// 		// if (!graphLeaf) {
+		// 		// 	new Notice('График не открыт');
+		// 		// 	return;
+		// 		// }
+
+		// 		// const graphView = (graphLeaf.view as any);
+
+		// 		// // Восстанавливаем сохранённые фильтры
+
+		// 		// graphView.dataEngine.setOptions(this.settings.savedFilters);
+		// 		// // graphView.renderer.onGraphChanged();
+
+		// 		// new Notice('Фильтры графа восстановлены');
+		// 	}
+		// });
+
+	}
+	getGraphOptions(): any {
+		// @ts-ignore
+		const internal = this.app.internalPlugins
+		const graph = internal?.plugins?.graph?.instance;
+		const options = graph?.options
+		return options
+	}
+	// Проверка доступности core-плагина "Граф"
+	checkGraphPlugin(): boolean {
+		const graphPlugin = (this.app as any).internalPlugins?.plugins?.graph;
+
+		if (!graphPlugin) {
+			new Notice('Core-плагин "Граф" не найден');
+			return false;
+		}
+
+		if (!graphPlugin.enabled) {
+			new Notice('Core-плагин "Граф" отключён. Включите его в настройках.');
+			return false;
+		}
+
+		return true;
+	}
+
+	// Получить открытый граф
+	getGraphLeaf() {
+		const leaves = this.app.workspace.getLeavesOfType('graph');
+		return leaves.length > 0 ? leaves[0] : null;
 	}
 
 	onunload() {

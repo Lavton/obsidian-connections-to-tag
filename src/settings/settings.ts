@@ -2,6 +2,7 @@ import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
 export interface ResultsSettings {
 	workingTag: string;
+	savedFilters: any;
 	// goalFolder: string,
 	// autoAddToFolder: boolean; 
 	// reverseFrontmatter: string;
@@ -17,7 +18,8 @@ export interface ConnectionsToTagSettings {
 	resultsSettings: ResultsSettings,
     parentsTag: string[],
     aroundNumber: number,
-    isFirstTagLineParentWhenEmpty: boolean
+    isFirstTagLineParentWhenEmpty: boolean,
+	savedFilters: any;
 }
 
 export const NEW_DEFAULT_SETTINGS = {
@@ -28,7 +30,8 @@ export const NEW_DEFAULT_SETTINGS = {
 		MarkNoteMode.ADD_TAG,
 		// MarkNoteMode.MOVE_TO_FOLDER
 	],
-	dangerConnectionsFolder: "focus_connection_code/"
+	dangerConnectionsFolder: "focus_connection_code/",
+	savedFilters: []
 }
 
 export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {

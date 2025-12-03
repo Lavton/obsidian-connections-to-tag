@@ -163,85 +163,30 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				} else if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
 					graphOptions.search = `path:${current_settings.resultFolder}`
 				}
-				console.log({ graphOptions })
-				// todo: reload!
 				if (!this.checkGraphPlugin()) return;
 
 
 				const graphLeaf = this.getGraphLeaf();
 				if (!graphLeaf) {
-					// 	new Notice('Open graph view firstly');
 					return;
 				}
 
-				// // Получаем текущую конфигурацию
+				// Получаем текущую конфигурацию
 				const graphView = (graphLeaf.view as any);
 				const currentFilters = graphView.dataEngine?.options;
 
 				if (!currentFilters) {
-					// 	new Notice('Can\'t get current settings');
 					return;
 				}
 
-				// // Сохраняем текущие фильтры
+				// Сохраняем текущие фильтры
 				const newFilters = {
 					...currentFilters,
 					search: graphOptions.search
 				};
-				// console.log({currentFilters}, currentFilters.search, graphView)
-				// this.settings.savedFilters = JSON.parse(JSON.stringify(currentFilters));
-
-				// await this.saveSettings();
-
-				// // Устанавливаем новые фильтры (показывать только #focus_on)
-				// const newFilters = {
-				// 	...currentFilters,
-				// 	search: 'tag:#focus_on'
-				// };
-
 				graphView.dataEngine.setOptions(newFilters);
-				// // graphView.renderer.onGraphChanged();
-
-				// new Notice('Фильтры сохранены, показываются заметки с #focus_on');
 			}
 		});
-
-		// Команда 2: Восстановить сохранённые фильтры
-		// this.addCommand({
-		// 	id: 'restore-graph-filters',
-		// 	name: 'Restore previous graph filters',
-		// 	callback: async () => {
-		// 		const graphOptions = this.getGraphOptions()
-		// 		if (!graphOptions) {
-		// 			new Notice("graph view is unavaliable")
-		// 			return;
-		// 		}
-		// 		graphOptions.search = this.settings.savedFilters;
-		// 		// this.settings.savedFilters = graphOptions.search;
-		// 		// if (!this.checkGraphPlugin()) return;
-
-		// 		// if (!this.settings.savedFilters) {
-		// 		// 	new Notice('Нет сохранённых фильтров');
-		// 		// 	return;
-		// 		// }
-
-		// 		// const graphLeaf = this.getGraphLeaf();
-		// 		// if (!graphLeaf) {
-		// 		// 	new Notice('График не открыт');
-		// 		// 	return;
-		// 		// }
-
-		// 		// const graphView = (graphLeaf.view as any);
-
-		// 		// // Восстанавливаем сохранённые фильтры
-
-		// 		// graphView.dataEngine.setOptions(this.settings.savedFilters);
-		// 		// // graphView.renderer.onGraphChanged();
-
-		// 		// new Notice('Фильтры графа восстановлены');
-		// 	}
-		// });
-
 	}
 	getGraphOptions(): any {
 		// @ts-ignore

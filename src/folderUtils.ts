@@ -1,4 +1,4 @@
-import { TFile, type App } from "obsidian"
+import { TFile, TFolder, Vault, type App } from "obsidian"
 
 export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory: string, reverseTag: string) {
 	const distDir = distDirectory.endsWith("/") ? distDirectory : (distDirectory + "/")
@@ -89,4 +89,16 @@ export function getAllFilesInFolder(app: App, folder: string): TFile[] {
 	return files
 		.filter(f => f instanceof TFile)
 		.filter(f => isFileIsChild(f, folder))
+}
+
+export function getAllMarkdownFiles(folder: TFolder): TFile[] {
+    const mdFiles: TFile[] = [];
+    
+    Vault.recurseChildren(folder, (file) => {
+        if (file instanceof TFile && file.extension === 'md') {
+            mdFiles.push(file);
+        }
+    });
+    
+    return mdFiles;
 }

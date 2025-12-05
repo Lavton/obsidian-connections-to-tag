@@ -13,14 +13,21 @@ export enum MarkNoteMode {
 	MOVE_TO_FOLDER
 }
 
+export interface FocusMakerSettings {
+	resultTag: string
+	resultFolder: string
+	movedNameFrontmatter: string
+	markNoteModes: MarkNoteMode[]
+}
+
 export interface ConnectionsToTagSettings {
     workingTag: string, // deprecated
 	resultsSettings: ResultsSettings,
     parentsTag: string[],
     aroundNumber: number,
     isFirstTagLineParentWhenEmpty: boolean,
-	savedFilters: any;
 }
+
 
 export const NEW_DEFAULT_SETTINGS = {
 	resultTag: "to_focus_on",
@@ -28,10 +35,18 @@ export const NEW_DEFAULT_SETTINGS = {
 	movedNameFrontmatter: "moved_from",
 	markNoteModes: [
 		MarkNoteMode.ADD_TAG,
-		// MarkNoteMode.MOVE_TO_FOLDER
+		MarkNoteMode.MOVE_TO_FOLDER
 	],
 	dangerConnectionsFolder: "focus_connection_code/",
-	savedFilters: []
+	savedFilters: [],
+	getInterfaceFields(): FocusMakerSettings {
+		return {
+			resultTag: this.resultTag,
+			resultFolder: this.resultFolder,
+			movedNameFrontmatter: this.movedNameFrontmatter,
+			markNoteModes: this.markNoteModes,
+		}
+	}
 }
 
 export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
@@ -41,7 +56,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 	},
     parentsTag: ["parents"],
     aroundNumber: 0,
-    isFirstTagLineParentWhenEmpty: true
+    isFirstTagLineParentWhenEmpty: true,
 }
 
 

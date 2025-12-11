@@ -59,7 +59,7 @@ export class StepTraversal implements Traversal {
 			if (currentFile == undefined || currentRule == undefined) continue
 			const filesToLookAt: TFile[] = []
 			for (const connection of connections) {
-				const c = connection.get_connected(app, currentFile)
+				const c = await connection.get_connected(app, currentFile)
 				filesToLookAt.push(...c)
 				// console.log({c, connection})
 				

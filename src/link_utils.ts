@@ -1,39 +1,36 @@
 
 import { App, TFile } from "obsidian";
 
-
+export function extractLinksFromString(text: string): string[] {
+	const links: string[] = [];
+	const linkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+	
+	let match;
+	while ((match = linkRegex.exec(text)) !== null) {
+		links.push(match[1].trim());
+	}
+	
+	return links;
+}
 export function extractLinksFromFrontmatter(frontmatter: any): string[] {
 	if (!frontmatter) {
-		return []
+		return [];
 	}
+	
 	const links: Set<string> = new Set();
-
-	// Regular expression to match [[link]] and [[link|text]] patterns
-	const linkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
 
 	function processValue(value: any): void {
 		if (typeof value === 'string') {
-			// Extract links from string
-			let match;
-			while ((match = linkRegex.exec(value)) !== null) {
-				links.add(match[1].trim());
-			}
+			const foundLinks = extractLinksFromString(value);
+			foundLinks.forEach(link => links.add(link));
 		} else if (Array.isArray(value)) {
-			// Process each item in array
 			value.forEach(item => processValue(item));
 		} else if (typeof value === 'object' && value !== null) {
-			// Recursively process object properties
 			Object.values(value).forEach(val => processValue(val));
 		}
 	}
 
-	// Process all frontmatter properties
-	// const value = Object.values(frontmatter)
-	const value = frontmatter
-	processValue(value);
-	// Object.values(frontmatter).forEach(value => processValue(value));
-	// console.log({frontmatter, links, value})
-	// console.log("try to extract", frontmatter, "got", links)
+	processValue(frontmatter);
 	return Array.from(links);
 }
 

@@ -36,6 +36,7 @@ export function getNotePaths(linksCandidates: string[], initfilePath: string, ap
 }
 
 export function getAllFilesWithTag(app: App, tag: string): string[] {
+	// @ts-ignore
 	var fileCollection: string[] = app.metadataCache.getCachedFiles()
 	return fileCollection.filter(f => {
 		var tags = app.metadataCache.getCache(f)?.tags?.map(t => t.tag)
@@ -43,6 +44,31 @@ export function getAllFilesWithTag(app: App, tag: string): string[] {
 	})
 }
 
+export function getFilesInFrontmatter(app: App, source: TFile): Record<string, TFile[]> {
+	const fileCache = app.metadataCache.getFileCache(source);
+	const frontmatter = fileCache?.frontmatter;
+
+	if (!frontmatter) {
+		return {};
+	}
+
+	const result: Record<string, TFile[]> = {};
+
+	for (const [key, value] of Object.entries(frontmatter)) {
+		// Пропускаем служебные ключи Obsidian
+		if (key === 'position') continue;
+
+		const links = extractLinksFromFrontmatter(value);
+		if (links.length === 0) continue;
+
+		const files = getFilepaths(links, source, app);
+		if (files.length > 0) {
+			result[key] = files;
+		}
+	}
+
+	return result;
+}
 
 // get all files that has current frontmatter
 export function getForwardFilesFromFrontmatter(app: App, initial: TFile, frontKeys: string[]): TFile[] {
@@ -78,6 +104,7 @@ export function getBackwardLinks(app: App, initial: TFile): TFile[] {
 	return backFiles.filter(item => item instanceof TFile)
 }
 
+// @deprecated
 export function getBackwardFilesFromFronmatter(app: App, initial: TFile, frontKeys: string[]): TFile[] {
 	if (frontKeys.length === 0) return []
 	// смотрим все "обратные" файлы и оставляем те, у которых есть ссылка на initial (через фронтматтер)
@@ -96,3 +123,4 @@ function hasThisFileForwardLink(app: App, source: TFile, dest: TFile, frontKeys:
 	return allDestFiles.map((f) => f.path).includes(dest.path)
 
 }
+

@@ -3,7 +3,7 @@
 	"name": "Connections to Tag",
 	"version": "0.0.1",
 	"minAppVersion": "1.0.0",
-	"description": "add tag for notes that connected with each other. Works with trees and neibors",
+	"description": "highlights a substructure of notes and allows to focus on them.",
 	"author": "lavton",
 	"authorUrl": "https://github.com/Lavton",
 	"isDesktopOnly": false

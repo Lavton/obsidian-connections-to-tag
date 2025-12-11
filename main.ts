@@ -5,7 +5,7 @@ import * as utils from 'src/utils'
 import { findAllSubtree } from 'src/parentChild'
 import { expandToNeibors } from 'src/neibors';
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
-import { YamlConnectionTag } from 'src/models/connections';
+import * as connections from 'src/models/connections';
 import { ChainTraversal, StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
@@ -25,6 +25,20 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));
 		this.updateCommandSettingDependend()
+		this.addCommand({
+			id: 'test-connection',
+			name: 'Test Connection',
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
+				var initialFile = view.file
+				if (initialFile == null) {
+					return
+				}
+				// const conn = new connections.YamlTagConnection(["topic"])
+				// const conn = new connections.BackwardConnection(new connections.YamlTagConnection(["topic"]))
+				const conn = new connections.AllYamlConnection()
+				console.log(await conn.get_connected(this.app, initialFile))
+			}
+		})
 
 		this.addCommand({
 			id: 'total-remove-hashtag',

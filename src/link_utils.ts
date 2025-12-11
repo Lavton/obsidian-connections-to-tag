@@ -3,20 +3,42 @@ import { App, TFile } from "obsidian";
 
 export function extractLinksFromString(text: string): string[] {
 	const links: string[] = [];
-	const linkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
-	
+
+	// 1. Wikilinks: [[link]] или [[link|alias]]
+	const wikilinkRegex = /\[\[([^\]|#]+)(?:#[^\]|]*)?\|?[^\]]*\]\]/g;
 	let match;
-	while ((match = linkRegex.exec(text)) !== null) {
+	while ((match = wikilinkRegex.exec(text)) !== null) {
 		links.push(match[1].trim());
 	}
-	
-	return links;
+
+	// 2. Markdown links: [text](link)
+	const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+	while ((match = markdownLinkRegex.exec(text)) !== null) {
+		const link = match[2].trim();
+		// Пропускаем внешние URL и якоря
+		if (!link.startsWith('http') && !link.startsWith('#') && !link.startsWith('mailto:')) {
+			// remove #
+			const cleanLink = link.split('#')[0];
+			if (cleanLink) {
+				links.push(cleanLink);
+			}
+		}
+	}
+
+	// 3. Embedded files: ![[image.png]] или ![[note]]
+	const embedRegex = /!\[\[([^\]|#]+)(?:#[^\]|]*)?\|?[^\]]*\]\]/g;
+	while ((match = embedRegex.exec(text)) !== null) {
+		links.push(match[1].trim());
+	}
+
+	// remove dublicates
+	return [...new Set(links)];
 }
 export function extractLinksFromFrontmatter(frontmatter: any): string[] {
 	if (!frontmatter) {
 		return [];
 	}
-	
+
 	const links: Set<string> = new Set();
 
 	function processValue(value: any): void {

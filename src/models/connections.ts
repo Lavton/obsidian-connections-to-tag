@@ -1,5 +1,6 @@
 import { App, TFile } from 'obsidian';
-import { getBackwardFilesFromFronmatter, getBackwardLinks, getFilesInFrontmatter, getForwardFilesFromFrontmatter } from 'src/utils';
+import { extractLinksFromString, getFilepaths } from 'src/link_utils';
+import { convertToLinePositions, findAllOccurrences, findTextFragment, getBackwardFilesFromFronmatter, getBackwardLinks, getFilesInFrontmatter, getForwardFilesFromFrontmatter, removeFrontmatter } from 'src/utils';
 
 export interface Connection {
 	get_connected(app: App, node: TFile): Promise<TFile[]>;
@@ -113,39 +114,118 @@ export class AllYamlConnection implements Connection {
 // "all links that are in the text of the note, not in the frontmatter
 export class AllInTextConnection implements Connection {
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
-		throw new Error('Method not implemented.');
+		const content = await app.vault.read(node);
+		const contentWithoutFrontmatter = removeFrontmatter(content);
+		const links = extractLinksFromString(contentWithoutFrontmatter);
+		const connectedFiles = getFilepaths(links, node, app);
+		return connectedFiles;
 	}
 }
 
 // "the topest link of the note in text and it's neibours
 export class TopInTextConnection implements Connection {
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
-		throw new Error('Method not implemented.');
+		const content = await app.vault.read(node);
+		const contentWithoutFrontmatter = removeFrontmatter(content);
+		const lines = contentWithoutFrontmatter.split('\n');
+
+		let firstLinkFound = false;
+		let allLinks: string[] = [];
+
+		for (const line of lines) {
+			const linksInLine = extractLinksFromString(line);
+
+			if (linksInLine.length > 0) {
+				firstLinkFound = true;
+				allLinks.push(...linksInLine);
+			} else if (firstLinkFound) {
+				break;
+			}
+		}
+
+		return getFilepaths(allLinks, node, app);
 	}
 }
 
-// the links before first some regexp/string. ex: before "# " means before first "header-1"
-export class BeforeFirstRegexpConnection implements Connection {
-	get_connected(app: App, node: TFile): Promise<TFile[]> {
-		throw new Error('Method not implemented.');
+// the links before some regexp/string. ex: before "# " means before first "header-1"
+export class BetweenInTextConnection implements Connection {
+	async get_connected(app: App, node: TFile): Promise<TFile[]> {
+		const content = await app.vault.read(node);
+		const contentWithoutFrontmatter = removeFrontmatter(content);
+		const targetFragment = findTextFragment(contentWithoutFrontmatter, this.is_regexp, this.start_to_find, this.end_to_find);
+		const links = extractLinksFromString(targetFragment);
+		const files = getFilepaths(links, node, app);
+		return files;
 	}
 	is_regexp: boolean
+	start_to_find: string | null
+	end_to_find: string | null
+	constructor(is_regexp: boolean, start_to_find: string | null, end_to_find: string | null) {
+		this.is_regexp = is_regexp
+		this.start_to_find = start_to_find
+		this.end_to_find = end_to_find
+	}
 }
 
-// the linke after last string/regexp. ex: after "---" means in the buttom of the file 
-export class AfterLastRegexpConnection implements Connection {
-	get_connected(app: App, node: TFile): Promise<TFile[]> {
-		throw new Error('Method not implemented.');
-	}
-	is_regexp: boolean
-}
 // links after some regexp. Ex: after "parent:: "
-export class JustAfterRegexpConnection implements Connection {
-	get_connected(app: App, node: TFile): Promise<TFile[]> {
-		throw new Error('Method not implemented.');
+export class JustRegexpConnection implements Connection {
+	async get_connected(app: App, node: TFile): Promise<TFile[]> {
+		const content = await app.vault.read(node);
+		const contentWithoutFrontmatter = removeFrontmatter(content);
+		const occurance = findAllOccurrences(contentWithoutFrontmatter, this.to_find, this.is_regexp)
+
+		const lines = contentWithoutFrontmatter.split('\n');
+		const linePositions = convertToLinePositions(occurance, lines)
+		const allLinks: string[] = []
+		for (const linePos of linePositions) {
+			allLinks.push(...this.getOne(lines, linePos))
+		}
+		return getFilepaths([...new Set(allLinks)], node, app)
+
 	}
 	in_the_same_string: boolean
 	is_regexp: boolean
-	only_first: boolean
+	is_before: boolean
+	to_find: string
 
+	constructor(in_the_same_string: boolean, is_regexp: boolean, is_before: boolean, to_find: string) {
+		this.in_the_same_string = in_the_same_string
+		this.is_regexp = is_regexp
+		this.is_before = is_before
+		this.to_find = to_find
+	}
+	private getOne(lines: string[], indexes: [[number, number], [number, number]]): string[] {
+		if (this.in_the_same_string) {
+			if (this.is_before) {
+				const test_line: string = lines[indexes[0][0]]
+				const test = test_line.slice(0, indexes[0][1]+1)
+				return extractLinksFromString(test)
+			} else {
+				const test_line: string = lines[indexes[1][0]]
+				const test = test_line.slice(indexes[1][1], test_line.length)
+				return extractLinksFromString(test)
+			}
+		} else {
+			let start_line: number
+			let direction: number
+			if (this.is_before) {
+				start_line = indexes[0][0] - 1
+				direction = -1
+			} else {
+				start_line = indexes[1][0] + 1
+				direction = +1
+			}
+			const links: string[] = []//extractLinksFromString(lines.slice(indexes[0][0], indexes[1][0]).join("\n")) // we include the found substring too
+			while (true) {
+				if (start_line == -1) { break }
+				if (start_line == lines.length) { break }
+				const lineLinks = extractLinksFromString(lines[start_line])
+				if (lineLinks.length == 0) { break }
+				links.push(...lineLinks)
+				start_line += direction
+			}
+			return links
+
+		}
+	}
 }

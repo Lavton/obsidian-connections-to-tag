@@ -35,7 +35,10 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				}
 				// const conn = new connections.YamlTagConnection(["topic"])
 				// const conn = new connections.BackwardConnection(new connections.YamlTagConnection(["topic"]))
-				const conn = new connections.AllYamlConnection()
+				// const conn = new connections.AllYamlConnection()
+				// const conn = new connections.TopInTextConnection()
+				// const conn = new connections.BetweenInTextConnection(false, "[[note p", null) 
+				const conn = new connections.JustRegexpConnection(false, false, true, "parent::") 
 				console.log(await conn.get_connected(this.app, initialFile))
 			}
 		})

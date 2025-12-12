@@ -2,6 +2,7 @@ import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
 import { mount } from "svelte";
 import ExplainGeneral from './ExplainGeneral.svelte';
+import type { Connection } from "src/models/connections";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -74,6 +75,10 @@ export interface SettingsSaver extends Plugin {
 	settings: ConnectionsToTagSettings;
 	saveSettings(): Promise<void>;
 
+}
+type ConnectionMap = Record<string, new (...args: any[]) => Connection>;
+export interface ConnectionsHolder extends Plugin {
+	connectionFactory: ConnectionMap
 }
 
 export class ConnectionsToTagSettingTab extends PluginSettingTab {

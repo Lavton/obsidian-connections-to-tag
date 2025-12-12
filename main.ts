@@ -16,8 +16,19 @@ import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
 
 
-export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver {
+export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings: settings.ConnectionsToTagSettings;
+	connectionFactory = {
+		"backward": connections.BackwardConnection,
+		"plus_minus": connections.PlusMinusConnection,
+		"yaml_tag": connections.YamlTagConnection,
+		"all_yaml": connections.AllYamlConnection,
+		"all_text": connections.AllInTextConnection,
+		"top_text": connections.TopInTextConnection,
+		"between": connections.BetweenInTextConnection,
+		"just_regexp": connections.JustRegexpConnection
+
+	}
 
 	async onload() {
 		await this.loadSettings();
@@ -38,7 +49,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				// const conn = new connections.AllYamlConnection()
 				// const conn = new connections.TopInTextConnection()
 				// const conn = new connections.BetweenInTextConnection(false, "[[note p", null) 
-				const conn = new connections.JustRegexpConnection(false, false, true, "parent::") 
+				const conn = new connections.JustRegexpConnection(false, false, true, "parent::")
 				console.log(await conn.get_connected(this.app, initialFile))
 			}
 		})

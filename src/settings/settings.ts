@@ -2,7 +2,9 @@ import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
 import { mount } from "svelte";
 import ExplainGeneral from './ExplainGeneral.svelte';
+import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { Connection } from "src/models/connections";
+import type { ListItem } from "./types";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -83,10 +85,12 @@ export interface ConnectionsHolder extends Plugin {
 
 export class ConnectionsToTagSettingTab extends PluginSettingTab {
 	plugin: SettingsSaver;
+	myList: ListItem[];
 
 	constructor(app: App, plugin: SettingsSaver) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.myList = [{id:"1", value:"vvv"}, {id:"2", value: "ccc"}];
 	}
 
 	display(): void {
@@ -157,6 +161,23 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		section2.id = 'section-chain';
 		section2.createEl('h2', { text: 'What rules and chains to apply' });
 		// chains & traversal
+        const listSetting = new Setting(containerEl)
+            .setName('Список элементов')
+            .setDesc('Добавьте, удалите или измените порядок элементов');
+
+        // Создаем контейнер для Svelte компонента
+let listContainer = listSetting.controlEl.createDiv();
+        
+        const listComponent = mount(ConnectionListSettings, {
+            target: listContainer,
+            props: {
+                items: this.myList,
+                onchange: async (items: ListItem[]) => {
+                    this.myList = items;
+                    // await this.plugin.saveSettings();
+                }
+            }
+        });
 		const section3 = containerEl.createDiv({ cls: 'settings-section' });
 		section3.id = 'section-ui';
 		section3.createEl('h2', { text: 'UI settings' });

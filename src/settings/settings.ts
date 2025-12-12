@@ -90,7 +90,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: SettingsSaver) {
 		super(app, plugin);
 		this.plugin = plugin;
-		this.myList = [{id:"1", value:"vvv"}, {id:"2", value: "ccc"}];
+		this.myList = [{ id: "1", value: "vvv" }, { id: "2", value: "ccc" }];
 	}
 
 	display(): void {
@@ -126,11 +126,11 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			.addText((text) => {
 				text
 					.setPlaceholder('ex. #to_focus_on')
-				.setValue(this.plugin.settings.focusMakerSettings.resultTag)
-				.onChange(async (value) => {
-					this.plugin.settings.focusMakerSettings.resultTag = value
-					await this.plugin.saveSettings();
-				})
+					.setValue(this.plugin.settings.focusMakerSettings.resultTag)
+					.onChange(async (value) => {
+						this.plugin.settings.focusMakerSettings.resultTag = value
+						await this.plugin.saveSettings();
+					})
 			})
 		new Setting(containerEl)
 			.setName("Result folder")
@@ -138,11 +138,11 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			.addText((text) => {
 				text
 					.setPlaceholder('ex. focusNotes/')
-				.setValue(this.plugin.settings.focusMakerSettings.resultFolder)
-				.onChange(async (value) => {
-					this.plugin.settings.focusMakerSettings.resultFolder = value
-					await this.plugin.saveSettings();
-				})
+					.setValue(this.plugin.settings.focusMakerSettings.resultFolder)
+					.onChange(async (value) => {
+						this.plugin.settings.focusMakerSettings.resultFolder = value
+						await this.plugin.saveSettings();
+					})
 			})
 		new Setting(containerEl)
 			.setName("Technical 'moved' frontmatter")
@@ -150,34 +150,34 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			.addText((text) => {
 				text
 					.setPlaceholder('ex. moved_from')
-				.setValue(this.plugin.settings.focusMakerSettings.movedNameFrontmatter)
-				.onChange(async (value) => {
-					this.plugin.settings.focusMakerSettings.movedNameFrontmatter = value
-					await this.plugin.saveSettings();
-				})
+					.setValue(this.plugin.settings.focusMakerSettings.movedNameFrontmatter)
+					.onChange(async (value) => {
+						this.plugin.settings.focusMakerSettings.movedNameFrontmatter = value
+						await this.plugin.saveSettings();
+					})
 			})
 		// TODO: settings result folder, moved_from_fronmatter. Потом переключиться на эти
 		const section2 = containerEl.createDiv({ cls: 'settings-section' });
 		section2.id = 'section-chain';
 		section2.createEl('h2', { text: 'What rules and chains to apply' });
 		// chains & traversal
-        const listSetting = new Setting(containerEl)
-            .setName('Список элементов')
-            .setDesc('Добавьте, удалите или измените порядок элементов');
+		const listSetting = new Setting(containerEl)
+			.setName('Список элементов')
+			.setDesc('Добавьте, удалите или измените порядок элементов');
 
-        // Создаем контейнер для Svelte компонента
-let listContainer = listSetting.controlEl.createDiv();
-        
-        const listComponent = mount(ConnectionListSettings, {
-            target: listContainer,
-            props: {
-                items: this.myList,
-                onchange: async (items: ListItem[]) => {
-                    this.myList = items;
-                    // await this.plugin.saveSettings();
-                }
-            }
-        });
+		// Создаем контейнер для Svelte компонента
+		let listContainer = listSetting.controlEl.createDiv();
+
+		const listComponent = mount(ConnectionListSettings, {
+			target: listContainer,
+			props: {
+				items: this.myList,
+				onchange: async (items: ListItem[]) => {
+					this.myList = items;
+					// await this.plugin.saveSettings();
+				}
+			}
+		});
 		const section3 = containerEl.createDiv({ cls: 'settings-section' });
 		section3.id = 'section-ui';
 		section3.createEl('h2', { text: 'UI settings' });
@@ -236,5 +236,12 @@ let listContainer = listSetting.controlEl.createDiv();
 		// 		await this.plugin.saveSettings();
 		// 	})
 		// })
+	}
+	hide(): void {
+		// Очищаем компонент при закрытии
+		// if (this.listComponent) {
+		//     unmount(this.listComponent);
+		//     this.listComponent = null;
+		// }
 	}
 }

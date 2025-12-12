@@ -198,7 +198,7 @@ export class JustRegexpConnection implements Connection {
 		if (this.in_the_same_string) {
 			if (this.is_before) {
 				const test_line: string = lines[indexes[0][0]]
-				const test = test_line.slice(0, indexes[0][1]+1)
+				const test = test_line.slice(0, indexes[0][1] + 1)
 				return extractLinksFromString(test)
 			} else {
 				const test_line: string = lines[indexes[1][0]]
@@ -226,6 +226,70 @@ export class JustRegexpConnection implements Connection {
 			}
 			return links
 
+		}
+	}
+}
+
+export class ArbitraryDangerConnection implements Connection {
+	async get_connected(app: App, node: TFile): Promise<TFile[]> {
+		try {
+			// Читаем файл с кодом
+			const code = await this.get_code(app);
+			if (code.length == 0) { return [] }
+			// Создаём функцию из кода и выполняем её
+			const AsyncFunction = Object.getPrototypeOf(async function() { }).constructor;
+			const executorFunction = new AsyncFunction(
+				'app',
+				'node',
+				'utils',
+				code
+			);
+
+			// Выполняем код
+			const result = await executorFunction(app, node, this.utils);
+
+			// Проверяем что результат - массив TFile
+			if (Array.isArray(result) && result.every(item => item instanceof TFile)) {
+				return result;
+			}
+
+			return [];
+		} catch (error) {
+			console.error('ArbitraryDangerConnection error:', error);
+			return [];
+		}
+	}
+	filepath: string
+	utils = {
+		removeFrontmatter,
+		extractLinksFromString,
+		getFilepaths
+	}
+	constructor(filepath: string) {
+		this.filepath = filepath;
+	}
+	async get_code(app: App): Promise<string> {
+		try {
+			const codeFile = app.vault.getAbstractFileByPath(this.filepath);
+			if (!codeFile || !(codeFile instanceof TFile)) {
+				return "";
+			}
+
+			const codeFileContent = await app.vault.read(codeFile);
+
+			// Ищем первый код-блок
+			const codeBlockRegex = /```(?:js|javascript|ts|typescript)?\n([\s\S]*?)```/;
+			const match = codeFileContent.match(codeBlockRegex);
+
+			if (!match) {
+				return "";
+			}
+
+			const code = match[1];
+			return code
+		} catch (error) {
+			console.error('ArbitraryDangerConnection error:', error);
+			return "";
 		}
 	}
 }

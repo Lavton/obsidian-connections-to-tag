@@ -26,7 +26,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		"all_text": connections.AllInTextConnection,
 		"top_text": connections.TopInTextConnection,
 		"between": connections.BetweenInTextConnection,
-		"just_regexp": connections.JustRegexpConnection
+		"just_regexp": connections.JustRegexpConnection,
+		"arbitrary_danger": connections.ArbitraryDangerConnection,
 
 	}
 
@@ -49,7 +50,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				// const conn = new connections.AllYamlConnection()
 				// const conn = new connections.TopInTextConnection()
 				// const conn = new connections.BetweenInTextConnection(false, "[[note p", null) 
-				const conn = new connections.JustRegexpConnection(false, false, true, "parent::")
+				// const conn = new connections.JustRegexpConnection(false, false, true, "parent::")
+				const conn = new connections.ArbitraryDangerConnection("base/danger_test_connection.md")
 				console.log(await conn.get_connected(this.app, initialFile))
 			}
 		})

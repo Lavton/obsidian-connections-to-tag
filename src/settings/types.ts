@@ -11,3 +11,8 @@ export interface ValidationResult {
 	isValid: boolean;
 	error?: string;
 }
+
+export interface ConcreeteConnection {
+	id: string;
+	value: string;
+}

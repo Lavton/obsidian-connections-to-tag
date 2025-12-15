@@ -1,5 +1,6 @@
 import { App, Editor, getLinkpath, MarkdownView, Menu, MenuItem, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
 import * as settings from 'src/settings/settings'
+import * as rules from 'src/models/rule'
 import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import { findAllSubtree } from 'src/parentChild'
@@ -14,6 +15,7 @@ import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontma
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
+import type { RuleFactory } from 'src/models/rule';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -28,7 +30,11 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		"between": connections.BetweenInTextConnection,
 		"just_regexp": connections.JustRegexpConnection,
 		"arbitrary_danger": connections.ArbitraryDangerConnection,
-
+	}
+	ruleFactory = {
+		"to_the_end": rules.FactoryRuleToTheEnd,
+		"n_steps": rules.FactoryRuleNSteps,
+		"probability": rules.FactoryRuleProbabiloty
 	}
 
 	async onload() {

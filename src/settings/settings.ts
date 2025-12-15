@@ -4,7 +4,8 @@ import { mount } from "svelte";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { Connection } from "src/models/connections";
-import type { ListItem } from "./types";
+import type { ConcreeteConnection, ListItem } from "./types";
+import type { RuleFactory } from "src/models/rule";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -30,6 +31,7 @@ export interface ConnectionsToTagSettings {
 	parentsTag: string[],
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
+	concreeteConnections: ConcreeteConnection[]
 }
 
 
@@ -69,7 +71,8 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			MarkNoteMode.ADD_TAG,
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
-	}
+	},
+	concreeteConnections: [{id:"11", value: "ooo"}]
 }
 
 
@@ -79,8 +82,10 @@ export interface SettingsSaver extends Plugin {
 
 }
 type ConnectionMap = Record<string, new (...args: any[]) => Connection>;
+type RulesMap = Record<string, new (...args: any[]) => RuleFactory>;
 export interface ConnectionsHolder extends Plugin {
 	connectionFactory: ConnectionMap
+	ruleFactory: RulesMap
 }
 
 export class ConnectionsToTagSettingTab extends PluginSettingTab {
@@ -161,19 +166,20 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		section2.id = 'section-chain';
 		section2.createEl('h2', { text: 'What rules and chains to apply' });
 		// chains & traversal
-		const listSetting = new Setting(containerEl)
-			.setName('Список элементов')
-			.setDesc('Добавьте, удалите или измените порядок элементов');
+		// const listSetting = new Setting(containerEl)
+		// 	.setName('Список элементов')
+		// 	.setDesc('Добавьте, удалите или измените порядок элементов');
 
 		// Создаем контейнер для Svelte компонента
-		let listContainer = listSetting.controlEl.createDiv();
+		let listContainer = section2.createDiv();
 
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
 			props: {
-				items: this.myList,
-				onchange: async (items: ListItem[]) => {
-					this.myList = items;
+				items: this.plugin.settings.concreeteConnections,
+				onchange: async (items: ConcreeteConnection[]) => {
+					this.plugin.settings.concreeteConnections = items;
+					this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				}
 			}

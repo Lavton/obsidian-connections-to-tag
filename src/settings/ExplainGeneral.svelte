@@ -35,11 +35,13 @@
 	</li>
 </ul>
 
-<hr>
+<hr />
 Table of content
 <ul>
-<li><a href="#section-focuser">What to do with found notes</a></li>
-<li><a href="#section-chain">What rules and chains to apply</a></li>
-<li><a href="#section-ui">UI settings</a></li>
-
+	<li><a href="#section-focuser">What to do with found notes</a></li>
+	<li><a href="#section-chain">What rules and chains to apply</a></li>
+	<ul>
+	<li><a href="#subsection-connection">Connections</a></li>
+	</ul>
+	<li><a href="#section-ui">UI settings</a></li>
 </ul>

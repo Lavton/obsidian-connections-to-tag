@@ -7,6 +7,7 @@
 		moveDown?: () => void;
 		isFirst?: boolean;
 		isLast?: boolean;
+		isValid?: boolean;
 	}
 
 	let {
@@ -17,6 +18,7 @@
 		moveDown,
 		isFirst = false,
 		isLast = false,
+		isValid = true,
 	}: Props = $props();
 
 	function handleInput(event: Event) {
@@ -38,7 +40,7 @@
 	}
 </script>
 
-<div class="list-item">
+<div class="list-item" class:invalid={!isValid}>
 	<div class="drag-handle" aria-label="Перетащить" title="Перетащить">⋮⋮</div>
 
 	<div class="move-buttons" role="group" aria-label="Кнопки перемещения">
@@ -70,6 +72,7 @@
 		oninput={handleInput}
 		placeholder="Введите значение..."
 		aria-label="Значение элемента"
+		class:invalid={!isValid}
 	/>
 
 	<button
@@ -142,8 +145,16 @@
 		border-radius: 4px;
 		background: var(--background-primary);
 		color: var(--text-normal);
+		transition: border-color 0.2s;
+	}
+	input.invalid {
+		border-color: var(--text-error);
+		border-width: 2px;
 	}
 
+	.list-item.invalid {
+		opacity: 0.9;
+	}
 	.delete-button {
 		padding: 4px 10px;
 		background: var(--interactive-accent);

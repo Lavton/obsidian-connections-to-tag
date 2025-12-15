@@ -20,13 +20,20 @@
 			value: "",
 		};
 	}
+	function validateConnection(item: ConcreeteConnection): boolean {
+		// Проверка: не пустое значение и не содержит " + " или " - "
+		const trimmedValue = item.value.trim();
+		if (trimmedValue === "") return false;
+		if (trimmedValue.includes(" + ") || trimmedValue.includes(" - ")) return false;
+		return true;
+	}
 </script>
 
 <h3 class="settings-section" id="subsection-connection">Connections</h3>
 
 <div class="settings-section">
 	<h3>Мой динамический список</h3>
-	<DynamicList bind:items onchange={handleChange} {createNewItem}>
+	<DynamicList bind:items={items} onchange={handleChange} {createNewItem} validateItem={validateConnection}>
 		{#snippet itemSnippet({
 			item,
 			updateItem,
@@ -35,6 +42,7 @@
 			moveDown,
 			isFirst,
 			isLast,
+			isValid
 		})}
 			<OneConnection
 				value={item.value}
@@ -45,6 +53,7 @@
 				{moveDown}
 				{isFirst}
 				{isLast}
+				{isValid}
 			/>
 		{/snippet}
 	</DynamicList>

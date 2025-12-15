@@ -2,17 +2,16 @@
 	import DynamicList from "./DynamicList.svelte";
 	import OneConnection from "./OneConnection.svelte";
 	import type { ConcreeteConnection } from "./types";
-    interface Props {
-        items: ConcreeteConnection[];
-        onchange?: (items: ConcreeteConnection[]) => void;
-    }
+	interface Props {
+		items: ConcreeteConnection[];
+		onchange?: (items: ConcreeteConnection[]) => void;
+	}
 
-    let { items = $bindable([]), onchange }: Props = $props();
-
+	let { items = $bindable([]), onchange }: Props = $props();
 
 	function handleChange(newItems: ConcreeteConnection[]) {
 		console.log("Список изменён:", newItems);
-		onchange?.(newItems)
+		onchange?.(newItems);
 	}
 
 	function createNewItem(): ConcreeteConnection {
@@ -27,13 +26,25 @@
 
 <div class="settings-section">
 	<h3>Мой динамический список</h3>
-	<DynamicList bind:items={items} onchange={handleChange} {createNewItem}>
-		{#snippet itemSnippet({ item, updateItem, deleteItem })}
+	<DynamicList bind:items onchange={handleChange} {createNewItem}>
+		{#snippet itemSnippet({
+			item,
+			updateItem,
+			deleteItem,
+			moveUp,
+			moveDown,
+			isFirst,
+			isLast,
+		})}
 			<OneConnection
 				value={item.value}
 				onchange={(newValue) =>
 					updateItem({ ...item, value: newValue })}
 				ondelete={deleteItem}
+				{moveUp}
+				{moveDown}
+				{isFirst}
+				{isLast}
 			/>
 		{/snippet}
 	</DynamicList>

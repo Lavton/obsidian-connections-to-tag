@@ -35,20 +35,27 @@
 	let pendingItems = $state<Set<string>>(new Set());
 	// Временные значения для элементов в процессе редактирования
 	let itemDrafts = $state<Map<string, T>>(new Map());
+	let validationList = $state(items.map(() => true));
 
 	function updateItem(id: string, newItem: T) {
 		const isValid = validateItem(newItem);
 
 		if (isValid) {
-			// Валидация пройдена - сохраняем в основной список
 			items = items.map((item) => (item.id === id ? newItem : item));
+
 			pendingItems.delete(id);
+			pendingItems = new Set(pendingItems);
+
 			itemDrafts.delete(id);
+			itemDrafts = new Map(itemDrafts);
+
 			onchange?.(items);
 		} else {
-			// Валидация провалена - сохраняем в черновик
 			pendingItems.add(id);
+			pendingItems = new Set(pendingItems);
+
 			itemDrafts.set(id, newItem);
+			itemDrafts = new Map(itemDrafts);
 		}
 	}
 

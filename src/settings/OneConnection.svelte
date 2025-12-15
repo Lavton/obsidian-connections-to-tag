@@ -21,10 +21,12 @@
 		isValid = true,
 	}: Props = $props();
 
+
 	function handleInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		value = target.value;
-		onchange?.(value);
+ 		onchange?.(value);
+//		console.log(value, isValid)
 	}
 
 	function handleDelete() {
@@ -38,6 +40,12 @@
 	function handleMoveDown() {
 		moveDown?.();
 	}
+$effect(() => {
+  console.log('value изменилось:', value);
+});
+$effect(() => {
+  console.log('valid изменилось:', isValid);
+});
 </script>
 
 <div class="list-item" class:invalid={!isValid}>

@@ -10,7 +10,6 @@
 	let { items = $bindable([]), onchange }: Props = $props();
 
 	function handleChange(newItems: ConcreeteConnection[]) {
-		console.log("Список изменён:", newItems);
 		onchange?.(newItems);
 	}
 
@@ -24,7 +23,7 @@
 		// Проверка: не пустое значение и не содержит " + " или " - "
 		const trimmedValue = item.value.trim();
 		if (trimmedValue === "") return false;
-		if (trimmedValue.includes(" + ") || trimmedValue.includes(" - ")) return false;
+		if (item.value.includes(" + ") || item.value.includes(" - ")) return false;
 		return true;
 	}
 </script>
@@ -32,7 +31,6 @@
 <h3 class="settings-section" id="subsection-connection">Connections</h3>
 
 <div class="settings-section">
-	<h3>Мой динамический список</h3>
 	<DynamicList bind:items={items} onchange={handleChange} {createNewItem} validateItem={validateConnection}>
 		{#snippet itemSnippet({
 			item,

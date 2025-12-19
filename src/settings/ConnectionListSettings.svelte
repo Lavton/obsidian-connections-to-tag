@@ -35,11 +35,8 @@
 		{#snippet itemSnippet({
 			item,
 			updateItem,
+			dragNdrop,
 			deleteItem,
-			moveUp,
-			moveDown,
-			isFirst,
-			isLast,
 			isValid
 		})}
 			<OneConnection
@@ -47,10 +44,7 @@
 				onchange={(newValue) =>
 					updateItem({ ...item, value: newValue })}
 				ondelete={deleteItem}
-				{moveUp}
-				{moveDown}
-				{isFirst}
-				{isLast}
+				{dragNdrop}
 				{isValid}
 			/>
 		{/snippet}

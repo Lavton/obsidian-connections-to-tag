@@ -1,11 +1,3 @@
-export interface ListItem {
-	id: string;
-	value: string;
-	// Здесь в будущем можно добавить другие поля:
-	// description?: string;
-	// enabled?: boolean;
-	// color?: string;
-}
 
 export interface ValidationResult {
 	isValid: boolean;
@@ -14,5 +6,12 @@ export interface ValidationResult {
 
 export interface ConcreeteConnection {
 	id: string;
-	value: string;
+	value: string; // последняя валидная версия
+}
+
+export interface DragNDropProps {
+	moveUp?: () => void;
+	moveDown?: () => void;
+	isFirst?: boolean;
+	isLast?: boolean;
 }

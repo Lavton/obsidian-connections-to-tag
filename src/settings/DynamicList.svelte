@@ -1,5 +1,6 @@
 <script lang="ts" generics="T extends { id: string }">
 	import type { Snippet } from "svelte";
+	import type { DragNDropProps } from "./types";
 
 	interface Props {
 		items: T[];
@@ -10,10 +11,7 @@
 					item: T;
 					updateItem: (newItem: T) => void;
 					deleteItem: () => void;
-					moveUp: () => void;
-					moveDown: () => void;
-					isFirst: boolean;
-					isLast: boolean;
+					dragNdrop: DragNDropProps;
 					isValid: boolean;
 				},
 			]
@@ -94,6 +92,14 @@
 		items = newItems;
 		onchange?.(items);
 	}
+	function createDragNDrop(index: number, items: T[]): DragNDropProps {
+		return {
+			moveUp: () => moveItem(index, "up"),
+			moveDown: () => moveItem(index, "down"),
+			isFirst: index === 0,
+			isLast: index === items.length - 1,
+		};
+	}
 	// Вспомогательная функция для получения актуального элемента
 	function getItemData(item: T) {
 		const draftItem = itemDrafts.get(item.id);
@@ -154,10 +160,7 @@
 					item: getItemData(item),
 					updateItem: (newItem) => updateItem(item.id, newItem),
 					deleteItem: () => deleteItem(item.id),
-					moveUp: () => moveItem(index, "up"),
-					moveDown: () => moveItem(index, "down"),
-					isFirst: index === 0,
-					isLast: index === items.length - 1,
+					dragNdrop: createDragNDrop(index, items),
 					isValid: !pendingItems.has(item.id),
 				})}
 			</div>

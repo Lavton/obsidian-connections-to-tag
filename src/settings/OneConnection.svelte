@@ -1,12 +1,11 @@
 <script lang="ts">
+	import type { DragNDropProps } from "./types";
+
 	interface Props {
 		value: string;
 		onchange?: (newValue: string) => void;
 		ondelete?: () => void;
-		moveUp?: () => void;
-		moveDown?: () => void;
-		isFirst?: boolean;
-		isLast?: boolean;
+		dragNdrop: DragNDropProps;
 		isValid?: boolean;
 	}
 
@@ -14,10 +13,7 @@
 		value = $bindable(""),
 		onchange,
 		ondelete,
-		moveUp,
-		moveDown,
-		isFirst = false,
-		isLast = false,
+		dragNdrop,
 		isValid = true,
 	}: Props = $props();
 
@@ -26,20 +22,9 @@
 		const target = event.target as HTMLInputElement;
 		value = target.value;
  		onchange?.(value);
-//		console.log(value, isValid)
 	}
 
-	function handleDelete() {
-		ondelete?.();
-	}
 
-	function handleMoveUp() {
-		moveUp?.();
-	}
-
-	function handleMoveDown() {
-		moveDown?.();
-	}
 $effect(() => {
   console.log('value изменилось:', value);
 });
@@ -55,8 +40,8 @@ $effect(() => {
 		<button
 			type="button"
 			class="move-button"
-			onclick={handleMoveUp}
-			disabled={isFirst}
+			onclick={dragNdrop.moveUp}
+			disabled={dragNdrop.isFirst}
 			aria-label="Переместить вверх"
 			title="Переместить вверх"
 		>
@@ -65,8 +50,8 @@ $effect(() => {
 		<button
 			type="button"
 			class="move-button"
-			onclick={handleMoveDown}
-			disabled={isLast}
+			onclick={dragNdrop.moveDown}
+			disabled={dragNdrop.isLast}
 			aria-label="Переместить вниз"
 			title="Переместить вниз"
 		>
@@ -86,7 +71,7 @@ $effect(() => {
 	<button
 		type="button"
 		class="delete-button"
-		onclick={handleDelete}
+		onclick={ondelete}
 		aria-label="Удалить элемент"
 		title="Удалить"
 	>

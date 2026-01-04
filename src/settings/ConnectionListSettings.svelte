@@ -35,16 +35,12 @@
 		{#snippet itemSnippet({
 			item,
 			updateItem,
-			dragNdrop,
-			deleteItem,
 			isValid
 		})}
 			<OneConnection
 				value={item.value}
 				onchange={(newValue) =>
 					updateItem({ ...item, value: newValue })}
-				ondelete={deleteItem}
-				{dragNdrop}
 				{isValid}
 			/>
 		{/snippet}

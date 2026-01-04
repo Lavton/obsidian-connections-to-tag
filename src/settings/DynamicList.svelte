@@ -1,6 +1,7 @@
 <script lang="ts" generics="T extends { id: string }">
 	import type { Snippet } from "svelte";
 	import type { DragNDropProps } from "./types";
+	import ListItemWrapper from "./ListItemWrapper.svelte";
 
 	interface Props {
 		items: T[];
@@ -10,12 +11,11 @@
 				{
 					item: T;
 					updateItem: (newItem: T) => void;
-					deleteItem: () => void;
-					dragNdrop: DragNDropProps;
 					isValid: boolean;
 				},
 			]
 		>;
+
 		createNewItem: () => T;
 		validateItem?: (item: T) => boolean;
 	}
@@ -156,13 +156,14 @@
 				ondrop={(e) => handleDrop(e, index)}
 				ondragend={handleDragEnd}
 			>
-				{@render itemSnippet({
-					item: getItemData(item),
-					updateItem: (newItem) => updateItem(item.id, newItem),
-					deleteItem: () => deleteItem(item.id),
-					dragNdrop: createDragNDrop(index, items),
-					isValid: !pendingItems.has(item.id),
-				})}
+			<ListItemWrapper
+				item={item}
+				isValid={!pendingItems.has(item.id)}
+				updateItem={(newItem) => updateItem(item.id, newItem)}
+				dragNdrop={createDragNDrop(index, items)}
+				ondelete={() => deleteItem(item.id)}
+				itemSnippet={itemSnippet}
+			/>
 			</div>
 		{/each}
 	</div>

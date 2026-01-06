@@ -4,8 +4,8 @@ import { mount } from "svelte";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { Connection } from "src/models/connections";
-import type { ConcreeteConnection, ListItem } from "./types";
 import type { RuleFactory } from "src/models/rule";
+import type { ConcreeteConnection } from "./types";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -72,7 +72,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
 	},
-	concreeteConnections: [{id:"11", value: "ooo"}]
+	concreeteConnections: [{title: "ooo"}]
 }
 
 
@@ -90,12 +90,10 @@ export interface ConnectionsHolder extends Plugin {
 
 export class ConnectionsToTagSettingTab extends PluginSettingTab {
 	plugin: SettingsSaver;
-	myList: ListItem[];
 
 	constructor(app: App, plugin: SettingsSaver) {
 		super(app, plugin);
 		this.plugin = plugin;
-		this.myList = [{ id: "1", value: "vvv" }, { id: "2", value: "ccc" }];
 	}
 
 	display(): void {
@@ -176,10 +174,10 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
 			props: {
-				items: this.plugin.settings.concreeteConnections,
+				concreeteConnections: this.plugin.settings.concreeteConnections,
 				onchange: async (items: ConcreeteConnection[]) => {
 					this.plugin.settings.concreeteConnections = items;
-					this.plugin.saveSettings();
+					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				}
 			}

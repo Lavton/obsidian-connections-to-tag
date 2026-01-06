@@ -1,23 +1,23 @@
-<script lang="ts" generics="T extends { id: string }">
+<script lang="ts" generics="T">
 	import type { Snippet } from "svelte";
-	import type { DragNDropProps } from "./types";
+	import type { DragNDropProps, RowState } from "./types";
 	import ListItemWrapper from "./ListItemWrapper.svelte";
 
 	interface Props {
-		items: T[];
-		onchange?: (items: T[]) => void;
+		items: RowState<T>[];
+		onchange?: (items: RowState<T>[]) => void;
 		itemSnippet: Snippet<
 			[
 				{
-					item: T;
-					updateItem: (newItem: T) => void;
+					item: RowState<T>;
+					updateItem: (newItem: RowState<T>) => void;
 					isValid: boolean;
 				},
 			]
 		>;
 
-		createNewItem: () => T;
-		validateItem?: (item: T) => boolean;
+		createNewItem: () => RowState<T>;
+		validateItem?: (item: RowState<T>) => boolean;
 	}
 
 	let {
@@ -30,26 +30,26 @@
 
 	let draggedIndex = $state<number | null>(null);
 	let pendingItems = $state<Set<string>>(new Set());
-	let itemDrafts = $state<Map<string, T>>(new Map());
+	let itemDrafts = $state<Map<string, RowState<T>>>(new Map());
 
-	function updateItem(id: string, newItem: T) {
+	function updateItem(newItem: RowState<T>) {
 		const isValid = validateItem(newItem);
 
 		if (isValid) {
-			items = items.map((item) => (item.id === id ? newItem : item));
+			items = items.map((item) => (item.id === newItem.id ? newItem : item));
 
-			pendingItems.delete(id);
+			pendingItems.delete(newItem.id);
 			pendingItems = new Set(pendingItems);
 
-			itemDrafts.delete(id);
+			itemDrafts.delete(newItem.id);
 			itemDrafts = new Map(itemDrafts);
 
 			onchange?.(items);
 		} else {
-			pendingItems.add(id);
+			pendingItems.add(newItem.id);
 			pendingItems = new Set(pendingItems);
 
-			itemDrafts.set(id, newItem);
+			itemDrafts.set(newItem.id, newItem);
 			itemDrafts = new Map(itemDrafts);
 		}
 	}
@@ -88,7 +88,7 @@
 		onchange?.(items);
 	}
 
-	function createDragNDrop(index: number, items: T[]): DragNDropProps {
+	function createDragNDrop(index: number, items: RowState<T>[]): DragNDropProps {
 		return {
 			moveUp: () => moveItem(index, "up"),
 			moveDown: () => moveItem(index, "down"),
@@ -127,7 +127,7 @@
 				{setDraggedIndex}
 				{applyDrop}
 				isValid={!pendingItems.has(item.id)}
-				updateItem={(newItem) => updateItem(item.id, newItem)}
+				updateItem={(newItem) => updateItem(newItem)}
 				dragNdrop={createDragNDrop(index, items)}
 				ondelete={() => deleteItem(item.id)}
 				{itemSnippet}

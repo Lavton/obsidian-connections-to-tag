@@ -1,19 +1,19 @@
-<script lang="ts" generics="T extends { id: string }">
-	import type { DragNDropProps } from "./types";
+<script lang="ts" generics="T">
+	import type { DragNDropProps, RowState } from "./types";
 	import type { Snippet } from "svelte";
 
 	interface Props {
 		ondelete?: () => void;
 
 		dragNdrop: DragNDropProps;
-		item: T;
+		item: RowState<T>;
 		isValid: boolean;
-		updateItem: (newItem: T) => void;
+		updateItem: (newItem: RowState<T>) => void;
 		itemSnippet: Snippet<
 			[
 				{
-					item: T;
-					updateItem: (newItem: T) => void;
+					item: RowState<T>;
+					updateItem: (newItem: RowState<T>) => void;
 					isValid: boolean;
 				},
 			]

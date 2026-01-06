@@ -38,3 +38,34 @@
 		class:invalid={!isValid}
 	/>
 </div>
+
+<style>
+	.list-item {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		margin-bottom: 8px;
+		padding: 4px;
+		border-radius: 4px;
+		background: var(--background-primary);
+	}
+
+
+	input {
+		flex: 1;
+		padding: 6px 10px;
+		border: 1px solid var(--background-modifier-border);
+		border-radius: 4px;
+		background: var(--background-primary);
+		color: var(--text-normal);
+		transition: border-color 0.2s;
+	}
+	input.invalid {
+		border-color: var(--text-error);
+		border-width: 2px;
+	}
+
+	.list-item.invalid {
+		opacity: 0.9;
+	}
+</style>

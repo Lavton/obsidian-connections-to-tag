@@ -126,3 +126,72 @@
 		</button>
 	</div>
 </div>
+
+
+<style>
+	.list-item {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		margin-bottom: 8px;
+		padding: 4px;
+		border-radius: 4px;
+		background: var(--background-primary);
+	}
+
+	.drag-handle {
+		cursor: grab;
+		color: var(--text-muted);
+		font-size: 16px;
+		line-height: 1;
+		padding: 4px;
+		user-select: none;
+	}
+
+	.list-item:active .drag-handle {
+		cursor: grabbing;
+	}
+
+	.move-buttons {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.move-button {
+		padding: 2px 6px;
+		background: var(--background-modifier-border);
+		border: none;
+		border-radius: 3px;
+		color: var(--text-normal);
+		cursor: pointer;
+		font-size: 12px;
+		line-height: 1;
+		transition: background 0.15s;
+	}
+
+	.move-button:hover:not(:disabled) {
+		background: var(--interactive-accent);
+		color: var(--text-on-accent);
+	}
+
+	.move-button:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
+	}
+
+	.delete-button {
+		padding: 4px 10px;
+		background: var(--interactive-accent);
+		border: none;
+		border-radius: 4px;
+		color: var(--text-on-accent);
+		cursor: pointer;
+		font-size: 20px;
+		line-height: 1;
+	}
+
+	.delete-button:hover {
+		background: var(--interactive-accent-hover);
+	}
+</style>

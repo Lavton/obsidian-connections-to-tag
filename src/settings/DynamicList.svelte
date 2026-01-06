@@ -139,3 +139,31 @@
 		+ Добавить элемент
 	</button>
 </div>
+
+
+<style>
+	.dynamic-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.items-container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.add-button {
+		padding: 8px 16px;
+		background: var(--interactive-accent);
+		border: none;
+		border-radius: 4px;
+		color: var(--text-on-accent);
+		cursor: pointer;
+		font-weight: 500;
+	}
+
+	.add-button:hover {
+		background: var(--interactive-accent-hover);
+	}
+</style>

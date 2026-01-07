@@ -17,7 +17,7 @@
 		>;
 
 		createNewItem: () => RowState<T>;
-		validateItem?: (item: RowState<T>) => boolean;
+		validateItem?: (item: T) => boolean;
 	}
 
 	let {
@@ -29,50 +29,65 @@
 	}: Props = $props();
 
 	let draggedIndex = $state<number | null>(null);
-	let pendingItems = $state<Set<string>>(new Set());
-	let itemDrafts = $state<Map<string, RowState<T>>>(new Map());
 
-	function updateItem(newItem: RowState<T>) {
-		const isValid = validateItem(newItem);
+	function updateItem(updatedRow: RowState<T>) {
+		items = items.map((row) => {
+			if (row.id !== updatedRow.id) return row;
 
-		if (isValid) {
-			items = items.map((item) => (item.id === newItem.id ? newItem : item));
+			const validation = validateItem(updatedRow.draft);
+			const valid = validation;
 
-			pendingItems.delete(newItem.id);
-			pendingItems = new Set(pendingItems);
+			const next = {
+				...updatedRow,
+				meta: {
+					...updatedRow.meta,
+					touched: true,
+					valid,
+					dirty:
+						JSON.stringify(updatedRow.draft) !==
+						JSON.stringify(updatedRow.saved),
+				},
+			} satisfies RowState<T>;
 
-			itemDrafts.delete(newItem.id);
-			itemDrafts = new Map(itemDrafts);
+			if (valid) {
+				// коммит
+				return {
+					...next,
+					saved: JSON.parse(JSON.stringify(next.draft)),
+					meta: { ...next.meta, dirty: false },
+				};
+			}
 
-			onchange?.(items);
-		} else {
-			pendingItems.add(newItem.id);
-			pendingItems = new Set(pendingItems);
+			// остаёмся на draft, но saved не трогаем
+			return next;
+		});
 
-			itemDrafts.set(newItem.id, newItem);
-			itemDrafts = new Map(itemDrafts);
-		}
+		onchange?.(items);
 	}
 
 	function deleteItem(id: string) {
 		items = items.filter((item) => item.id !== id);
-		pendingItems.delete(id);
-		itemDrafts.delete(id);
 		onchange?.(items);
 	}
 
 	function addItem() {
 		const newItem = createNewItem();
-		const isValid = validateItem(newItem);
+		const v = validateItem(newItem.draft);
+		const valid = v;
+		console.log({valid})
 
-		if (isValid) {
-			items = [...items, newItem];
-			onchange?.(items);
-		} else {
-			items = [...items, newItem];
-			pendingItems.add(newItem.id);
-			itemDrafts.set(newItem.id, newItem);
-		}
+		const item: RowState<T> = {
+			...newItem,
+			meta: {
+				...newItem.meta,
+				touched: false,
+				dirty: true,
+				valid,
+			},
+		};
+
+		items = [...items, item];
+		onchange?.(items);
 	}
 
 	function moveItem(index: number, direction: "up" | "down") {
@@ -88,7 +103,10 @@
 		onchange?.(items);
 	}
 
-	function createDragNDrop(index: number, items: RowState<T>[]): DragNDropProps {
+	function createDragNDrop(
+		index: number,
+		items: RowState<T>[],
+	): DragNDropProps {
 		return {
 			moveUp: () => moveItem(index, "up"),
 			moveDown: () => moveItem(index, "down"),
@@ -126,7 +144,6 @@
 				isDragging={draggedIndex === index}
 				{setDraggedIndex}
 				{applyDrop}
-				isValid={!pendingItems.has(item.id)}
 				updateItem={(newItem) => updateItem(newItem)}
 				dragNdrop={createDragNDrop(index, items)}
 				ondelete={() => deleteItem(item.id)}
@@ -139,7 +156,6 @@
 		+ Добавить элемент
 	</button>
 </div>
-
 
 <style>
 	.dynamic-list {

@@ -6,7 +6,7 @@ export interface ValidationResult {
 
 export type ConcreeteConnection = { title: string };
 
-export function emptyConcreeteConnection() { return {title: ""}}
+export function emptyConcreeteConnection() { return { title: "" } }
 
 export interface DragNDropProps {
 	moveUp?: () => void;
@@ -17,9 +17,13 @@ export interface DragNDropProps {
 
 export type RowState<T> = {
 	id: string;
-	saved: T;
+	saved: T | undefined;
 	draft: T;
-	meta: { touched: boolean };
+	meta: {
+		touched: boolean,
+		dirty: boolean;      // draft отличается от saved
+		valid: boolean;
+	};
 }
 
 const cloneConn = (x: ConcreeteConnection): ConcreeteConnection => ({ ...x });
@@ -29,12 +33,26 @@ export function toRowStates(items: ConcreeteConnection[]): RowState<ConcreeteCon
 		id: crypto.randomUUID?.() ?? `row-${i}-${Math.random().toString(16).slice(2)}`,
 		saved: cloneConn(item),
 		draft: cloneConn(item),
-		meta: { touched: false }
+		meta: {
+			touched: false,
+			dirty: false,
+			valid: true
+		}
 	}));
+}
+export function emptyRowState(): RowState<ConcreeteConnection> {
+	const c = emptyConcreeteConnection()
+	const rs = toRowStates([c])[0]
+	rs.meta.valid = false // empty 
+	rs.saved = undefined
+	return rs
 }
 
 export function fromRowStates(rows: RowState<ConcreeteConnection>[]): ConcreeteConnection[] {
 	// Обычно отдаём "saved" или "draft" — зависит от UX.
 	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
-	return rows.map(r => cloneConn(r.saved));
+	return rows
+		.map(r => r.saved)
+		.filter((v): v is ConcreeteConnection => v !== undefined)
+		.map(v => cloneConn(v));
 }

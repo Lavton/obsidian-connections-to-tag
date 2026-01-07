@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { emptyConcreeteConnection, toRowStates, type ConcreeteConnection, type RowState } from "./types";
+	import { emptyRowState, type ConcreeteConnection, type RowState } from "./types";
 
 	interface Props {
 		value: RowState<ConcreeteConnection>;
 		onchange?: (newValue: RowState<ConcreeteConnection>) => void;
-		isValid?: boolean;
 	}
 
 	let {
-		value = $bindable(toRowStates([emptyConcreeteConnection()])[0]),
+		value = $bindable(emptyRowState()),
 		onchange,
-		isValid = true,
 	}: Props = $props();
 
 	function handleInput(event: Event) {
@@ -19,8 +17,7 @@
 		// обновляем draft и отмечаем touched
 		value = {
 			...value,
-			draft: {title: target.value},
-			saved: {title: target.value},
+			draft: {...value.draft, title: target.value},
 			meta: { ...value.meta, touched: true },
 		};
 
@@ -28,14 +25,14 @@
 	}
 </script>
 
-<div class="list-item" class:invalid={!isValid}>
+<div class="list-item" class:invalid={!value.meta.valid}>
 	<input
 		type="text"
 		value={value.draft.title}
 		oninput={handleInput}
 		placeholder="Введите значение..."
 		aria-label="Значение элемента"
-		class:invalid={!isValid}
+		class:invalid={!value.meta.valid}
 	/>
 </div>
 

@@ -7,14 +7,12 @@
 
 		dragNdrop: DragNDropProps;
 		item: RowState<T>;
-		isValid: boolean;
 		updateItem: (newItem: RowState<T>) => void;
 		itemSnippet: Snippet<
 			[
 				{
 					item: RowState<T>;
 					updateItem: (newItem: RowState<T>) => void;
-					isValid: boolean;
 				},
 			]
 		>;
@@ -34,7 +32,6 @@
 		ondelete,
 		dragNdrop,
 		item,
-		isValid,
 		updateItem,
 		itemSnippet,
 
@@ -112,7 +109,6 @@
 		{@render itemSnippet({
 			item,
 			updateItem,
-			isValid
 		})}
 
 		<button

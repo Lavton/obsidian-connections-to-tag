@@ -1,9 +1,3 @@
-
-export interface ValidationResult {
-	isValid: boolean;
-	error?: string;
-}
-
 export type ConcreeteConnection = { title: string };
 
 export function emptyConcreeteConnection() { return { title: "" } }
@@ -15,6 +9,29 @@ export interface DragNDropProps {
 	isLast?: boolean;
 }
 
+export type IssueCode = string;
+export type Issue = {
+	code: IssueCode;
+	path?: string;                 // например "title"
+	params?: Record<string, unknown>; // например { value: "abc" }
+};
+
+export type ValidationResult = {
+	valid: boolean;
+	issues: Issue[];
+};
+export type ListCtx<T> = {
+  index: number;
+  items: T[];
+};
+
+export type ValidationRule<T> = {
+  scope: "local" | "above";
+  run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null;
+};
+
+export type ConnectionCtx = ListCtx<ConcreeteConnection>
+
 export type RowState<T> = {
 	id: string;
 	saved: T | undefined;
@@ -23,6 +40,7 @@ export type RowState<T> = {
 		touched: boolean,
 		dirty: boolean;      // draft отличается от saved
 		valid: boolean;
+		issues: Issue[];
 	};
 }
 
@@ -36,14 +54,14 @@ export function toRowStates(items: ConcreeteConnection[]): RowState<ConcreeteCon
 		meta: {
 			touched: false,
 			dirty: false,
-			valid: true
+			valid: true,
+			issues: []
 		}
 	}));
 }
 export function emptyRowState(): RowState<ConcreeteConnection> {
 	const c = emptyConcreeteConnection()
 	const rs = toRowStates([c])[0]
-	rs.meta.valid = false // empty 
 	rs.saved = undefined
 	return rs
 }

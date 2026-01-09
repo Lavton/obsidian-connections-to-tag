@@ -6,6 +6,7 @@ import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { Connection } from "src/models/connections";
 import type { RuleFactory } from "src/models/rule";
 import type { ConcreeteConnection } from "./types";
+import * as common_rules from "./common_validation_rules";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -179,7 +180,12 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 					this.plugin.settings.concreeteConnections = items;
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
-				}
+				},
+				valRules: [
+					common_rules.ruleTitleRequired,
+					common_rules.ruleNoPlusMinusWithSpaces,
+					common_rules.ruleNotEqual,
+				]
 			}
 		});
 		const section3 = containerEl.createDiv({ cls: 'settings-section' });

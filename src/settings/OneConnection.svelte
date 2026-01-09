@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { emptyRowState, type ConcreeteConnection, type RowState } from "./types";
+	import {
+		emptyRowState,
+		type ConcreeteConnection,
+		type Issue,
+		type IssueCode,
+		type RowState,
+	} from "./types";
 
 	interface Props {
 		value: RowState<ConcreeteConnection>;
 		onchange?: (newValue: RowState<ConcreeteConnection>) => void;
 	}
 
-	let {
-		value = $bindable(emptyRowState()),
-		onchange,
-	}: Props = $props();
+	let { value = $bindable(emptyRowState()), onchange }: Props = $props();
 
 	function handleInput(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -17,23 +20,39 @@
 		// обновляем draft и отмечаем touched
 		value = {
 			...value,
-			draft: {...value.draft, title: target.value},
+			draft: { ...value.draft, title: target.value },
 			meta: { ...value.meta, touched: true },
 		};
 
 		onchange?.(value);
 	}
+	const issueMessages: Record<IssueCode, (issue: Issue) => string> = {
+		required_title: () => "Введите значение.",
+		forbitten_pm: () =>
+			"Недопустимо использовать « + » или « - » с пробелами.",
+		duplicate_with_prev: () =>
+			"Название совпадает с одним из элементов выше.",
+	};
+
+	export function issueToText(issue: Issue): string {
+		return issueMessages[issue.code]?.(issue) ?? "Некорректное значение.";
+	}
 </script>
 
-<div class="list-item" class:invalid={!value.meta.valid}>
-	<input
-		type="text"
-		value={value.draft.title}
-		oninput={handleInput}
-		placeholder="Введите значение..."
-		aria-label="Значение элемента"
-		class:invalid={!value.meta.valid}
-	/>
+<div class="list-item">
+	<div class="input-wrapper">
+		<input
+			type="text"
+			value={value.draft.title}
+			oninput={handleInput}
+			placeholder="Введите значение..."
+			aria-label="Значение элемента"
+			class:invalid={!value.meta.valid}
+		/>
+		{#if value.meta.touched && !value.meta.valid}
+			<div class="error-hint">{issueToText(value.meta.issues[0])}</div>
+		{/if}
+	</div>
 </div>
 
 <style>
@@ -47,9 +66,13 @@
 		background: var(--background-primary);
 	}
 
+	.input-wrapper {
+		flex: 1;
+		position: relative;
+	}
 
 	input {
-		flex: 1;
+		width: 100%;
 		padding: 6px 10px;
 		border: 1px solid var(--background-modifier-border);
 		border-radius: 4px;
@@ -57,12 +80,22 @@
 		color: var(--text-normal);
 		transition: border-color 0.2s;
 	}
+
 	input.invalid {
 		border-color: var(--text-error);
-		border-width: 2px;
 	}
 
-	.list-item.invalid {
+	.error-hint {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		font-size: 0.85em;
+		color: var(--text-error);
+		padding: 2px 4px;
+		margin-top: 2px;
+		line-height: 1.3;
 		opacity: 0.9;
+		z-index: 10;
 	}
 </style>

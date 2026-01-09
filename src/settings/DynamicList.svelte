@@ -1,6 +1,13 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from "svelte";
-	import type { DragNDropProps, RowState } from "./types";
+	import type {
+		DragNDropProps,
+		Issue,
+		ListCtx,
+		RowState,
+		ValidationResult,
+		ValidationRule,
+	} from "./types";
 	import ListItemWrapper from "./ListItemWrapper.svelte";
 
 	interface Props {
@@ -17,7 +24,7 @@
 		>;
 
 		createNewItem: () => RowState<T>;
-		validateItem?: (item: T) => boolean;
+		valRules: Array<ValidationRule<T>>;
 	}
 
 	let {
@@ -25,17 +32,41 @@
 		onchange,
 		itemSnippet,
 		createNewItem,
-		validateItem = () => true,
+		valRules = [],
 	}: Props = $props();
+	let domainItems = $derived(items.map((i) => i.saved));
 
 	let draggedIndex = $state<number | null>(null);
+	function validateWithRules(
+		value: T,
+		ctx: ListCtx<T | undefined>,
+	): ValidationResult {
+		const issues: Issue[] = [];
+		for (const rule of valRules) {
+			const issue = rule.run(value, ctx);
+			if (issue) issues.push(issue);
+		}
+		return { valid: issues.length === 0, issues };
+	}
 
-	function updateItem(updatedRow: RowState<T>) {
+	//	function validateItem(item: T): boolean {
+	//		return validateWithRules(item, items
+	//			.map(i => i.saved)
+	//			.filter((v): v is T => v !== undefined)
+	//)
+	//		).valid
+	//	}
+
+	function updateItem(updatedRow: RowState<T>, index: number) {
 		items = items.map((row) => {
 			if (row.id !== updatedRow.id) return row;
 
-			const validation = validateItem(updatedRow.draft);
-			const valid = validation;
+			//const validation = validateItem(updatedRow.draft);
+			const validation = validateWithRules(updatedRow.draft, {
+				index: index,
+				items: domainItems,
+			});
+			const valid = validation.valid;
 
 			const next = {
 				...updatedRow,
@@ -46,6 +77,7 @@
 					dirty:
 						JSON.stringify(updatedRow.draft) !==
 						JSON.stringify(updatedRow.saved),
+					issues: validation.issues
 				},
 			} satisfies RowState<T>;
 
@@ -70,11 +102,15 @@
 		onchange?.(items);
 	}
 
-	function addItem() {
+	function addItem(index: number) {
 		const newItem = createNewItem();
-		const v = validateItem(newItem.draft);
-		const valid = v;
-		console.log({valid})
+		//	const v = validateItem(newItem.draft);
+
+		const validation = validateWithRules(newItem.draft, {
+			index: index,
+			items: domainItems,
+		});
+		const valid = validation.valid;
 
 		const item: RowState<T> = {
 			...newItem,
@@ -83,6 +119,7 @@
 				touched: false,
 				dirty: true,
 				valid,
+				issues: validation.issues
 			},
 		};
 
@@ -144,7 +181,7 @@
 				isDragging={draggedIndex === index}
 				{setDraggedIndex}
 				{applyDrop}
-				updateItem={(newItem) => updateItem(newItem)}
+				updateItem={(newItem) => updateItem(newItem, index)}
 				dragNdrop={createDragNDrop(index, items)}
 				ondelete={() => deleteItem(item.id)}
 				{itemSnippet}
@@ -152,7 +189,7 @@
 		{/each}
 	</div>
 
-	<button type="button" class="add-button" onclick={addItem}>
+	<button type="button" class="add-button" onclick={() => addItem(domainItems.length)}>
 		+ Добавить элемент
 	</button>
 </div>

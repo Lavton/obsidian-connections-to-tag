@@ -7,13 +7,15 @@
 		toRowStates,
 		type ConcreeteConnection,
 		type RowState,
+		type ValidationRule,
 	} from "./types";
 	interface Props {
 		concreeteConnections: ConcreeteConnection[];
 		onchange?: (items: ConcreeteConnection[]) => void;
+		valRules: Array<ValidationRule<ConcreeteConnection>>
 	}
 
-	let { concreeteConnections = $bindable([]), onchange }: Props = $props();
+	let { concreeteConnections = $bindable([]), onchange, valRules }: Props = $props();
 	let items = $state<RowState<ConcreeteConnection>[]>(
 		toRowStates(concreeteConnections),
 	);
@@ -46,7 +48,7 @@
 		bind:items
 		onchange={handleChange}
 		{createNewItem}
-		validateItem={validateConnection}
+		{valRules}
 	>
 		{#snippet itemSnippet({ item, updateItem })}
 			<OneConnection

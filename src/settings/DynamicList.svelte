@@ -34,7 +34,8 @@
 		createNewItem,
 		valRules = [],
 	}: Props = $props();
-	let domainItems = $derived(items.map((i) => i.saved));
+	let domainItems = $derived(items.map((i) => i.draft));
+	validateAbove(-1);
 
 	let draggedIndex = $state<number | null>(null);
 	function validateWithRules(
@@ -48,20 +49,23 @@
 		}
 		return { valid: issues.length === 0, issues };
 	}
-
-	//	function validateItem(item: T): boolean {
-	//		return validateWithRules(item, items
-	//			.map(i => i.saved)
-	//			.filter((v): v is T => v !== undefined)
-	//)
-	//		).valid
-	//	}
+	function validateDepended(
+		value: T,
+		ctx: ListCtx<T | undefined>,
+	): ValidationResult {
+		const issues: Issue[] = [];
+		for (const rule of valRules) {
+			if (rule.scope != "above") continue;
+			const issue = rule.run(value, ctx);
+			if (issue) issues.push(issue);
+		}
+		return { valid: issues.length === 0, issues };
+	}
 
 	function updateItem(updatedRow: RowState<T>, index: number) {
 		items = items.map((row) => {
 			if (row.id !== updatedRow.id) return row;
 
-			//const validation = validateItem(updatedRow.draft);
 			const validation = validateWithRules(updatedRow.draft, {
 				index: index,
 				items: domainItems,
@@ -77,7 +81,7 @@
 					dirty:
 						JSON.stringify(updatedRow.draft) !==
 						JSON.stringify(updatedRow.saved),
-					issues: validation.issues
+					issues: validation.issues,
 				},
 			} satisfies RowState<T>;
 
@@ -93,18 +97,51 @@
 			// остаёмся на draft, но saved не трогаем
 			return next;
 		});
+		validateAbove(index);
 
 		onchange?.(items);
 	}
+	function validateAbove(index: number) {
+		items = items.map((row, idx) => {
+			if (idx <= index) return row;
+			const validation = validateDepended(row.draft, {
+				index: idx,
+				items: domainItems,
+			});
+			const valid = validation.valid;
+			const next = {
+				...row,
+				meta: {
+					...row.meta,
+					touched: true,
+					valid,
+					dirty:
+						JSON.stringify(row.draft) !== JSON.stringify(row.saved),
+					issues: validation.issues,
+				},
+			} satisfies RowState<T>;
+
+			if (valid) {
+				// коммит
+				return {
+					...next,
+					saved: JSON.parse(JSON.stringify(next.draft)),
+					meta: { ...next.meta, dirty: false },
+				};
+			}
+			return next;
+		});
+	}
 
 	function deleteItem(id: string) {
+		const index = items.findIndex((item) => item.id === id);
 		items = items.filter((item) => item.id !== id);
+		validateAbove(index - 1);
 		onchange?.(items);
 	}
 
 	function addItem(index: number) {
 		const newItem = createNewItem();
-		//	const v = validateItem(newItem.draft);
 
 		const validation = validateWithRules(newItem.draft, {
 			index: index,
@@ -119,7 +156,7 @@
 				touched: false,
 				dirty: true,
 				valid,
-				issues: validation.issues
+				issues: validation.issues,
 			},
 		};
 
@@ -137,6 +174,7 @@
 			newItems[index],
 		];
 		items = newItems;
+		validateAbove(Math.min(index, newIndex)-1)
 		onchange?.(items);
 	}
 
@@ -189,7 +227,11 @@
 		{/each}
 	</div>
 
-	<button type="button" class="add-button" onclick={() => addItem(domainItems.length)}>
+	<button
+		type="button"
+		class="add-button"
+		onclick={() => addItem(domainItems.length)}
+	>
 		+ Добавить элемент
 	</button>
 </div>

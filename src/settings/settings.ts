@@ -33,7 +33,7 @@ export interface ConnectionsToTagSettings {
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
 	concreeteConnections: ConcreeteConnection[]
-	connections: Array<{ type: string; [key: string]: any }>;
+	connections: Array<{ type: string; direction: "forward" | "backward"; [key: string]: any }>;
 }
 
 

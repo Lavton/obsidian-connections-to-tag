@@ -48,13 +48,20 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 	async onload() {
 		await this.loadSettings();
-		this.connectionInstances = this.settings.connections.map(
-            config => this.connectionRegistry.fromConfig(config)
-        );
-		console.log("connections", this.connectionInstances)
-		this.connectionInstances.push(
-			new YamlTagConnection(["aaa", "mmmm"])
-		)
+		// this.connectionInstances = this.settings.connections.map(
+            // config => this.connectionRegistry.fromConfig(config)
+        // );
+		const current_connections: connections.Connection[] = []
+		for (const cc of this.settings.connections) {
+			current_connections.push(this.connectionRegistry.fromConfig(cc, current_connections))
+		}
+		this.connectionInstances = current_connections
+		// console.log("connections", this.connectionInstances)
+		// this.connectionInstances.push(
+		// 	new connections.BackwardConnection(
+		// 	new YamlTagConnection(["avvaa", "mmmm"])
+		// 	)
+		// )
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));

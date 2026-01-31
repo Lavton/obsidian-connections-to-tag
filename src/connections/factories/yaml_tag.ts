@@ -5,6 +5,8 @@ import type { ConnectionTypeDescriptor } from "./factory";
 
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';
+    title: string;
+	readonly locality = 'local'
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const uniqueFilesMap = new Map<string, TFile>();
 		const filesByTag = getFilesInFrontmatter(app, node)
@@ -18,7 +20,8 @@ export class YamlTagConnection implements Connection {
 		return Array.from(uniqueFilesMap.values());
 	}
 	tags: string[]
-	constructor(tags: string[]) {
+	constructor(title: string, tags: string[]) {
+		this.title = title
 		this.tags = tags
 	}
 }
@@ -44,18 +47,20 @@ export class YamlTagConnection implements Connection {
 // Дескриптор - единственное место где определяется тип
 export const YamlTagConnectionDescriptor: ConnectionTypeDescriptor<{
     type: 'yaml-tag';
+    title: string;
     tags: string[];
 }> = {
     type: 'yaml-tag',
     
     createInstance(config) {
-        return new YamlTagConnection(config.tags);
+        return new YamlTagConnection(config.title, config.tags);
     },
     
     createConfig(instance) {
         const wrapper = instance as YamlTagConnection;
         return {
-            type: 'yaml-tag',
+			title: wrapper.title,
+            type: wrapper.type,
             tags: wrapper.tags
         };
     }

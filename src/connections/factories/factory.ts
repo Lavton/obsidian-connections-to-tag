@@ -1,10 +1,10 @@
-import type { Connection } from "src/models/connections";
+import { BackwardConnection, type Connection } from "src/models/connections";
 
 
 // Дескриптор типа - связывает всё в одном месте
 export interface ConnectionTypeDescriptor<TConfig = any> {
     type: string;
-    createInstance(config: TConfig): Connection;
+    createInstance(config: TConfig, above_connections: Connection[]): Connection;
     createConfig(instance: Connection): TConfig;
 }
 
@@ -17,20 +17,33 @@ export class ConnectionRegistry {
 		return this
     }
 
-    fromConfig(config: { type: string }): Connection {
+    fromConfig(config: { type: string, direction: "forward" | "backward" }, above_connections: Connection[]): Connection {
         const descriptor = this.descriptors.get(config.type);
         if (!descriptor) {
             throw new Error(`Unknown connection type: ${config.type}`);
         }
-        return descriptor.createInstance(config);
+        const connection = descriptor.createInstance(config, above_connections);
+		if (config.direction == "forward") {
+			return connection
+		} else {
+			return new BackwardConnection(connection)
+		}
     }
 
     toConfig(instance: Connection): any {
+		let direction = ""
+		if (instance instanceof BackwardConnection) {
+			direction = "backward"
+			instance = instance.real_connection
+		} else {
+			direction = "forward"
+		}
         const descriptor = this.descriptors.get(instance.type);
         if (!descriptor) {
             throw new Error(`Unknown connection type: ${instance.type}`);
         }
-        return descriptor.createConfig(instance);
+		const baseConfig = descriptor.createConfig(instance);
+		return { ...baseConfig, direction };
     }
 }
 

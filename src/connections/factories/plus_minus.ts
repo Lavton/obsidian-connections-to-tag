@@ -1,0 +1,72 @@
+import type { App, TFile } from "obsidian";
+import type { Connection } from "src/models/connections";
+import type { ConnectionTypeDescriptor } from "./factory";
+
+export enum PMSign {
+	PLUS = "plus",
+	MINUS = "minus"
+}
+// combined connection: can add or remove some links
+export class PlusMinusConnection implements Connection {
+	readonly type = 'plus-minus';
+	title: string;
+	readonly locality = 'above';
+	async get_connected(app: App, node: TFile): Promise<TFile[]> {
+		const resultMap = new Map<string, TFile>();
+
+		for (const [sign, connection] of this.connections) {
+			const files = await connection.get_connected(app, node);
+
+			if (sign === PMSign.PLUS) {
+				for (const file of files) {
+					if (!resultMap.has(file.path)) {
+						resultMap.set(file.path, file);
+					}
+				}
+			} else if (sign === PMSign.MINUS) {
+				for (const file of files) {
+					resultMap.delete(file.path);
+				}
+			}
+		}
+
+		return Array.from(resultMap.values());
+	}
+	connections: [PMSign, Connection][]
+	constructor(title: string, connections: [PMSign, Connection][]) {
+		this.title = title
+		this.connections = connections
+	}
+}
+
+export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<{
+	type: 'plus-minus';
+	connections: { sign: PMSign, title: string }[];
+	title: string
+}> = {
+	type: 'plus-minus',
+
+	createInstance(config, above_connections: Connection[]) {
+		const new_connections = config.connections
+			.map(conn => {
+				const aboveConn = above_connections.find(ac => ac.title === conn.title);
+				return aboveConn ? [conn.sign, aboveConn] as [PMSign, Connection] : null;
+			})
+			.filter((item): item is [PMSign, Connection] => item !== null);
+		return new PlusMinusConnection(config.title, new_connections);
+	},
+
+	createConfig(instance) {
+		const connection = instance as PlusMinusConnection;
+		const old_connections: [PMSign, Connection][] = connection.connections
+		const new_connections: { sign: PMSign, title: string }[] = old_connections
+		.map(conn => ({ sign: conn[0], title: conn[1].title }))
+
+		return {
+			type: connection.type,
+			title: connection.title,
+			connections: new_connections
+		};
+	}
+};
+

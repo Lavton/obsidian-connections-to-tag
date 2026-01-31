@@ -4,7 +4,9 @@ import { convertToLinePositions, findAllOccurrences, findTextFragment, getBackwa
 
 export interface Connection {
 	type: string;
+	title: string;
 	get_connected(app: App, node: TFile): Promise<TFile[]>;
+	locality: "local" | "above";
 };
 
 // return files of yaml specific tag in frontmatter
@@ -20,11 +22,15 @@ export class YamlConnectionTag implements Connection {
 		this.forward_tags = forward_tags
 		this.backward_tags = backward_tags
 	}
+    title: string;
+    readonly locality='local';
 }
 
 // connection-wrapper: check for the condition not the file, but all it neibours
 export class BackwardConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const neibours = getBackwardLinks(app, node)
 		const result = []
@@ -42,6 +48,7 @@ export class BackwardConnection implements Connection {
 	real_connection: Connection
 	constructor(real_connection: Connection) {
 		this.real_connection = real_connection
+		this.title = real_connection.title
 	}
 }
 
@@ -52,6 +59,8 @@ export enum PMSign {
 // combined connection: can add or remove some links
 export class PlusMinusConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='above';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const resultMap = new Map<string, TFile>();
 
@@ -82,6 +91,8 @@ export class PlusMinusConnection implements Connection {
 // connection "links with defined frontmatter"
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const uniqueFilesMap = new Map<string, TFile>();
 		const filesByTag = getFilesInFrontmatter(app, node)
@@ -103,6 +114,8 @@ export class YamlTagConnection implements Connection {
 // connections "all links in frontmatter"
 export class AllYamlConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const uniqueFilesMap = new Map<string, TFile>();
 		const filesByTag = getFilesInFrontmatter(app, node)
@@ -120,6 +133,8 @@ export class AllYamlConnection implements Connection {
 // "all links that are in the text of the note, not in the frontmatter
 export class AllInTextConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const content = await app.vault.read(node);
 		const contentWithoutFrontmatter = removeFrontmatter(content);
@@ -132,6 +147,8 @@ export class AllInTextConnection implements Connection {
 // "the topest link of the note in text and it's neibours
 export class TopInTextConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const content = await app.vault.read(node);
 		const contentWithoutFrontmatter = removeFrontmatter(content);
@@ -158,6 +175,8 @@ export class TopInTextConnection implements Connection {
 // the links before some regexp/string. ex: before "# " means before first "header-1"
 export class BetweenInTextConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const content = await app.vault.read(node);
 		const contentWithoutFrontmatter = removeFrontmatter(content);
@@ -179,6 +198,8 @@ export class BetweenInTextConnection implements Connection {
 // links after some regexp. Ex: after "parent:: "
 export class JustRegexpConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		const content = await app.vault.read(node);
 		const contentWithoutFrontmatter = removeFrontmatter(content);
@@ -242,6 +263,8 @@ export class JustRegexpConnection implements Connection {
 
 export class ArbitraryDangerConnection implements Connection {
 	readonly type = '';
+    title: string;
+    readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
 		try {
 			// Читаем файл с кодом

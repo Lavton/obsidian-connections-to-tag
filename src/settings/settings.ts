@@ -33,6 +33,7 @@ export interface ConnectionsToTagSettings {
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
 	concreeteConnections: ConcreeteConnection[]
+	connections: Array<{ type: string; [key: string]: any }>;
 }
 
 
@@ -73,7 +74,8 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
 	},
-	concreeteConnections: [{title: "ooo"}]
+	concreeteConnections: [{title: "ooo"}],
+	connections: []
 }
 
 

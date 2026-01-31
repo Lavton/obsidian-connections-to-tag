@@ -16,10 +16,19 @@ import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontma
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
 import type { RuleFactory } from 'src/models/rule';
+import { ConnectionRegistry } from 'src/connections/factories/factory';
+import { YamlTagConnection, YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
+import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_text';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings: settings.ConnectionsToTagSettings;
+	connectionInstances: connections.Connection[] = [];
+	connectionRegistry = new ConnectionRegistry()
+		.register(YamlTagConnectionDescriptor)
+		.register(AllInTextConnectionDescriptor)
+
+
 	connectionFactory = {
 		"backward": connections.BackwardConnection,
 		"plus_minus": connections.PlusMinusConnection,
@@ -39,6 +48,13 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 	async onload() {
 		await this.loadSettings();
+		this.connectionInstances = this.settings.connections.map(
+            config => this.connectionRegistry.fromConfig(config)
+        );
+		console.log("connections", this.connectionInstances)
+		this.connectionInstances.push(
+			new YamlTagConnection(["aaa", "mmmm"])
+		)
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));
@@ -195,6 +211,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	}
 
 	async saveSettings() {
+		this.settings.connections = this.connectionInstances.map(
+            conn => this.connectionRegistry.toConfig(conn as any)
+        );
 		await this.saveData(this.settings);
 	}
 	public updateCommandSettingDependend() {

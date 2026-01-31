@@ -1,4 +1,6 @@
-export type ConcreeteConnection = { title: string };
+export type ConcreeteConnection = {
+	title: string
+};
 
 export function emptyConcreeteConnection() { return { title: "" } }
 
@@ -21,13 +23,13 @@ export type ValidationResult = {
 	issues: Issue[];
 };
 export type ListCtx<T> = {
-  index: number;
-  items: T[];
+	index: number;
+	items: T[];
 };
 
 export type ValidationRule<T> = {
-  scope: "local" | "above";
-  run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null;
+	scope: "local" | "above";
+	run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null;
 };
 
 export type ConnectionCtx = ListCtx<ConcreeteConnection>

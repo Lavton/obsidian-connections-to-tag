@@ -1,18 +1,20 @@
 <script lang="ts">
+	import type { ConnectionRegistry } from "src/connections/factories/factory";
 	import {
 		emptyRowState,
-		type ConcreeteConnection,
+		type ConnectionConfig,
 		type Issue,
 		type IssueCode,
 		type RowState,
 	} from "./types";
 
 	interface Props {
-		value: RowState<ConcreeteConnection>;
-		onchange?: (newValue: RowState<ConcreeteConnection>) => void;
+		value: RowState<ConnectionConfig>;
+		onchange?: (newValue: RowState<ConnectionConfig>) => void;
+		registry: ConnectionRegistry;
 	}
 
-	let { value = $bindable(emptyRowState()), onchange }: Props = $props();
+	let { value = $bindable(emptyRowState()), onchange, registry }: Props = $props();
 
 	function handleInput(event: Event) {
 		const target = event.target as HTMLInputElement;

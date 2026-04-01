@@ -2,6 +2,8 @@ import type { App, TFile } from "obsidian"
 import type { Connection } from "src/models/connections"
 import { getBackwardFilesFromFronmatter, getFilesInFrontmatter, getForwardFilesFromFrontmatter } from "src/utils"
 import type { ConnectionTypeDescriptor } from "./factory";
+import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
+import type { ConnectionConfig } from "src/settings/types";
 
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';
@@ -26,6 +28,40 @@ export class YamlTagConnection implements Connection {
 	}
 }
 
+
+export class YamlTagConnConfig implements ConnectionConfig {
+    type: 'yaml-tag';
+    title: string;
+    tags: string[];
+}
+
+// Дескриптор - единственное место где определяется тип
+export const YamlTagConnectionDescriptor: ConnectionTypeDescriptor<YamlTagConnConfig> = {
+	type: 'yaml-tag',
+
+	createInstance(config) {
+		return new YamlTagConnection(config.title, config.tags);
+	},
+
+	createConfig(instance) {
+		const wrapper = instance as YamlTagConnection;
+		return {
+			title: wrapper.title,
+			type: wrapper.type,
+			tags: wrapper.tags
+		};
+	},
+	label: "YAML tags",
+	editorComponent: YamlTagConnectionEditor,
+	createDefaultConfig() {
+        return { type: 'yaml-tag', title: '', tags: [] };
+    },
+};
+
+// Регистрируем тип
+// connectionRegistry.register(YamlTagConnectionDescriptor);
+
+
 // Враппер для YamlTagConnection
 // export class YamlTagConnectionWrapper implements Connection {
 //     __type = 'yaml-tag'; // внутреннее поле для идентификации
@@ -43,28 +79,3 @@ export class YamlTagConnection implements Connection {
 //         return this.instance.tags;
 //     }
 // }
-
-// Дескриптор - единственное место где определяется тип
-export const YamlTagConnectionDescriptor: ConnectionTypeDescriptor<{
-    type: 'yaml-tag';
-    title: string;
-    tags: string[];
-}> = {
-    type: 'yaml-tag',
-    
-    createInstance(config) {
-        return new YamlTagConnection(config.title, config.tags);
-    },
-    
-    createConfig(instance) {
-        const wrapper = instance as YamlTagConnection;
-        return {
-			title: wrapper.title,
-            type: wrapper.type,
-            tags: wrapper.tags
-        };
-    }
-};
-
-// Регистрируем тип
-// connectionRegistry.register(YamlTagConnectionDescriptor);

@@ -1,8 +1,11 @@
-export type ConcreeteConnection = {
+export type ConnectionConfig = {
+	readonly type: string
 	title: string
 };
 
-export function emptyConcreeteConnection() { return { title: "" } }
+export function emptyConnectionConfig(): ConnectionConfig {
+  return { type: "", title: "" };
+}
 
 export interface DragNDropProps {
 	moveUp?: () => void;
@@ -32,7 +35,7 @@ export type ValidationRule<T> = {
 	run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null;
 };
 
-export type ConnectionCtx = ListCtx<ConcreeteConnection>
+// export type ConnectionCtx = ListCtx<ConnectionConfig>
 
 export type RowState<T> = {
 	id: string;
@@ -46,9 +49,9 @@ export type RowState<T> = {
 	};
 }
 
-const cloneConn = (x: ConcreeteConnection): ConcreeteConnection => ({ ...x });
+const cloneConn = (x: ConnectionConfig): ConnectionConfig => ({ ...x });
 
-export function toRowStates(items: ConcreeteConnection[]): RowState<ConcreeteConnection>[] {
+export function toRowStates(items: ConnectionConfig[]): RowState<ConnectionConfig>[] {
 	return items.map((item, i) => ({
 		id: crypto.randomUUID?.() ?? `row-${i}-${Math.random().toString(16).slice(2)}`,
 		saved: cloneConn(item),
@@ -61,18 +64,18 @@ export function toRowStates(items: ConcreeteConnection[]): RowState<ConcreeteCon
 		}
 	}));
 }
-export function emptyRowState(): RowState<ConcreeteConnection> {
-	const c = emptyConcreeteConnection()
+export function emptyRowState(): RowState<ConnectionConfig> {
+	const c = emptyConnectionConfig()
 	const rs = toRowStates([c])[0]
 	rs.saved = undefined
 	return rs
 }
 
-export function fromRowStates(rows: RowState<ConcreeteConnection>[]): ConcreeteConnection[] {
+export function fromRowStates(rows: RowState<ConnectionConfig>[]): ConnectionConfig[] {
 	// Обычно отдаём "saved" или "draft" — зависит от UX.
 	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
 	return rows
 		.map(r => r.saved)
-		.filter((v): v is ConcreeteConnection => v !== undefined)
+		.filter((v): v is ConnectionConfig => v !== undefined)
 		.map(v => cloneConn(v));
 }

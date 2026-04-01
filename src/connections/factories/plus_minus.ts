@@ -1,6 +1,7 @@
 import type { App, TFile } from "obsidian";
-import type { Connection } from "src/models/connections";
+import { YamlConnectionTag, type Connection } from "src/models/connections";
 import type { ConnectionTypeDescriptor } from "./factory";
+import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
 
 export enum PMSign {
 	PLUS = "plus",
@@ -39,34 +40,36 @@ export class PlusMinusConnection implements Connection {
 	}
 }
 
-export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<{
-	type: 'plus-minus';
-	connections: { sign: PMSign, title: string }[];
-	title: string
-}> = {
-	type: 'plus-minus',
+// export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<{
+// 	type: 'plus-minus';
+// 	connections: { sign: PMSign, title: string }[];
+// 	title: string
+// }> = {
+// 	type: 'plus-minus',
 
-	createInstance(config, above_connections: Connection[]) {
-		const new_connections = config.connections
-			.map(conn => {
-				const aboveConn = above_connections.find(ac => ac.title === conn.title);
-				return aboveConn ? [conn.sign, aboveConn] as [PMSign, Connection] : null;
-			})
-			.filter((item): item is [PMSign, Connection] => item !== null);
-		return new PlusMinusConnection(config.title, new_connections);
-	},
+// 	createInstance(config, above_connections: Connection[]) {
+// 		const new_connections = config.connections
+// 			.map(conn => {
+// 				const aboveConn = above_connections.find(ac => ac.title === conn.title);
+// 				return aboveConn ? [conn.sign, aboveConn] as [PMSign, Connection] : null;
+// 			})
+// 			.filter((item): item is [PMSign, Connection] => item !== null);
+// 		return new PlusMinusConnection(config.title, new_connections);
+// 	},
 
-	createConfig(instance) {
-		const connection = instance as PlusMinusConnection;
-		const old_connections: [PMSign, Connection][] = connection.connections
-		const new_connections: { sign: PMSign, title: string }[] = old_connections
-		.map(conn => ({ sign: conn[0], title: conn[1].title }))
+// 	createConfig(instance) {
+// 		const connection = instance as PlusMinusConnection;
+// 		const old_connections: [PMSign, Connection][] = connection.connections;
+// 		const new_connections: { sign: PMSign; title: string; }[] = old_connections
+// 			.map(conn => ({ sign: conn[0], title: conn[1].title }));
 
-		return {
-			type: connection.type,
-			title: connection.title,
-			connections: new_connections
-		};
-	}
-};
+// 		return {
+// 			type: connection.type,
+// 			title: connection.title,
+// 			connections: new_connections
+// 		};
+// 	},
+// 	label: "plus",
+// 	editorComponent: YamlTagConnectionEditor // #TODO change
+// };
 

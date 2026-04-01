@@ -1,13 +1,13 @@
-import type { ConcreeteConnection, ConnectionCtx, ValidationRule } from "./types";
+import type { ConnectionConfig, ValidationRule } from "./types";
 
-export const ruleTitleRequired: ValidationRule<ConcreeteConnection> = {
+export const ruleTitleRequired: ValidationRule<ConnectionConfig> = {
 	scope: "local",
 	run: (item) => {
 		if (item.title.trim() === "") return { code: "required_title", path: "title" };
 		return null;
 	},
 }
-export const ruleNoPlusMinusWithSpaces: ValidationRule<ConcreeteConnection> = {
+export const ruleNoPlusMinusWithSpaces: ValidationRule<ConnectionConfig> = {
 	scope: "local",
 	run: (item) => {
 		if (item.title.includes(" + ") || item.title.includes(" - ")) {
@@ -23,7 +23,7 @@ export const ruleNoPlusMinusWithSpaces: ValidationRule<ConcreeteConnection> = {
 	},
 }
 
-export const ruleNotEqual: ValidationRule<ConcreeteConnection> = {
+export const ruleNotEqual: ValidationRule<ConnectionConfig> = {
 	scope: "above",
 	run: (item, ctx) => {
 

@@ -3,6 +3,9 @@ import { extractLinksFromString, getFilepaths } from "src/link_utils";
 import type { Connection } from "src/models/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
+import AllInTextConnectionEditor from "./AllInTextConnectionEditor.svelte";
+import type { ConnectionConfig } from "src/settings/types";
+import { readonly } from "svelte/store";
 
 // "all links that are in the text of the note, not in the frontmatter
 export class AllInTextConnection implements Connection {
@@ -21,24 +24,30 @@ export class AllInTextConnection implements Connection {
 	}
 }
 
+export class AllInTextConnConfig implements ConnectionConfig {
+	readonly type: string;
+	title: string;
+}
 
-export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<{
-    type: 'all-in-text';
-	title: string
-}> = {
-    type: 'all-in-text',
-    
-    createInstance(config) {
-        return new AllInTextConnection(config.title);
-    },
-    
-    createConfig(instance) {
-        const connection = instance as AllInTextConnection;
-        return {
-            type: connection.type,
+export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<AllInTextConnConfig> = {
+	type: 'all-in-text',
+
+	createInstance(config) {
+		return new AllInTextConnection(config.title);
+	},
+
+	createConfig(instance) {
+		const connection = instance as AllInTextConnection;
+		return {
+			type: connection.type,
 			title: connection.title
-        };
-    }
+		};
+	},
+	label: "all links in text",
+	editorComponent: AllInTextConnectionEditor,
+	createDefaultConfig() {
+        return { type: 'all-in-text', title: '' };
+    },
 };
 
 // connectionRegistry.register(AllInTextConnectionDescriptor);

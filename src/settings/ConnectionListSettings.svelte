@@ -1,34 +1,36 @@
 <script lang="ts">
+	import type { ConnectionRegistry } from "src/connections/factories/factory";
 	import DynamicList from "./DynamicList.svelte";
 	import OneConnection from "./OneConnection.svelte";
 	import {
 		emptyRowState,
 		fromRowStates,
 		toRowStates,
-		type ConcreeteConnection,
+		type ConnectionConfig,
 		type RowState,
 		type ValidationRule,
 	} from "./types";
 	interface Props {
-		concreeteConnections: ConcreeteConnection[];
-		onchange?: (items: ConcreeteConnection[]) => void;
-		valRules: Array<ValidationRule<ConcreeteConnection>>
+		concreeteConnections: ConnectionConfig[];
+		onchange?: (items: ConnectionConfig[]) => void;
+		valRules: Array<ValidationRule<ConnectionConfig>>
+		registry: ConnectionRegistry
 	}
 
-	let { concreeteConnections = $bindable([]), onchange, valRules }: Props = $props();
-	let items = $state<RowState<ConcreeteConnection>[]>(
+	let { concreeteConnections = $bindable([]), onchange, valRules, registry }: Props = $props();
+	let items = $state<RowState<ConnectionConfig>[]>(
 		toRowStates(concreeteConnections),
 	);
 
-	function handleChange(newItems: RowState<ConcreeteConnection>[]) {
+	function handleChange(newItems: RowState<ConnectionConfig>[]) {
 		onchange?.(fromRowStates(newItems));
 	}
 
-	function createNewItem(): RowState<ConcreeteConnection> {
+	function createNewItem(): RowState<ConnectionConfig> {
 		return emptyRowState();
 	}
 
-	function validateConnection(item: ConcreeteConnection): boolean {
+	function validateConnection(item: ConnectionConfig): boolean {
 		// Проверка: не пустое значение и не содержит " + " или " - "
 		const trimmedValue = item.title.trim();
 		if (trimmedValue === "") return false;
@@ -54,6 +56,7 @@
 			<OneConnection
 				value={item}
 				onchange={(newRow) => updateItem(newRow)}
+				registry={registry}
 			/>
 		{/snippet}
 	</DynamicList>

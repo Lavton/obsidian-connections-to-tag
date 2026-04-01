@@ -24,10 +24,9 @@ import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings: settings.ConnectionsToTagSettings;
 	connectionInstances: connections.Connection[] = [];
-	connectionRegistry = new ConnectionRegistry()
+	connectionRegistry: ConnectionRegistry = new ConnectionRegistry()
 		.register(YamlTagConnectionDescriptor)
 		.register(AllInTextConnectionDescriptor)
-
 
 	connectionFactory = {
 		"backward": connections.BackwardConnection,
@@ -64,8 +63,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		// )
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this));
-		this.updateCommandSettingDependend()
+		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this, this));
+		this.updateCommandSettingDependend() 
 		this.addCommand({
 			id: 'test-connection',
 			name: 'Test Connection',

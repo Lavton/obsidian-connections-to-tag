@@ -5,8 +5,9 @@ import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { Connection } from "src/models/connections";
 import type { RuleFactory } from "src/models/rule";
-import type { ConcreeteConnection } from "./types";
+import type { ConnectionConfig } from "./types";
 import * as common_rules from "./common_validation_rules";
+import type { ConnectionRegistry } from "src/connections/factories/factory";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -32,7 +33,7 @@ export interface ConnectionsToTagSettings {
 	parentsTag: string[],
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
-	concreeteConnections: ConcreeteConnection[]
+	concreeteConnections: ConnectionConfig[]
 	connections: Array<{ type: string; direction: "forward" | "backward"; [key: string]: any }>;
 }
 
@@ -74,7 +75,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
 	},
-	concreeteConnections: [{title: "ooo"}],
+	concreeteConnections: [{type: "yaml-tag", title: "ooo"}],
 	connections: []
 }
 
@@ -87,16 +88,19 @@ export interface SettingsSaver extends Plugin {
 type ConnectionMap = Record<string, new (...args: any[]) => Connection>;
 type RulesMap = Record<string, new (...args: any[]) => RuleFactory>;
 export interface ConnectionsHolder extends Plugin {
-	connectionFactory: ConnectionMap
-	ruleFactory: RulesMap
+	// connectionFactory: ConnectionMap
+	// ruleFactory: RulesMap
+	connectionRegistry: ConnectionRegistry
 }
 
 export class ConnectionsToTagSettingTab extends PluginSettingTab {
 	plugin: SettingsSaver;
+	connectionHolder: ConnectionsHolder
 
-	constructor(app: App, plugin: SettingsSaver) {
+	constructor(app: App, plugin: SettingsSaver, connectionHolder: ConnectionsHolder) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.connectionHolder = connectionHolder
 	}
 
 	display(): void {
@@ -178,11 +182,12 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			target: listContainer,
 			props: {
 				concreeteConnections: this.plugin.settings.concreeteConnections,
-				onchange: async (items: ConcreeteConnection[]) => {
+				onchange: async (items: ConnectionConfig[]) => {
 					this.plugin.settings.concreeteConnections = items;
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				},
+				registry: this.connectionHolder.connectionRegistry,
 				valRules: [
 					common_rules.ruleTitleRequired,
 					common_rules.ruleNoPlusMinusWithSpaces,

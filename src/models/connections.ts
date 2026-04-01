@@ -3,10 +3,10 @@ import { extractLinksFromString, getFilepaths } from 'src/link_utils';
 import { convertToLinePositions, findAllOccurrences, findTextFragment, getBackwardFilesFromFronmatter, getBackwardLinks, getFilesInFrontmatter, getForwardFilesFromFrontmatter, removeFrontmatter } from 'src/utils';
 
 export interface Connection {
-	type: string;
+	readonly type: string;
 	title: string;
 	get_connected(app: App, node: TFile): Promise<TFile[]>;
-	locality: "local" | "above";
+	readonly locality: "local" | "above";
 };
 
 // return files of yaml specific tag in frontmatter

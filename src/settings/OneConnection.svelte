@@ -16,18 +16,50 @@
 
 	let { value = $bindable(emptyRowState()), onchange, registry }: Props = $props();
 
-	function handleInput(event: Event) {
-		const target = event.target as HTMLInputElement;
+	let descriptor = $derived(
+		value.draft.type ? registry.get(value.draft.type) : undefined
+	);
 
-		// обновляем draft и отмечаем touched
+	let EditorComponent = $derived(descriptor?.editorComponent);
+
+	function handleTitle(event: Event) {
+		const title = (event.target as HTMLInputElement).value;
 		value = {
 			...value,
-			draft: { ...value.draft, title: target.value },
+			draft: { ...value.draft, title },
 			meta: { ...value.meta, touched: true },
 		};
-
 		onchange?.(value);
 	}
+
+	function handleTypeChange(e: Event) {
+		const newType = (e.target as HTMLSelectElement).value;
+		const newDescriptor = registry.get(newType);
+
+		const newDraft = newDescriptor
+			? (newDescriptor.createDefaultConfig() as ConnectionConfig)
+			: ({ type: newType, title: value.draft.title } as ConnectionConfig);
+
+		// Сохраняем title, который пользователь уже ввёл
+		newDraft.title = value.draft.title;
+
+		value = {
+			...value,
+			draft: newDraft,
+			meta: { ...value.meta, touched: true },
+		};
+		onchange?.(value);
+	}
+
+	function handleDraftChange(updated: ConnectionConfig) {
+		value = {
+			...value,
+			draft: updated,
+			meta: { ...value.meta, touched: true },
+		};
+		onchange?.(value);
+	}
+
 	const issueMessages: Record<IssueCode, (issue: Issue) => string> = {
 		required_title: () => "Введите значение.",
 		forbitten_pm: () =>
@@ -42,38 +74,65 @@
 </script>
 
 <div class="list-item">
-	<div class="input-wrapper">
-		<input
-			type="text"
-			value={value.draft.title}
-			oninput={handleInput}
-			placeholder="Введите значение..."
-			aria-label="Значение элемента"
-			class:invalid={!value.meta.valid}
-		/>
-		{#if value.meta.touched && !value.meta.valid}
-			<div class="error-hint">{issueToText(value.meta.issues[0])}</div>
-		{/if}
+	<!-- Первая строка: title + выбор типа -->
+	<div class="top-row">
+		<div class="title-wrapper">
+			<input
+				type="text"
+				value={value.draft.title}
+				oninput={handleTitle}
+				placeholder="Введите название..."
+				aria-label="Название соединения"
+				class:invalid={!value.meta.valid}
+			/>
+			{#if value.meta.touched && !value.meta.valid}
+				<div class="error-hint">{issueToText(value.meta.issues[0])}</div>
+			{/if}
+		</div>
+
+		<select
+			value={value.draft.type}
+			onchange={handleTypeChange}
+			class="type-select"
+		>
+			<option value="" disabled>— тип —</option>
+			{#each registry.all() as desc (desc.type)}
+				<option value={desc.type}>{desc.label}</option>
+			{/each}
+		</select>
 	</div>
+
+	<!-- Вторая строка: специфичный контент типа (без title) -->
+	{#if EditorComponent}
+		<div class="editor-wrapper">
+			<EditorComponent value={value.draft} onchange={handleDraftChange} />
+		</div>
+	{/if}
 </div>
 
 <style>
 	.list-item {
 		display: flex;
-		gap: 8px;
-		align-items: center;
+		flex-direction: column;
+		gap: 6px;
 		margin-bottom: 8px;
 		padding: 4px;
 		border-radius: 4px;
 		background: var(--background-primary);
 	}
 
-	.input-wrapper {
+	.top-row {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	.title-wrapper {
 		flex: 1;
 		position: relative;
 	}
 
-	input {
+	.title-wrapper input {
 		width: 100%;
 		padding: 6px 10px;
 		border: 1px solid var(--background-modifier-border);
@@ -81,9 +140,10 @@
 		background: var(--background-primary);
 		color: var(--text-normal);
 		transition: border-color 0.2s;
+		box-sizing: border-box;
 	}
 
-	input.invalid {
+	.title-wrapper input.invalid {
 		border-color: var(--text-error);
 	}
 
@@ -99,5 +159,19 @@
 		line-height: 1.3;
 		opacity: 0.9;
 		z-index: 10;
+	}
+
+	.type-select {
+		padding: 6px 8px;
+		border: 1px solid var(--background-modifier-border);
+		border-radius: 4px;
+		background: var(--background-primary);
+		color: var(--text-normal);
+		min-width: 160px;
+		flex-shrink: 0;
+	}
+
+	.editor-wrapper {
+		padding: 4px 2px 0;
 	}
 </style>

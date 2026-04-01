@@ -33,7 +33,7 @@ export interface ConnectionsToTagSettings {
 	parentsTag: string[],
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
-	concreeteConnections: ConnectionConfig[]
+	connectionConfigs: ConnectionConfig[]
 	connections: Array<{ type: string; direction: "forward" | "backward"; [key: string]: any }>;
 }
 
@@ -75,7 +75,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
 	},
-	concreeteConnections: [{type: "yaml-tag", title: "ooo"}],
+	connectionConfigs: [{type: "yaml-tag", title: "ooo"}],
 	connections: []
 }
 
@@ -181,9 +181,9 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
 			props: {
-				concreeteConnections: this.plugin.settings.concreeteConnections,
+				concreeteConnections: this.plugin.settings.connectionConfigs,
 				onchange: async (items: ConnectionConfig[]) => {
-					this.plugin.settings.concreeteConnections = items;
+					this.plugin.settings.connectionConfigs = items;
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				},

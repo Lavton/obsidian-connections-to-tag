@@ -105,11 +105,13 @@
 				↓
 			</button>
 		</div>
+<div class="item-content">
 
 		{@render itemSnippet({
 			item,
 			updateItem,
 		})}
+</div>
 
 		<button
 			type="button"
@@ -134,7 +136,11 @@
 		border-radius: 4px;
 		background: var(--background-primary);
 	}
-
+.item-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
 	.drag-handle {
 		cursor: grab;
 		color: var(--text-muted);

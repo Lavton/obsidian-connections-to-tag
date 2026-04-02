@@ -120,6 +120,9 @@
 		border-radius: 4px;
 		background: var(--background-primary);
 		align-items: stretch;
+		min-width: 0;      /* ← добавить */
+    overflow: hidden;  /* ← добавить */
+    box-sizing: border-box; /* ← добавить */
 	}
 
 .top-row {
@@ -172,5 +175,7 @@
 		padding: 4px 2px 0;
 		width: 100%;
     box-sizing: border-box;
+	min-width: 0;      /* ← добавить */
+    overflow: hidden;  /* ← добавить */
 	}
 </style>

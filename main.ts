@@ -19,6 +19,7 @@ import type { RuleFactory } from 'src/models/rule';
 import { ConnectionRegistry } from 'src/connections/factories/factory';
 import { YamlTagConnection, YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
 import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_text';
+import { PlusMinusConnectionDescriptor } from 'src/connections/factories/plus_minus';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -27,6 +28,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry()
 		.register(YamlTagConnectionDescriptor)
 		.register(AllInTextConnectionDescriptor)
+		.register(PlusMinusConnectionDescriptor)
 
 	connectionFactory = {
 		"backward": connections.BackwardConnection,

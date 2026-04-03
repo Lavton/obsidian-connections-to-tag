@@ -57,6 +57,7 @@ export enum PMSign {
 	MINUS = "minus"
 }
 // combined connection: can add or remove some links
+// @deprecated
 export class PlusMinusConnection implements Connection {
 	readonly type = '';
     title: string;
@@ -89,6 +90,7 @@ export class PlusMinusConnection implements Connection {
 }
 
 // connection "links with defined frontmatter"
+// @deprecated x2
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';
     title: string;
@@ -131,6 +133,7 @@ export class AllYamlConnection implements Connection {
 }
 
 // "all links that are in the text of the note, not in the frontmatter
+// @deprecated
 export class AllInTextConnection implements Connection {
 	readonly type = '';
     title: string;

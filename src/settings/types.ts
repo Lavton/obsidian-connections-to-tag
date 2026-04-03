@@ -2,6 +2,7 @@ export type ConnectionConfig = {
 	readonly type: string
 	title: string
 };
+export type DirectionalConnection = ConnectionConfig & { direction: "forward" | "backward" }
 
 export function emptyConnectionConfig(): ConnectionConfig {
   return { type: "", title: "" };
@@ -49,9 +50,9 @@ export type RowState<T> = {
 	};
 }
 
-const cloneConn = (x: ConnectionConfig): ConnectionConfig => ({ ...x });
+const cloneConn = (x: DirectionalConnection): DirectionalConnection => ({ ...x });
 
-export function toRowStates(items: ConnectionConfig[]): RowState<ConnectionConfig>[] {
+export function toRowStates(items: DirectionalConnection[]): RowState<DirectionalConnection>[] {
 	return items.map((item, i) => ({
 		id: crypto.randomUUID?.() ?? `row-${i}-${Math.random().toString(16).slice(2)}`,
 		saved: cloneConn(item),
@@ -64,18 +65,18 @@ export function toRowStates(items: ConnectionConfig[]): RowState<ConnectionConfi
 		}
 	}));
 }
-export function emptyRowState(): RowState<ConnectionConfig> {
-	const c = emptyConnectionConfig()
+export function emptyRowState(): RowState<DirectionalConnection> {
+	const c: DirectionalConnection = {...emptyConnectionConfig(), direction: "forward"}
 	const rs = toRowStates([c])[0]
 	rs.saved = undefined
 	return rs
 }
 
-export function fromRowStates(rows: RowState<ConnectionConfig>[]): ConnectionConfig[] {
+export function fromRowStates(rows: RowState<DirectionalConnection>[]): DirectionalConnection[] {
 	// Обычно отдаём "saved" или "draft" — зависит от UX.
 	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
 	return rows
 		.map(r => r.saved)
-		.filter((v): v is ConnectionConfig => v !== undefined)
+		.filter((v): v is DirectionalConnection => v !== undefined)
 		.map(v => cloneConn(v));
 }

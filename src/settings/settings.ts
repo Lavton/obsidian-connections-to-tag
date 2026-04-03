@@ -5,7 +5,7 @@ import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { Connection } from "src/models/connections";
 import type { RuleFactory } from "src/models/rule";
-import type { ConnectionConfig } from "./types";
+import type { ConnectionConfig, DirectionalConnection } from "./types";
 import * as common_rules from "./common_validation_rules";
 import type { ConnectionRegistry } from "src/connections/factories/factory";
 export interface ResultsSettings {
@@ -33,7 +33,7 @@ export interface ConnectionsToTagSettings {
 	parentsTag: string[],
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
-	connectionConfigs: ConnectionConfig[]
+	connectionConfigs: DirectionalConnection[]
 	connections: Array<{ type: string; direction: "forward" | "backward"; [key: string]: any }>;
 }
 
@@ -75,7 +75,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
 	},
-	connectionConfigs: [{type: "yaml-tag", title: "ooo"}],
+	connectionConfigs: [{type: "yaml-tag", title: "ooo", direction: "forward"}],
 	connections: []
 }
 
@@ -182,7 +182,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			target: listContainer,
 			props: {
 				concreeteConnections: this.plugin.settings.connectionConfigs,
-				onchange: async (items: ConnectionConfig[]) => {
+				onchange: async (items: DirectionalConnection[]) => {
 					this.plugin.settings.connectionConfigs = items;
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();

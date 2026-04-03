@@ -3,14 +3,15 @@
 	import {
 		emptyRowState,
 		type ConnectionConfig,
+		type DirectionalConnection,
 		type Issue,
 		type IssueCode,
 		type RowState,
 	} from "./types";
 
 	interface Props {
-		value: RowState<ConnectionConfig>;
-		onchange?: (newValue: RowState<ConnectionConfig>) => void;
+		value: RowState<DirectionalConnection>;
+		onchange?: (newValue: RowState<DirectionalConnection>) => void;
 		registry: ConnectionRegistry;
 	}
 
@@ -37,8 +38,8 @@
 		const newDescriptor = registry.get(newType);
 
 		const newDraft = newDescriptor
-			? (newDescriptor.createDefaultConfig() as ConnectionConfig)
-			: ({ type: newType, title: value.draft.title } as ConnectionConfig);
+			? (newDescriptor.createDefaultConfig() as DirectionalConnection)
+			: ({ type: newType, title: value.draft.title } as DirectionalConnection);
 
 		// Сохраняем title, который пользователь уже ввёл
 		newDraft.title = value.draft.title;
@@ -54,7 +55,7 @@
 	function handleDraftChange(updated: ConnectionConfig) {
 		value = {
 			...value,
-			draft: updated,
+			draft: { ...value.draft, ...updated },
 			meta: { ...value.meta, touched: true },
 		};
 		onchange?.(value);
@@ -70,6 +71,15 @@
 
 	export function issueToText(issue: Issue): string {
 		return issueMessages[issue.code]?.(issue) ?? "Некорректное значение.";
+	}
+	function handleDirectionChange(e: Event) {
+	const direction = (e.target as HTMLSelectElement).value as "forward" | "backward";
+		value = {
+			...value,
+			draft: { ...value.draft, direction },
+			meta: { ...value.meta, touched: true },
+		};
+		onchange?.(value);
 	}
 </script>
 
@@ -100,6 +110,16 @@
 				<option value={desc.type}>{desc.label}</option>
 			{/each}
 		</select>
+		<div class="top-row">
+	<select
+		value={value.draft.direction}
+		onchange={handleDirectionChange}
+		class="direction-select"
+	>
+		<option value="forward">→ вперёд</option>
+		<option value="backward">← назад</option>
+	</select>
+</div>
 	</div>
 
 	<!-- Вторая строка: специфичный контент типа (без title) -->
@@ -120,9 +140,9 @@
 		border-radius: 4px;
 		background: var(--background-primary);
 		align-items: stretch;
-		min-width: 0;      /* ← добавить */
-    overflow: hidden;  /* ← добавить */
-    box-sizing: border-box; /* ← добавить */
+		min-width: 0;   
+    overflow: hidden;
+    box-sizing: border-box;
 	}
 
 .top-row {
@@ -152,14 +172,14 @@
 		border-color: var(--text-error);
 	}
 
-.error-hint {
-	font-size: 0.85em;
-	color: var(--text-error);
-	padding: 2px 4px 0;
-	margin-top: 2px;
-	line-height: 1.3;
-	opacity: 0.9;
-}
+	.error-hint {
+		font-size: 0.85em;
+		color: var(--text-error);
+		padding: 2px 4px 0;
+		margin-top: 2px;
+		line-height: 1.3;
+		opacity: 0.9;
+	}
 
 	.type-select {
 		padding: 6px 8px;
@@ -174,8 +194,17 @@
 	.editor-wrapper {
 		padding: 4px 2px 0;
 		width: 100%;
-    box-sizing: border-box;
-	min-width: 0;      /* ← добавить */
-    overflow: hidden;  /* ← добавить */
+		box-sizing: border-box;
+		min-width: 0;      
+	   overflow: hidden; 
+	}
+	.direction-select {
+		padding: 6px 8px;
+		border: 1px solid var(--background-modifier-border);
+		border-radius: 4px;
+		background: var(--background-primary);
+		color: var(--text-normal);
+		min-width: 110px;
+		flex-shrink: 0;
 	}
 </style>

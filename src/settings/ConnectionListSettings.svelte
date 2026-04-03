@@ -6,31 +6,31 @@
 		emptyRowState,
 		fromRowStates,
 		toRowStates,
-		type ConnectionConfig,
+		type DirectionalConnection,
 		type RowState,
 		type ValidationRule,
 	} from "./types";
 	interface Props {
-		concreeteConnections: ConnectionConfig[];
-		onchange?: (items: ConnectionConfig[]) => void;
-		valRules: Array<ValidationRule<ConnectionConfig>>
+		concreeteConnections: DirectionalConnection[];
+		onchange?: (items: DirectionalConnection[]) => void;
+		valRules: Array<ValidationRule<DirectionalConnection>>
 		registry: ConnectionRegistry
 	}
 
 	let { concreeteConnections = $bindable([]), onchange, valRules, registry }: Props = $props();
-	let items = $state<RowState<ConnectionConfig>[]>(
+	let items = $state<RowState<DirectionalConnection>[]>(
 		toRowStates(concreeteConnections),
 	);
 
-	function handleChange(newItems: RowState<ConnectionConfig>[]) {
+	function handleChange(newItems: RowState<DirectionalConnection>[]) {
 		onchange?.(fromRowStates(newItems));
 	}
 
-	function createNewItem(): RowState<ConnectionConfig> {
+	function createNewItem(): RowState<DirectionalConnection> {
 		return emptyRowState();
 	}
 
-	function validateConnection(item: ConnectionConfig): boolean {
+	function validateConnection(item: DirectionalConnection): boolean {
 		// Проверка: не пустое значение и не содержит " + " или " - "
 		const trimmedValue = item.title.trim();
 		if (trimmedValue === "") return false;

@@ -1,6 +1,6 @@
 import type { App, TFile } from "obsidian"
 import type { Connection } from "src/models/connections"
-import { getBackwardFilesFromFronmatter, getFilesInFrontmatter, getForwardFilesFromFrontmatter } from "src/utils"
+import { getFilesInFrontmatter } from "src/utils"
 import type { ConnectionTypeDescriptor } from "./factory";
 import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
 import type { ConnectionConfig } from "src/settings/types";
@@ -57,25 +57,3 @@ export const YamlTagConnectionDescriptor: ConnectionTypeDescriptor<YamlTagConnCo
         return { type: 'yaml-tag', title: '', tags: [] };
     },
 };
-
-// Регистрируем тип
-// connectionRegistry.register(YamlTagConnectionDescriptor);
-
-
-// Враппер для YamlTagConnection
-// export class YamlTagConnectionWrapper implements Connection {
-//     __type = 'yaml-tag'; // внутреннее поле для идентификации
-//     private instance: YamlTagConnection;
-
-//     constructor(tags: string[]) {
-//         this.instance = new YamlTagConnection(tags);
-//     }
-
-//     get_connected(app: App, node: TFile): Promise<TFile[]> {
-//         return this.instance.get_connected(app, node);
-//     }
-
-//     getTags(): string[] {
-//         return this.instance.tags;
-//     }
-// }

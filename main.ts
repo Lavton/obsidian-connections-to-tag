@@ -20,14 +20,24 @@ import { ConnectionRegistry } from 'src/connections/factories/factory';
 import { YamlTagConnection, YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
 import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_text';
 import { PlusMinusConnectionDescriptor } from 'src/connections/factories/plus_minus';
+import { AllYamlConnectionDescriptor } from 'src/connections/factories/all_yaml';
+import { ArbitraryDangerConnectionDescriptor } from 'src/connections/factories/arbitrary_danger';
+import { BetweenInTextConnectionDescriptor } from 'src/connections/factories/between_in_text';
+import { JustRegexpConnectionDescriptor } from 'src/connections/factories/just_regexp';
+import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_text';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings: settings.ConnectionsToTagSettings;
 	connectionInstances: connections.Connection[] = [];
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry()
-		.register(YamlTagConnectionDescriptor)
 		.register(AllInTextConnectionDescriptor)
+		.register(AllYamlConnectionDescriptor)
+		.register(ArbitraryDangerConnectionDescriptor)
+		.register(BetweenInTextConnectionDescriptor)
+		.register(JustRegexpConnectionDescriptor)
+		.register(TopInTextConnectionDescriptor)
+		.register(YamlTagConnectionDescriptor)
 		.register(PlusMinusConnectionDescriptor)
 
 	connectionFactory = {

@@ -5,7 +5,6 @@ import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import AllInTextConnectionEditor from "./AllInTextConnectionEditor.svelte";
 import type { ConnectionConfig } from "src/settings/types";
-import { readonly } from "svelte/store";
 
 // "all links that are in the text of the note, not in the frontmatter
 export class AllInTextConnection implements Connection {
@@ -49,5 +48,3 @@ export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<AllInTextCo
         return { type: 'all-in-text', title: '' };
     },
 };
-
-// connectionRegistry.register(AllInTextConnectionDescriptor);

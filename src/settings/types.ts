@@ -33,7 +33,7 @@ export type ListCtx<T> = {
 
 export type ValidationRule<T> = {
 	scope: "local" | "above";
-	run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null;
+	run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null | Promise<Issue | null>;
 };
 
 // export type ConnectionCtx = ListCtx<ConnectionConfig>

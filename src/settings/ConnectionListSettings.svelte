@@ -13,7 +13,7 @@
 	interface Props {
 		concreeteConnections: DirectionalConnection[];
 		onchange?: (items: DirectionalConnection[]) => void;
-		valRules: Array<ValidationRule<DirectionalConnection>>
+		valRules: ValidationRule<DirectionalConnection>[]
 		registry: ConnectionRegistry
 	}
 
@@ -30,17 +30,6 @@
 		return emptyRowState();
 	}
 
-	function validateConnection(item: DirectionalConnection): boolean {
-		// Проверка: не пустое значение и не содержит " + " или " - "
-		const trimmedValue = item.title.trim();
-		if (trimmedValue === "") return false;
-		if (
-			item.title.includes(" + ") ||
-			item.title.includes(" - ")
-		)
-			return false;
-		return true;
-	}
 </script>
 
 <h3 class="settings-section" id="subsection-connection">Connections</h3>

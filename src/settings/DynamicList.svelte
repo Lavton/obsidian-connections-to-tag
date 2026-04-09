@@ -24,7 +24,7 @@
 		>;
 
 		createNewItem: () => RowState<T>;
-		valRules: Array<ValidationRule<T>>;
+		valRules: ValidationRule<T>[];
 	}
 
 	let {
@@ -38,112 +38,124 @@
 	validateAbove(-1);
 
 	let draggedIndex = $state<number | null>(null);
-	function validateWithRules(
+	async function validateWithRules(
 		value: T,
 		ctx: ListCtx<T | undefined>,
-	): ValidationResult {
+	): Promise<ValidationResult> {
 		const issues: Issue[] = [];
 		for (const rule of valRules) {
-			const issue = rule.run(value, ctx);
+			const issue = await rule.run(value, ctx);
 			if (issue) issues.push(issue);
 		}
 		return { valid: issues.length === 0, issues };
 	}
-	function validateDepended(
+	async function validateDepended(
 		value: T,
 		ctx: ListCtx<T | undefined>,
-	): ValidationResult {
+	): Promise<ValidationResult> {
 		const issues: Issue[] = [];
 		for (const rule of valRules) {
-			if (rule.scope != "above") continue;
-			const issue = rule.run(value, ctx);
+			if (rule.scope !== "above") continue;
+			const issue = await rule.run(value, ctx);
 			if (issue) issues.push(issue);
 		}
 		return { valid: issues.length === 0, issues };
 	}
 
-	function updateItem(updatedRow: RowState<T>, index: number) {
-		items = items.map((row) => {
-			if (row.id !== updatedRow.id) return row;
+	async function updateItem(updatedRow: RowState<T>, index: number) {
+		const targetIndex = items.findIndex((row) => row.id === updatedRow.id);
 
-			const validation = validateWithRules(updatedRow.draft, {
-				index: index,
-				items: domainItems,
-			});
-			const valid = validation.valid;
+		if (targetIndex === -1) {
+			return items;
+		}
 
-			const next = {
-				...updatedRow,
-				meta: {
-					...updatedRow.meta,
-					touched: true,
-					valid,
-					dirty:
-						JSON.stringify(updatedRow.draft) !==
-						JSON.stringify(updatedRow.saved),
-					issues: validation.issues,
-				},
-			} satisfies RowState<T>;
+		const validation = await validateWithRules(updatedRow.draft, {
+			index,
+			items: domainItems,
+		});
 
-			if (valid) {
-				// коммит
-				return {
+		const valid = validation.valid;
+
+		const next = {
+			...updatedRow,
+			meta: {
+				...updatedRow.meta,
+				touched: true,
+				valid,
+				dirty:
+					JSON.stringify(updatedRow.draft) !==
+					JSON.stringify(updatedRow.saved),
+				issues: validation.issues,
+			},
+		} satisfies RowState<T>;
+
+		const nextRow: RowState<T> = valid
+			? {
 					...next,
 					saved: JSON.parse(JSON.stringify(next.draft)),
 					meta: { ...next.meta, dirty: false },
-				};
 			}
+			: next;
 
-			// остаёмся на draft, но saved не трогаем
-			return next;
-		});
-		validateAbove(index);
+		items = [
+			...items.slice(0, targetIndex),
+			nextRow,
+			...items.slice(targetIndex + 1),
+		];
+		await validateAbove(index);
 
 		onchange?.(items);
 	}
-	function validateAbove(index: number) {
-		items = items.map((row, idx) => {
-			if (idx <= index) return row;
-			const validation = validateDepended(row.draft, {
-				index: idx,
-				items: domainItems,
-			});
-			const valid = validation.valid;
-			const next = {
-				...row,
-				meta: {
-					...row.meta,
-					touched: true,
-					valid,
-					dirty:
-						JSON.stringify(row.draft) !== JSON.stringify(row.saved),
-					issues: validation.issues,
-				},
-			} satisfies RowState<T>;
+	async function validateAbove(index: number) {
+		const nextItems = await Promise.all(
+			items.map(async (row, idx) => {
+				if (idx <= index) return row;
 
-			if (valid) {
-				// коммит
-				return {
-					...next,
-					saved: JSON.parse(JSON.stringify(next.draft)),
-					meta: { ...next.meta, dirty: false },
-				};
-			}
-			return next;
-		});
+				const validation = await validateDepended(row.draft, {
+					index: idx,
+					items: domainItems,
+				});
+
+				const valid = validation.valid;
+				const next = {
+					...row,
+					meta: {
+						...row.meta,
+						touched: true,
+						valid,
+						dirty:
+							JSON.stringify(row.draft) !== JSON.stringify(row.saved),
+						issues: validation.issues,
+					},
+				} satisfies RowState<T>;
+
+				if (valid) {
+					// коммит
+					return {
+						...next,
+						saved: JSON.parse(JSON.stringify(next.draft)),
+						meta: { ...next.meta, dirty: false },
+					};
+				}
+
+				return next;
+			})
+		);
+
+		items = nextItems;
 	}
 
-	function deleteItem(id: string) {
+	async function deleteItem(id: string) {
 		const index = items.findIndex((item) => item.id === id);
 		items = items.filter((item) => item.id !== id);
-		validateAbove(index - 1);
+		await validateAbove(index - 1);
 		onchange?.(items);
 	}
 
-	function addItem(index: number) {
+	async function addItem(index: number) {
 		const newItem = createNewItem();
 
-		const validation = validateWithRules(newItem.draft, {
+		const validation = await validateWithRules(newItem.draft, {
 			index: index,
 			items: domainItems,
 		});

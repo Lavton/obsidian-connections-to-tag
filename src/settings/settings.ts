@@ -178,6 +178,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		// Создаем контейнер для Svelte компонента
 		let listContainer = section2.createDiv();
 
+		const registry = this.connectionHolder.connectionRegistry
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
 			props: {
@@ -187,7 +188,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				},
-				registry: this.connectionHolder.connectionRegistry,
+				registry: registry,
 				validationConfig: {
 					validationCommonAboveRules: [
 						common_rules.ruleNotEqual,
@@ -196,7 +197,15 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 						common_rules.ruleTitleRequired,
 						common_rules.ruleNoPlusMinusWithSpaces,
 					],
-					// getItemRules = null
+					getItemRules: function (item: DirectionalConnection) {
+						const descriptor = registry.get(item.type);
+						if (!descriptor) return { local: [], above: [] };
+
+						return {
+							local: descriptor.validateLocalRules,
+							above: descriptor.validateAboveRules,
+						};
+					}
 				}
 			}
 		});

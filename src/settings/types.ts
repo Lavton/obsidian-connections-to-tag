@@ -73,6 +73,8 @@ export function emptyRowState(): RowState<DirectionalConnection> {
 }
 
 export function fromRowStates(rows: RowState<DirectionalConnection>[]): DirectionalConnection[] {
+	// Обычно отдаём "saved" или "draft" — зависит от UX.
+	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
 	return rows
 		.map(r => r.saved)
 		.filter((v): v is DirectionalConnection => v !== undefined)

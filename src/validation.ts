@@ -97,6 +97,9 @@ export async function validateItemsAfterIndex<T extends { title: string }>(
     });
 }
 
+
+
+// apply validation for only one element
 function applyValidationResult<T extends {title: string}>(
     row: RowState<T>,
     result: ScopeValidationResult

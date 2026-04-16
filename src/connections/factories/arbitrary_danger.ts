@@ -4,7 +4,7 @@ import type { Connection } from "src/models/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import ArbitraryDangerConnectionEditor from "./ArbitraryDangerConnectionEditor.svelte";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 export class ArbitraryDangerConnection implements Connection {
 	readonly type = 'arbitrary-danger';
@@ -66,9 +66,14 @@ export class ArbitraryDangerConnection implements Connection {
 }
 
 export class ArbitraryDangerConnConfig implements ConnectionConfig {
-	type: 'arbitrary-danger';
+	readonly type = 'arbitrary-danger';
 	title: string;
 	filepath: string;
+
+	constructor(title: string, filepath: string) {
+		this.title = title;
+		this.filepath = filepath;
+	}
 }
 
 export const ArbitraryDangerConnectionDescriptor: ConnectionTypeDescriptor<ArbitraryDangerConnConfig> = {
@@ -93,4 +98,6 @@ export const ArbitraryDangerConnectionDescriptor: ConnectionTypeDescriptor<Arbit
 	createDefaultConfig() {
 		return { type: 'arbitrary-danger', title: '', filepath: '' };
 	},
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

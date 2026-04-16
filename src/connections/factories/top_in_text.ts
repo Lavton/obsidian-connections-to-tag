@@ -4,7 +4,7 @@ import type { Connection } from "src/models/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import TopInTextConnectionEditor from "./TopInTextConnectionEditor.svelte";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 export class TopInTextConnection implements Connection {
 	readonly type = 'top-in-text';
@@ -39,8 +39,12 @@ export class TopInTextConnection implements Connection {
 }
 
 export class TopInTextConnConfig implements ConnectionConfig {
-	type: 'top-in-text';
+	readonly type = 'top-in-text';
 	title: string;
+
+	constructor(title: string) {
+		this.title = title;
+	}
 }
 
 export const TopInTextConnectionDescriptor: ConnectionTypeDescriptor<TopInTextConnConfig> = {
@@ -64,4 +68,6 @@ export const TopInTextConnectionDescriptor: ConnectionTypeDescriptor<TopInTextCo
 	createDefaultConfig() {
 		return { type: 'top-in-text', title: '' };
 	},
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

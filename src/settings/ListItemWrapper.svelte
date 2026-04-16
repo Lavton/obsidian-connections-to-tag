@@ -130,7 +130,7 @@
 	.list-item {
 		display: flex;
 		gap: 8px;
-		align-items: center;
+		align-items: flex-start;
 		margin-bottom: 8px;
 		padding: 4px;
 		border-radius: 4px;
@@ -195,5 +195,15 @@
 
 	.delete-button:hover {
 		background: var(--interactive-accent-hover);
+	}
+	.list-item {
+		--controls-offset-y: 12px;
+		align-items: flex-start;
+	}
+
+	.drag-handle,
+	.move-buttons,
+	.delete-button {
+		margin-top: var(--controls-offset-y);
 	}
 </style>

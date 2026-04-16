@@ -1,14 +1,15 @@
-<script lang="ts" generics="T">
-	import type { Snippet } from "svelte";
+<script lang="ts" generics="T extends {title: string}">
+	import { onMount, type Snippet } from "svelte";
 	import type {
 		DragNDropProps,
 		Issue,
-		ListCtx,
 		RowState,
+		ValidationAboveRule,
+		ValidationLocalRule,
 		ValidationResult,
-		ValidationRule,
 	} from "./types";
 	import ListItemWrapper from "./ListItemWrapper.svelte";
+	import { validateItemOnChange, validateItemsAfterIndex, type ValidationConfig } from "src/validation";
 
 	interface Props {
 		items: RowState<T>[];
@@ -24,7 +25,7 @@
 		>;
 
 		createNewItem: () => RowState<T>;
-		valRules: ValidationRule<T>[];
+		validationConfig: ValidationConfig<T>;
 	}
 
 	let {
@@ -32,151 +33,123 @@
 		onchange,
 		itemSnippet,
 		createNewItem,
-		valRules = [],
+		validationConfig
 	}: Props = $props();
-	let domainItems = $derived(items.map((i) => i.draft));
-	validateAbove(-1);
+	// let domainItems = $derived(items.map((i) => i.draft));
+	onMount(async () => {
+		items = await validateItemsAfterIndex(items, -1, validationConfig)
+	});
+	// validateAbove(-1);
 
 	let draggedIndex = $state<number | null>(null);
-	async function validateWithRules(
-		value: T,
-		ctx: ListCtx<T | undefined>,
-	): Promise<ValidationResult> {
-		const issues: Issue[] = [];
-		for (const rule of valRules) {
-			const issue = await rule.run(value, ctx);
-			if (issue) issues.push(issue);
-		}
-		return { valid: issues.length === 0, issues };
-	}
-	async function validateDepended(
-		value: T,
-		ctx: ListCtx<T | undefined>,
-	): Promise<ValidationResult> {
-		const issues: Issue[] = [];
-		for (const rule of valRules) {
-			if (rule.scope !== "above") continue;
-			const issue = await rule.run(value, ctx);
-			if (issue) issues.push(issue);
-		}
-		return { valid: issues.length === 0, issues };
-	}
+
+
+	// async function validateWithRules(
+	// 	value: T,
+	// 	ctx: ListCtx<T | undefined>,
+	// ): Promise<ValidationResult> {
+	// 	const issues: Issue[] = [];
+	// 	for (const rule of valRules) {
+	// 		const issue = await rule.run(value, ctx);
+	// 		if (issue) issues.push(issue);
+	// 	}
+	// 	return { valid: issues.length === 0, issues };
+	// }
+	// async function validateDepended(
+	// 	value: T,
+	// 	ctx: ListCtx<T | undefined>,
+	// ): Promise<ValidationResult> {
+	// 	const issues: Issue[] = [];
+	// 	for (const rule of valRules) {
+	// 		if (rule.scope !== "above") continue;
+	// 		const issue = await rule.run(value, ctx);
+	// 		if (issue) issues.push(issue);
+	// 	}
+	// 	return { valid: issues.length === 0, issues };
+	// }
 
 	async function updateItem(updatedRow: RowState<T>, index: number) {
-		const targetIndex = items.findIndex((row) => row.id === updatedRow.id);
 
-		if (targetIndex === -1) {
-			return items;
-		}
-
-		const validation = await validateWithRules(updatedRow.draft, {
-			index,
-			items: domainItems,
-		});
-
-		const valid = validation.valid;
-
-		const next = {
-			...updatedRow,
-			meta: {
-				...updatedRow.meta,
-				touched: true,
-				valid,
-				dirty:
-					JSON.stringify(updatedRow.draft) !==
-					JSON.stringify(updatedRow.saved),
-				issues: validation.issues,
-			},
-		} satisfies RowState<T>;
-
-		const nextRow: RowState<T> = valid
-			? {
-					...next,
-					saved: JSON.parse(JSON.stringify(next.draft)),
-					meta: { ...next.meta, dirty: false },
-			}
-			: next;
-
-		items = [
-			...items.slice(0, targetIndex),
-			nextRow,
-			...items.slice(targetIndex + 1),
-		];
-		await validateAbove(index);
-
-		onchange?.(items);
+		items[index] = updatedRow
+		items = items
+		items = await validateItemOnChange(items, index, validationConfig)
+		onchange?.(items)
 	}
-	async function validateAbove(index: number) {
-		const nextItems = await Promise.all(
-			items.map(async (row, idx) => {
-				if (idx <= index) return row;
+	// async function validateAbove(index: number) {
+	// 	const nextItems = await Promise.all(
+	// 		items.map(async (row, idx) => {
+	// 			if (idx <= index) return row;
 
-				const validation = await validateDepended(row.draft, {
-					index: idx,
-					items: domainItems,
-				});
+	// 			const validation = await validateDepended(row.draft, {
+	// 				index: idx,
+	// 				items: domainItems,
+	// 			});
 
-				const valid = validation.valid;
-				const next = {
-					...row,
-					meta: {
-						...row.meta,
-						touched: true,
-						valid,
-						dirty:
-							JSON.stringify(row.draft) !== JSON.stringify(row.saved),
-						issues: validation.issues,
-					},
-				} satisfies RowState<T>;
+	// 			const valid = validation.valid;
+	// 			const next = {
+	// 				...row,
+	// 				meta: {
+	// 					...row.meta,
+	// 					touched: true,
+	// 					valid,
+	// 					dirty:
+	// 						JSON.stringify(row.draft) !== JSON.stringify(row.saved),
+	// 					issues: validation.issues,
+	// 				},
+	// 			} satisfies RowState<T>;
 
-				if (valid) {
-					// коммит
-					return {
-						...next,
-						saved: JSON.parse(JSON.stringify(next.draft)),
-						meta: { ...next.meta, dirty: false },
-					};
-				}
+	// 			if (valid) {
+	// 				// коммит
+	// 				return {
+	// 					...next,
+	// 					saved: JSON.parse(JSON.stringify(next.draft)),
+	// 					meta: { ...next.meta, dirty: false },
+	// 				};
+	// 			}
 
-				return next;
-			})
-		);
+	// 			return next;
+	// 		})
+	// 	);
 
-		items = nextItems;
-	}
+	// 	items = nextItems;
+	// }
 
 	async function deleteItem(id: string) {
 		const index = items.findIndex((item) => item.id === id);
 		items = items.filter((item) => item.id !== id);
-		await validateAbove(index - 1);
+		// await validateAbove(index - 1);
+		items = await validateItemsAfterIndex(items, index - 1, validationConfig)
 		onchange?.(items);
 	}
 
 	async function addItem(index: number) {
 		const newItem = createNewItem();
+		items = [...items, newItem]
+		items = await validateItemOnChange(items, items.length - 1, validationConfig)
+		onchange?.(items)
 
-		const validation = await validateWithRules(newItem.draft, {
-			index: index,
-			items: domainItems,
-		});
-		const valid = validation.valid;
+		// const validation = await validateWithRules(newItem.draft, {
+		// 	index: index,
+		// 	items: domainItems,
+		// });
+		// const valid = validation.valid;
 
-		const item: RowState<T> = {
-			...newItem,
-			meta: {
-				...newItem.meta,
-				touched: false,
-				dirty: true,
-				valid,
-				issues: validation.issues,
-			},
-		};
+		// const item: RowState<T> = {
+		// 	...newItem,
+		// 	meta: {
+		// 		...newItem.meta,
+		// 		touched: false,
+		// 		dirty: true,
+		// 		valid,
+		// 		issues: validation.issues,
+		// 	},
+		// };
 
-		items = [...items, item];
-		onchange?.(items);
+		// items = [...items, item];
+		// onchange?.(items);
 	}
 
-	function moveItem(index: number, direction: "up" | "down") {
+	async function moveItem(index: number, direction: "up" | "down") {
 		const newIndex = direction === "up" ? index - 1 : index + 1;
 		if (newIndex < 0 || newIndex >= items.length) return;
 
@@ -186,7 +159,8 @@
 			newItems[index],
 		];
 		items = newItems;
-		validateAbove(Math.min(index, newIndex)-1)
+		items = await validateItemsAfterIndex(items, Math.min(index, newIndex)-1, validationConfig)
+		// validateAbove(Math.min(index, newIndex)-1)
 		onchange?.(items);
 	}
 
@@ -242,7 +216,7 @@
 	<button
 		type="button"
 		class="add-button"
-		onclick={() => addItem(domainItems.length)}
+		onclick={() => addItem(items.length)}
 	>
 		+ Добавить элемент
 	</button>

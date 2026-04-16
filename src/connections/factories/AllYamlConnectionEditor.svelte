@@ -1,10 +1,8 @@
 <script lang="ts">
+	import type { AllYamlConnConfig } from "./all_yaml";
     import type { ConnectionEditorProps } from "./factory";
 
-    let { value, onchange }: ConnectionEditorProps<{
-        type: 'all-yaml';
-        title: string;
-    }> = $props();
+    let { value, onchange }: ConnectionEditorProps<AllYamlConnConfig> = $props();
 </script>
 
 <div class="editor-fields">

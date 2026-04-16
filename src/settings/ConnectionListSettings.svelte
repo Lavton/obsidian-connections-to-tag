@@ -8,16 +8,19 @@
 		toRowStates,
 		type DirectionalConnection,
 		type RowState,
+		type ValidationAboveRule,
+		type ValidationLocalRule,
 		type ValidationRule,
 	} from "./types";
+	import type { ValidationConfig } from "src/validation";
 	interface Props {
 		concreeteConnections: DirectionalConnection[];
 		onchange?: (items: DirectionalConnection[]) => void;
-		valRules: ValidationRule<DirectionalConnection>[]
+		validationConfig: ValidationConfig<DirectionalConnection>;
 		registry: ConnectionRegistry
 	}
 
-	let { concreeteConnections = $bindable([]), onchange, valRules, registry }: Props = $props();
+	let { concreeteConnections = $bindable([]), onchange, validationConfig, registry }: Props = $props();
 	let items = $state<RowState<DirectionalConnection>[]>(
 		toRowStates(concreeteConnections),
 	);
@@ -39,7 +42,7 @@
 		bind:items
 		onchange={handleChange}
 		{createNewItem}
-		{valRules}
+		{validationConfig}
 	>
 		{#snippet itemSnippet({ item, updateItem })}
 			<OneConnection

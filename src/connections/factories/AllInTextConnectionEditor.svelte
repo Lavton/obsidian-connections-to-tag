@@ -1,10 +1,8 @@
 <script lang="ts">
+	import type { AllInTextConnConfig } from "./all_in_text";
 	import type { ConnectionEditorProps } from "./factory";
 
-	let { value, onchange }: ConnectionEditorProps<{
-		type: 'all-in-text';
-		title: string;
-	}> = $props();
+	let { value, onchange }: ConnectionEditorProps<AllInTextConnConfig> = $props();
 </script>
 
 <div class="editor-fields">

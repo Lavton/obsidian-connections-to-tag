@@ -1,14 +1,12 @@
-import type { ConnectionConfig, ValidationRule } from "./types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationRule } from "./types";
 
-export const ruleTitleRequired: ValidationRule<ConnectionConfig> = {
-	scope: "local",
+export const ruleTitleRequired: ValidationLocalRule<ConnectionConfig> = {
 	run: (item) => {
 		if (item.title.trim() === "") return { code: "required_title", path: "title" };
 		return null;
 	},
 }
-export const ruleNoPlusMinusWithSpaces: ValidationRule<ConnectionConfig> = {
-	scope: "local",
+export const ruleNoPlusMinusWithSpaces: ValidationLocalRule<ConnectionConfig> = {
 	run: (item) => {
 		if (item.title.includes(" + ") || item.title.includes(" - ")) {
 			return { code: "forbitten_pm", path: "title" };
@@ -23,14 +21,13 @@ export const ruleNoPlusMinusWithSpaces: ValidationRule<ConnectionConfig> = {
 	},
 }
 
-export const ruleNotEqual: ValidationRule<ConnectionConfig> = {
-	scope: "above",
-	run: (item, ctx) => {
+export const ruleNotEqual: ValidationAboveRule<ConnectionConfig> = {
+	run: (item, ctx: string[]) => {
 
-	for (let i = 0; i < ctx.index; i++) {
-		const x = ctx.items[i];
+	for (let i = 0; i < ctx.length; i++) {
+		const x = ctx[i];
 		if (x == undefined) continue;
-		if (x.title.trim() == item.title.trim()) {
+		if (x.trim() == item.title.trim()) {
 			return { code: "duplicate_with_prev", path: "title", params: {"num": i}}
 		}
 	}

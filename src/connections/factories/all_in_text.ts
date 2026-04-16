@@ -4,7 +4,7 @@ import type { Connection } from "src/models/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import AllInTextConnectionEditor from "./AllInTextConnectionEditor.svelte";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 // "all links that are in the text of the note, not in the frontmatter
 export class AllInTextConnection implements Connection {
@@ -24,8 +24,12 @@ export class AllInTextConnection implements Connection {
 }
 
 export class AllInTextConnConfig implements ConnectionConfig {
-	readonly type: string;
+	readonly type = 'all-in-text';
 	title: string;
+
+	constructor(title: string) {
+		this.title = title;
+	}
 }
 
 export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<AllInTextConnConfig> = {
@@ -45,6 +49,8 @@ export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<AllInTextCo
 	label: "all links in text",
 	editorComponent: AllInTextConnectionEditor,
 	createDefaultConfig() {
-        return { type: 'all-in-text', title: '' };
-    },
+		return { type: 'all-in-text', title: '' };
+	},
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

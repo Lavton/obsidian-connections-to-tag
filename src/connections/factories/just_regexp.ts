@@ -4,7 +4,7 @@ import type { Connection } from "src/models/connections";
 import { convertToLinePositions, findAllOccurrences, removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import JustRegexpConnectionEditor from "./JustRegexpConnectionEditor.svelte";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 // links after some regexp. Ex: after "parent:: "
 export class JustRegexpConnection implements Connection {
@@ -82,12 +82,26 @@ export class JustRegexpConnection implements Connection {
 
 
 export class JustRegexpConnConfig implements ConnectionConfig {
-    type: 'just-regexp';
-    title: string;
-    in_the_same_string: boolean;
-    is_regexp: boolean;
-    is_before: boolean;
-    to_find: string;
+	readonly type = 'just-regexp';
+	title: string;
+	in_the_same_string: boolean;
+	is_regexp: boolean;
+	is_before: boolean;
+	to_find: string;
+
+	constructor(
+		title: string,
+		in_the_same_string: boolean,
+		is_regexp: boolean,
+		is_before: boolean,
+		to_find: string
+	) {
+		this.title = title;
+		this.in_the_same_string = in_the_same_string;
+		this.is_regexp = is_regexp;
+		this.is_before = is_before;
+		this.to_find = to_find;
+	}
 }
 
 
@@ -129,4 +143,6 @@ export const JustRegexpConnectionDescriptor: ConnectionTypeDescriptor<JustRegexp
             to_find: '',
         };
     },
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

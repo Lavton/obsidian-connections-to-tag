@@ -188,11 +188,16 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 					// await this.plugin.saveSettings();
 				},
 				registry: this.connectionHolder.connectionRegistry,
-				valRules: [
-					common_rules.ruleTitleRequired,
-					common_rules.ruleNoPlusMinusWithSpaces,
-					common_rules.ruleNotEqual,
-				]
+				validationConfig: {
+					validationCommonAboveRules: [
+						common_rules.ruleNotEqual,
+					],
+					validationCommonLocalRules: [
+						common_rules.ruleTitleRequired,
+						common_rules.ruleNoPlusMinusWithSpaces,
+					],
+					// getItemRules = null
+				}
 			}
 		});
 		const section3 = containerEl.createDiv({ cls: 'settings-section' });

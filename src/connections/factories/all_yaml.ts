@@ -1,13 +1,13 @@
 import type { App, TFile } from "obsidian";
 import type { Connection } from "src/models/connections";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import { getFilesInFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import AllYamlConnectionEditor from "./AllYamlConnectionEditor.svelte";
 
 // connections "all links in frontmatter"
 export class AllYamlConnection implements Connection {
-	readonly type = '';
+	readonly type = 'all-yaml';
     title: string;
     readonly locality='local';
 	async get_connected(app: App, node: TFile): Promise<TFile[]> {
@@ -29,8 +29,12 @@ export class AllYamlConnection implements Connection {
 }
 
 export class AllYamlConnConfig implements ConnectionConfig {
-    readonly type: string;
-    title: string;
+	readonly type = 'all-yaml';
+	title: string;
+
+	constructor(title: string) {
+		this.title = title;
+	}
 }
 
 export const AllYamlConnectionDescriptor: ConnectionTypeDescriptor<AllYamlConnConfig> = {
@@ -54,4 +58,6 @@ export const AllYamlConnectionDescriptor: ConnectionTypeDescriptor<AllYamlConnCo
     createDefaultConfig() {
         return { type: 'all-yaml', title: '' };
     },
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

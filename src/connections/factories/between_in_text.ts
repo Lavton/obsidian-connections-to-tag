@@ -4,7 +4,7 @@ import type { Connection } from "src/models/connections";
 import { findTextFragment, removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import BetweenInTextConnectionEditor from "./BetweenInTextConnectionEditor.svelte";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 export class BetweenInTextConnection implements Connection {
 	readonly type = 'between-in-text';
@@ -33,11 +33,23 @@ export class BetweenInTextConnection implements Connection {
 }
 
 export class BetweenInTextConnConfig implements ConnectionConfig {
-	type: 'between-in-text';
+	readonly type = 'between-in-text';
 	title: string;
 	is_regexp: boolean;
 	start_to_find: string | null;
 	end_to_find: string | null;
+
+	constructor(
+		title: string,
+		is_regexp: boolean,
+		start_to_find: string | null,
+		end_to_find: string | null
+	) {
+		this.title = title;
+		this.is_regexp = is_regexp;
+		this.start_to_find = start_to_find;
+		this.end_to_find = end_to_find;
+	}
 }
 
 export const BetweenInTextConnectionDescriptor: ConnectionTypeDescriptor<BetweenInTextConnConfig> = {
@@ -70,4 +82,6 @@ export const BetweenInTextConnectionDescriptor: ConnectionTypeDescriptor<Between
 			end_to_find: null,
 		};
 	},
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

@@ -26,15 +26,28 @@ export type ValidationResult = {
 	valid: boolean;
 	issues: Issue[];
 };
+export type ScopeValidationResult = {
+	local: ValidationResult | null,
+	above: ValidationResult | null,
+}
+// @deprecated
 export type ListCtx<T> = {
 	index: number;
 	items: T[];
 };
 
+// @deprecated
 export type ValidationRule<T> = {
 	scope: "local" | "above";
 	run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null | Promise<Issue | null>;
 };
+
+export type ValidationLocalRule<T> = {
+	run: (item: T) => Issue | null | Promise<Issue | null>;
+};
+export type ValidationAboveRule<T> = {
+	run: (item: T, elementsAbove: string[]) => Issue | null | Promise<Issue | null>;
+}
 
 // export type ConnectionCtx = ListCtx<ConnectionConfig>
 
@@ -44,9 +57,9 @@ export type RowState<T> = {
 	draft: T;
 	meta: {
 		touched: boolean,
-		dirty: boolean;      // draft отличается от saved
+		dirty: boolean;
 		valid: boolean;
-		issues: Issue[];
+		issues: (Issue & { scope: "local" | "above" })[];
 	};
 }
 

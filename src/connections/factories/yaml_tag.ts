@@ -3,7 +3,7 @@ import type { Connection } from "src/models/connections"
 import { getFilesInFrontmatter } from "src/utils"
 import type { ConnectionTypeDescriptor } from "./factory";
 import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';
@@ -30,9 +30,14 @@ export class YamlTagConnection implements Connection {
 
 
 export class YamlTagConnConfig implements ConnectionConfig {
-    type: 'yaml-tag';
-    title: string;
-    tags: string[];
+	readonly type = 'yaml-tag';
+	title: string;
+	tags: string[];
+
+	constructor(title: string, tags: string[]) {
+		this.title = title;
+		this.tags = tags;
+	}
 }
 
 // Дескриптор - единственное место где определяется тип
@@ -54,6 +59,8 @@ export const YamlTagConnectionDescriptor: ConnectionTypeDescriptor<YamlTagConnCo
 	label: "YAML tags",
 	editorComponent: YamlTagConnectionEditor,
 	createDefaultConfig() {
-        return { type: 'yaml-tag', title: '', tags: [] };
-    },
+		return { type: 'yaml-tag', title: '', tags: [] };
+	},
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };

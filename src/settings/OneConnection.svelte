@@ -7,21 +7,30 @@
 		type Issue,
 		type IssueCode,
 		type RowState,
+		// type ValidationRule,
 	} from "./types";
+	// import { validateItemLocally } from "src/validation";
 
 	interface Props {
 		value: RowState<DirectionalConnection>;
 		onchange?: (newValue: RowState<DirectionalConnection>) => void;
 		registry: ConnectionRegistry;
+		// valRules: ValidationRule<DirectionalConnection>[];
 	}
 
-	let { value = $bindable(emptyRowState()), onchange, registry }: Props = $props();
+	let { 
+		value = $bindable(emptyRowState()), onchange, registry,
+		// valRules = [],
+	}: Props = $props();
 
 	let descriptor = $derived(
 		value.draft.type ? registry.get(value.draft.type) : undefined
 	);
 
 	let EditorComponent = $derived(descriptor?.editorComponent);
+	// async function validateAndChange(draft: DirectionalConnection) {
+	// 	const validResults = validateItemLocally(draft, valRules)
+	// }
 
 	function handleTitle(event: Event) {
 		const title = (event.target as HTMLInputElement).value;
@@ -73,7 +82,7 @@
 		return issueMessages[issue.code]?.(issue) ?? "Некорректное значение.";
 	}
 	function handleDirectionChange(e: Event) {
-	const direction = (e.target as HTMLSelectElement).value as "forward" | "backward";
+		const direction = (e.target as HTMLSelectElement).value as "forward" | "backward";
 		value = {
 			...value,
 			draft: { ...value.draft, direction },

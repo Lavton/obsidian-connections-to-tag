@@ -1,7 +1,7 @@
 import type { App, TFile } from "obsidian";
 import { type Connection } from "src/models/connections";
 import type { ConnectionTypeDescriptor } from "./factory";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import PlusMinusConnectionEditor from "./PlusMinusConnectionEditor.svelte";
 
 export enum PMSign {
@@ -41,9 +41,14 @@ export class PlusMinusConnection implements Connection {
 	}
 }
 export class PlusMinusConnConfig implements ConnectionConfig {
-    type: 'plus-minus';
-    title: string;
-	connections: { sign: PMSign, title: string }[];
+	readonly type = 'plus-minus';
+	title: string;
+	connections: { sign: PMSign; title: string }[];
+
+	constructor(title: string, connections: { sign: PMSign; title: string }[]) {
+		this.title = title;
+		this.connections = connections;
+	}
 }
 
 export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<PlusMinusConnConfig> = {
@@ -73,8 +78,10 @@ export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<PlusMinusCo
 	},
 	label: "Combine",
 	createDefaultConfig() {
-        return { type: 'plus-minus', title: '', connections: [] };
-    },
-	editorComponent: PlusMinusConnectionEditor
+		return { type: 'plus-minus', title: '', connections: [] };
+	},
+	editorComponent: PlusMinusConnectionEditor,
+	validateLocalRules: [] = [],
+	validateAboveRules: [] = [],
 };
 

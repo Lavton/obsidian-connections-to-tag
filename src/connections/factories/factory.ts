@@ -1,12 +1,12 @@
 import { BackwardConnection, type Connection } from "src/models/connections";
-import type { ConnectionConfig } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import type { Component } from 'svelte';
 
 export interface ConnectionEditorProps<TConfig extends ConnectionConfig = ConnectionConfig> {
     value: TConfig;
     onchange: (updated: TConfig) => void;
 }
-
+type AnyDescriptor = ConnectionTypeDescriptor<any>;
 // Дескриптор типа - связывает всё в одном месте
 export interface ConnectionTypeDescriptor<TConfig extends ConnectionConfig = ConnectionConfig> {
     type: string;
@@ -15,14 +15,17 @@ export interface ConnectionTypeDescriptor<TConfig extends ConnectionConfig = Con
     createConfig(instance: Connection): TConfig;
     createDefaultConfig(): TConfig; // нужен при смене типа
     editorComponent: Component<ConnectionEditorProps<TConfig>>;
+	validateLocalRules: ValidationLocalRule<TConfig>[],
+	validateAboveRules: ValidationAboveRule<TConfig>[],
+
 }
 
 // Реестр всех типов
 export class ConnectionRegistry {
-    private descriptors = new Map<string, ConnectionTypeDescriptor>();
+    private descriptors = new Map<string, AnyDescriptor>();
 
     register<TConfig extends ConnectionConfig>(descriptor: ConnectionTypeDescriptor<TConfig>): ConnectionRegistry {
-        this.descriptors.set(descriptor.type, descriptor as ConnectionTypeDescriptor<ConnectionConfig>);
+        this.descriptors.set(descriptor.type, descriptor);
 		return this
     }
 

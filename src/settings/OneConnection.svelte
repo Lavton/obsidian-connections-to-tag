@@ -7,20 +7,16 @@
 		type Issue,
 		type IssueCode,
 		type RowState,
-		// type ValidationRule,
 	} from "./types";
-	// import { validateItemLocally } from "src/validation";
 
 	interface Props {
 		value: RowState<DirectionalConnection>;
 		onchange?: (newValue: RowState<DirectionalConnection>) => void;
 		registry: ConnectionRegistry;
-		// valRules: ValidationRule<DirectionalConnection>[];
 	}
 
 	let { 
 		value = $bindable(emptyRowState()), onchange, registry,
-		// valRules = [],
 	}: Props = $props();
 
 	let descriptor = $derived(
@@ -28,9 +24,6 @@
 	);
 
 	let EditorComponent = $derived(descriptor?.editorComponent);
-	// async function validateAndChange(draft: DirectionalConnection) {
-	// 	const validResults = validateItemLocally(draft, valRules)
-	// }
 
 	function handleTitle(event: Event) {
 		const title = (event.target as HTMLInputElement).value;

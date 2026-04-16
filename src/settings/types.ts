@@ -30,17 +30,6 @@ export type ScopeValidationResult = {
 	local: ValidationResult | null,
 	above: ValidationResult | null,
 }
-// @deprecated
-export type ListCtx<T> = {
-	index: number;
-	items: T[];
-};
-
-// @deprecated
-export type ValidationRule<T> = {
-	scope: "local" | "above";
-	run: (item: T, ctx: ListCtx<T | undefined>) => Issue | null | Promise<Issue | null>;
-};
 
 export type ValidationLocalRule<T> = {
 	run: (item: T) => Issue | null | Promise<Issue | null>;
@@ -48,8 +37,6 @@ export type ValidationLocalRule<T> = {
 export type ValidationAboveRule<T> = {
 	run: (item: T, elementsAbove: string[]) => Issue | null | Promise<Issue | null>;
 }
-
-// export type ConnectionCtx = ListCtx<ConnectionConfig>
 
 export type RowState<T> = {
 	id: string;
@@ -86,8 +73,6 @@ export function emptyRowState(): RowState<DirectionalConnection> {
 }
 
 export function fromRowStates(rows: RowState<DirectionalConnection>[]): DirectionalConnection[] {
-	// Обычно отдаём "saved" или "draft" — зависит от UX.
-	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
 	return rows
 		.map(r => r.saved)
 		.filter((v): v is DirectionalConnection => v !== undefined)

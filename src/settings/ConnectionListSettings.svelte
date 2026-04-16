@@ -8,9 +8,6 @@
 		toRowStates,
 		type DirectionalConnection,
 		type RowState,
-		type ValidationAboveRule,
-		type ValidationLocalRule,
-		type ValidationRule,
 	} from "./types";
 	import type { ValidationConfig } from "src/validation";
 	interface Props {

@@ -1,63 +1,4 @@
-import type { DirectionalConnection, Issue, RowState, ScopeValidationResult, ValidationAboveRule, ValidationLocalRule, ValidationResult, ValidationRule } from "./settings/types";
-
-// export async function validateItemLocally<T>(updatedRow: RowState<T>): Promise<RowState<T>> {
-//     const validation = await validateWithRules(updatedRow.draft, {
-//         index,
-//         items: domainItems,
-//     });
-
-//     const valid = validation.valid;
-
-//     const next = {
-//         ...updatedRow,
-//         meta: {
-//             ...updatedRow.meta,
-//             touched: true,
-//             valid,
-//             dirty:
-//                 JSON.stringify(updatedRow.draft) !==
-//                 JSON.stringify(updatedRow.saved),
-//             issues: validation.issues,
-//         },
-//     } satisfies RowState<T>;
-
-//     const nextRow: RowState<T> = valid
-//         ? {
-//                 ...next,
-//                 saved: JSON.parse(JSON.stringify(next.draft)),
-//                 meta: { ...next.meta, dirty: false },
-//         }
-//         : next;
-
-//     items = [
-//         ...items.slice(0, targetIndex),
-//         nextRow,
-//         ...items.slice(targetIndex + 1),
-//     ];
-//     await validateAbove(index);
-
-//     onchange?.(items);
-// }
-
-
-// export async function validateItemLocally<T>(value: T, commonRules: ValidationLocalRule<T>[]): Promise<ValidationResult> {
-//     const issues: Issue[] = [];
-//     for (const rule of commonRules) {
-//         const issue = await rule.run(value);
-//         if (issue) issues.push(issue);
-//     }
-//     return { valid: issues.length === 0, issues };
-// }
-
-// export async function validateItemOnAbove<T>(value: T, ctx: string[], commonRules: ValidationAboveRule<T>[]): Promise<ValidationResult> {
-//     const issues: Issue[] = [];
-//     for (const rule of commonRules) {
-//         const issue = await rule.run(value, ctx);
-//         if (issue) issues.push(issue);
-//     }
-//     return { valid: issues.length === 0, issues };
-// }
-
+import type { Issue, RowState, ScopeValidationResult, ValidationAboveRule, ValidationLocalRule } from "./settings/types";
 
 export type ValidationConfig<T> = {
 	validationCommonLocalRules: ValidationLocalRule<T>[];
@@ -118,8 +59,6 @@ async function checkElementsAfter<T extends { title: string }>(
     return results;
 }
 
-
-
 export async function validateItemOnChange<T extends { title: string }>(
     storedItems: RowState<T>[],
     checkIndex: number,
@@ -141,6 +80,7 @@ export async function validateItemOnChange<T extends { title: string }>(
         return row;
     });
 }
+
 export async function validateItemsAfterIndex<T extends { title: string }>(
     storedItems: RowState<T>[],
     checkIndex: number,
@@ -157,9 +97,6 @@ export async function validateItemsAfterIndex<T extends { title: string }>(
     });
 }
 
-
-
-// apply validation for only one element
 function applyValidationResult<T extends {title: string}>(
     row: RowState<T>,
     result: ScopeValidationResult

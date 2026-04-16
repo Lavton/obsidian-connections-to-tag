@@ -4,7 +4,7 @@ import type { Connection } from "src/models/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "./factory";
 import ArbitraryDangerConnectionEditor from "./ArbitraryDangerConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 
 export class ArbitraryDangerConnection implements Connection {
 	readonly type = 'arbitrary-danger';
@@ -76,28 +76,53 @@ export class ArbitraryDangerConnConfig implements ConnectionConfig {
 	}
 }
 
-export const ArbitraryDangerConnectionDescriptor: ConnectionTypeDescriptor<ArbitraryDangerConnConfig> = {
-	type: 'arbitrary-danger',
 
-	createInstance(config) {
+export class ArbitraryDangerConnectionDescriptor implements ConnectionTypeDescriptor<ArbitraryDangerConnConfig> {
+	type: "arbitrary-danger" = 'arbitrary-danger';
+	label = "Arbitrary (danger)";
+	editorComponent = ArbitraryDangerConnectionEditor;
+	validateAboveRules: ValidationAboveRule<ArbitraryDangerConnConfig>[] = [];
+	validateLocalRules: ValidationLocalRule<ArbitraryDangerConnConfig>[];
+
+	constructor(private readonly app: App) {
+		this.validateLocalRules = [
+			{
+				run: validateArbitraryDangerEmptyFilepath,
+			},
+			createArbitraryDangerFileExistsRule(this.app),
+		];
+	}
+
+	createInstance(config: ArbitraryDangerConnConfig) {
 		return new ArbitraryDangerConnection(config.title, config.filepath);
-	},
+	}
 
-	createConfig(instance) {
+	createConfig(instance: Connection) {
 		const wrapper = instance as ArbitraryDangerConnection;
-		return {
-			title: wrapper.title,
-			type: wrapper.type,
-			filepath: wrapper.filepath
-		};
-	},
-
-	label: "Arbitrary (danger)",
-	editorComponent: ArbitraryDangerConnectionEditor,
+		return new ArbitraryDangerConnConfig(wrapper.title, wrapper.filepath);
+	}
 
 	createDefaultConfig() {
-		return { type: 'arbitrary-danger', title: '', filepath: '' };
-	},
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
-};
+		return new ArbitraryDangerConnConfig('', '');
+	}
+}
+
+function validateArbitraryDangerEmptyFilepath(item: ArbitraryDangerConnConfig) {
+	if (!item.filepath.trim()) {
+		return { code: "filepath_empty", path: "filepath" };
+	}
+	return null;
+}
+
+function createArbitraryDangerFileExistsRule(app: App): ValidationLocalRule<ArbitraryDangerConnConfig> {
+	return {
+		run: async (item) => {
+			const file = app.vault.getAbstractFileByPath(item.filepath.trim());
+
+			if (!(file instanceof TFile)) {
+				return { code: "file_not_exists", path: "filepath" };
+			}
+			return null;
+		},
+	};
+}

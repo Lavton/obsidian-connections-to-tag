@@ -3,7 +3,7 @@ import type { Connection } from "src/models/connections"
 import { getFilesInFrontmatter } from "src/utils"
 import type { ConnectionTypeDescriptor } from "./factory";
 import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';
@@ -40,27 +40,61 @@ export class YamlTagConnConfig implements ConnectionConfig {
 	}
 }
 
+function validateYamlTagsNotEmpty(item: YamlTagConnConfig) {
+	if (item.tags.length === 0) {
+		return { code: "yaml_tags_empty", path: "tags" };
+	}
+	return null;
+}
+
+function createYamlTagsExistRule(app: App): ValidationLocalRule<YamlTagConnConfig> {
+	return {
+		run: async (item) => {
+			const allYamlKeys = new Set(
+				app.vault
+					.getMarkdownFiles()
+					.flatMap(file => Object.keys(app.metadataCache.getFileCache(file)?.frontmatter ?? {}))
+					.filter(key => key !== "position")
+			);
+			const missingTags = item.tags.filter(tag => !allYamlKeys.has(tag));
+
+			if (missingTags.length > 0) {
+				return {
+					code: "yaml_keys_not_exists",
+					path: "tags",
+					params: { tags: [...new Set(missingTags)] },
+				};
+			}
+			return null;
+		},
+	};
+}
+
 // Дескриптор - единственное место где определяется тип
-export const YamlTagConnectionDescriptor: ConnectionTypeDescriptor<YamlTagConnConfig> = {
-	type: 'yaml-tag',
+export class YamlTagConnectionDescriptor implements ConnectionTypeDescriptor<YamlTagConnConfig> {
+	type: "yaml-tag" = 'yaml-tag';
+	label = "YAML tags";
+	editorComponent = YamlTagConnectionEditor;
+	validateLocalRules: ValidationLocalRule<YamlTagConnConfig>[];
+	validateAboveRules: ValidationAboveRule<YamlTagConnConfig>[] = [];
 
-	createInstance(config) {
+	constructor(private readonly app: App) {
+		this.validateLocalRules = [
+			{ run: validateYamlTagsNotEmpty },
+			createYamlTagsExistRule(this.app),
+		];
+	}
+
+	createInstance(config: YamlTagConnConfig) {
 		return new YamlTagConnection(config.title, config.tags);
-	},
+	}
 
-	createConfig(instance) {
+	createConfig(instance: Connection) {
 		const wrapper = instance as YamlTagConnection;
-		return {
-			title: wrapper.title,
-			type: wrapper.type,
-			tags: wrapper.tags
-		};
-	},
-	label: "YAML tags",
-	editorComponent: YamlTagConnectionEditor,
+		return new YamlTagConnConfig(wrapper.title, wrapper.tags);
+	}
+
 	createDefaultConfig() {
-		return { type: 'yaml-tag', title: '', tags: [] };
-	},
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
-};
+		return new YamlTagConnConfig('', []);
+	}
+}

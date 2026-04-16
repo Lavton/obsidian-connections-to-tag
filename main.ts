@@ -12,6 +12,7 @@ import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
 import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile, getAllFilesInFolderWithFrontmatter, getAllFilesInFolder } from 'src/folderUtils';
+import type { ConnectionConfig } from 'src/settings/types';
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
@@ -30,15 +31,7 @@ import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings: settings.ConnectionsToTagSettings;
 	connectionInstances: connections.Connection[] = [];
-	connectionRegistry: ConnectionRegistry = new ConnectionRegistry()
-		.register(AllInTextConnectionDescriptor)
-		.register(AllYamlConnectionDescriptor)
-		.register(ArbitraryDangerConnectionDescriptor)
-		.register(BetweenInTextConnectionDescriptor)
-		.register(JustRegexpConnectionDescriptor)
-		.register(TopInTextConnectionDescriptor)
-		.register(YamlTagConnectionDescriptor)
-		.register(PlusMinusConnectionDescriptor)
+	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
 
 	connectionFactory = {
 		"backward": connections.BackwardConnection,
@@ -58,13 +51,27 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	}
 
 	async onload() {
+		this.connectionRegistry
+			.register(AllInTextConnectionDescriptor)
+			.register(AllYamlConnectionDescriptor)
+			.register(new ArbitraryDangerConnectionDescriptor(this.app))
+			.register(BetweenInTextConnectionDescriptor)
+			.register(JustRegexpConnectionDescriptor)
+			.register(TopInTextConnectionDescriptor)
+			.register(new YamlTagConnectionDescriptor(this.app))
+			.register(PlusMinusConnectionDescriptor)
+
 		await this.loadSettings();
 		// this.connectionInstances = this.settings.connections.map(
             // config => this.connectionRegistry.fromConfig(config)
         // );
 		const current_connections: connections.Connection[] = []
 		for (const cc of this.settings.connections) {
-			current_connections.push(this.connectionRegistry.fromConfig(cc, current_connections))
+			if (typeof cc.title !== "string") {
+				continue
+			}
+			const connectionConfig = cc as ConnectionConfig & { direction: "forward" | "backward" }
+			current_connections.push(this.connectionRegistry.fromConfig(connectionConfig, current_connections))
 		}
 		this.connectionInstances = current_connections
 		// console.log("connections", this.connectionInstances)
@@ -323,4 +330,3 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		})
 	}
 }
-

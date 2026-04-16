@@ -1,7 +1,7 @@
 import type { App, TFile } from "obsidian";
 import { type Connection } from "src/models/connections";
 import type { ConnectionTypeDescriptor } from "./factory";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 import PlusMinusConnectionEditor from "./PlusMinusConnectionEditor.svelte";
 
 export enum PMSign {
@@ -51,6 +51,28 @@ export class PlusMinusConnConfig implements ConnectionConfig {
 	}
 }
 
+function validatePlusMinusConnectionsNotEmpty(item: PlusMinusConnConfig) {
+	if (item.connections.length === 0) {
+		return { code: "connections_empty", path: "connections" };
+	}
+	return null;
+}
+
+function validatePlusMinusConnectionsExist(item: PlusMinusConnConfig, elementsAbove: string[]) {
+	const missingTitles = item.connections
+		.map(connection => connection.title.trim())
+		.filter(title => title && !elementsAbove.includes(title));
+
+	if (missingTitles.length > 0) {
+		return {
+			code: "connections_not_exists",
+			path: "connections",
+			params: { titles: [...new Set(missingTitles)] },
+		};
+	}
+	return null;
+}
+
 export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<PlusMinusConnConfig> = {
 	type: 'plus-minus',
 
@@ -81,7 +103,10 @@ export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<PlusMinusCo
 		return { type: 'plus-minus', title: '', connections: [] };
 	},
 	editorComponent: PlusMinusConnectionEditor,
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
+	validateLocalRules: [
+		{ run: validatePlusMinusConnectionsNotEmpty },
+	],
+	validateAboveRules: [
+		{ run: validatePlusMinusConnectionsExist },
+	],
 };
-

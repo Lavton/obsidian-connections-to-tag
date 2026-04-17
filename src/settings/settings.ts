@@ -195,6 +195,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 					],
 					validationCommonLocalRules: [
 						common_rules.ruleTitleRequired,
+						common_rules.ruleTypeRequired,
 						common_rules.ruleNoPlusMinusWithSpaces,
 					],
 					getItemRules: function (item: DirectionalConnection) {

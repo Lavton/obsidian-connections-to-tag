@@ -1,13 +1,26 @@
 <script lang="ts">
 	import type { ConnectionEditorProps } from "./factory";
 	import type { ArbitraryDangerConnConfig } from "./arbitrary_danger";
+	import { issueToText } from "src/settings/validation_ui";
 
-	let { value, onchange }: ConnectionEditorProps<ArbitraryDangerConnConfig> = $props();
+	let {
+		value,
+		onchange,
+		issues = [],
+		shouldShowIssues = () => false,
+	}: ConnectionEditorProps<ArbitraryDangerConnConfig> = $props();
 
 	function handleFilepath(e: Event) {
 		const filepath = (e.target as HTMLInputElement).value;
-		onchange({ ...value, filepath });
+		onchange({ ...value, filepath }, "filepath");
 	}
+
+	function getFilepathIssues() {
+		return issues.filter((issue) => issue.path === "filepath");
+	}
+
+	let filepathIssues = $derived(getFilepathIssues());
+	let showFilepathIssues = $derived(shouldShowIssues("filepath"));
 </script>
 
 <div class="root">
@@ -22,7 +35,15 @@
         value={value.filepath}
         oninput={handleFilepath}
         placeholder="path/to/file.md"
+        class:invalid={showFilepathIssues}
       />
+	  <div class="error-hint" aria-live="polite">
+		{#if showFilepathIssues}
+			{#each filepathIssues as issue, index (`filepath-${issue.code}-${index}`)}
+				<div>{issueToText(issue)}</div>
+			{/each}
+		{/if}
+	  </div>
     </label>
   </div>
 </div>
@@ -54,6 +75,17 @@ input {
 	background: var(--background-primary);
 	color: var(--text-normal);
 	box-sizing: border-box;
+}
+
+input.invalid {
+	border-color: var(--text-error);
+}
+
+.error-hint {
+	font-size: 0.85em;
+	color: var(--text-error);
+	min-height: 1.3em;
+	line-height: 1.3;
 }
 
 .description {

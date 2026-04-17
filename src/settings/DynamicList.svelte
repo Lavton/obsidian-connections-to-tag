@@ -2,7 +2,7 @@
 	import { onMount, type Snippet } from "svelte";
 	import type { DragNDropProps, RowState } from "./types";
 	import ListItemWrapper from "./ListItemWrapper.svelte";
-	import { validateItemOnChange, validateItemsAfterIndex, type ValidationConfig } from "src/validation";
+	import { validateAllItems, validateItemOnChange, validateItemsAfterIndex, type ValidationConfig } from "src/validation";
 
 	interface Props {
 		items: RowState<T>[];
@@ -30,7 +30,7 @@
 	}: Props = $props();
 
 	onMount(async () => {
-		items = await validateItemsAfterIndex(items, -1, validationConfig)
+		items = await validateAllItems(items, validationConfig)
 	});
 
 	let draggedIndex = $state<number | null>(null);
@@ -82,16 +82,18 @@
 		};
 	}
 
-	function applyDrop(dropIndex: number) {
+	async function applyDrop(dropIndex: number) {
 		if (draggedIndex === null || draggedIndex === dropIndex) {
 			draggedIndex = null;
 			return;
 		}
+		const sourceIndex = draggedIndex;
 		const newItems = [...items];
-		const [draggedItem] = newItems.splice(draggedIndex, 1);
+		const [draggedItem] = newItems.splice(sourceIndex, 1);
 		newItems.splice(dropIndex, 0, draggedItem);
 
 		items = newItems;
+		items = await validateItemsAfterIndex(items, Math.min(sourceIndex, dropIndex) - 1, validationConfig);
 		onchange?.(items);
 	}
 

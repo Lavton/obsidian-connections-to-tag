@@ -4,10 +4,9 @@
 		emptyRowState,
 		type ConnectionConfig,
 		type DirectionalConnection,
-		type Issue,
-		type IssueCode,
 		type RowState,
 	} from "./types";
+	import { issueToText } from "./validation_ui";
 
 	interface Props {
 		value: RowState<DirectionalConnection>;
@@ -25,14 +24,48 @@
 
 	let EditorComponent = $derived(descriptor?.editorComponent);
 
-	function handleTitle(event: Event) {
-		const title = (event.target as HTMLInputElement).value;
+	type RowIssue = RowState<DirectionalConnection>["meta"]["issues"][number];
+
+	function applyTouched(path?: string) {
+		if (!path) return value.meta;
+		if (value.meta.touchedPaths[path]) {
+			return value.meta;
+		}
+		return {
+			...value.meta,
+			touched: true,
+			touchedPaths: { ...value.meta.touchedPaths, [path]: true },
+		};
+	}
+
+	function updateRow(nextDraft: DirectionalConnection, touchedPath?: string) {
 		value = {
 			...value,
-			draft: { ...value.draft, title },
-			meta: { ...value.meta, touched: true },
+			draft: nextDraft,
+			meta: applyTouched(touchedPath),
 		};
 		onchange?.(value);
+	}
+
+	function getIssuesForPath(path: string): RowIssue[] {
+		return value.meta.issues.filter((issue) => issue.path === path);
+	}
+
+	function isTouched(path: string): boolean {
+		return Boolean(value.meta.touchedPaths[path]);
+	}
+
+	function shouldShowIssues(path: string): boolean {
+		const issues = getIssuesForPath(path);
+		if (issues.length === 0) {
+			return false;
+		}
+		return issues.some((issue) => issue.scope === "above") || isTouched(path);
+	}
+
+	function handleTitle(event: Event) {
+		const title = (event.target as HTMLInputElement).value;
+		updateRow({ ...value.draft, title }, "title");
 	}
 
 	function handleTypeChange(e: Event) {
@@ -43,115 +76,98 @@
 			? (newDescriptor.createDefaultConfig() as DirectionalConnection)
 			: ({ type: newType, title: value.draft.title } as DirectionalConnection);
 
-		// Сохраняем title, который пользователь уже ввёл
 		newDraft.title = value.draft.title;
-
-		value = {
-			...value,
-			draft: newDraft,
-			meta: { ...value.meta, touched: true },
-		};
-		onchange?.(value);
+		newDraft.direction = value.draft.direction;
+		updateRow(newDraft, "type");
 	}
 
-	function handleDraftChange(updated: ConnectionConfig) {
-		value = {
-			...value,
-			draft: { ...value.draft, ...updated },
-			meta: { ...value.meta, touched: true },
-		};
-		onchange?.(value);
+	function handleDraftChange(updated: ConnectionConfig, touchedPath?: string) {
+		updateRow({ ...value.draft, ...updated }, touchedPath);
 	}
 
-	const issueMessages: Record<IssueCode, (issue: Issue) => string> = {
-		required_title: () => "Введите значение.",
-		forbitten_pm: () =>
-			"Недопустимо использовать « + » или « - » с пробелами.",
-		duplicate_with_prev: () =>
-			"Название совпадает с одним из элементов выше.",
-		filepath_empty: () =>
-			"Поле пустое.",
-		file_not_exists: () =>
-			"Файл не найден.",
-		to_find_empty: () =>
-			"Поле пустое.",
-		connections_empty: () =>
-			"Поле пустое.",
-		connections_not_exists: (issue) =>
-			`Не найдены связи выше: ${formatIssueList(issue.params?.titles)}.`,
-		yaml_tags_empty: () =>
-			"Поле пустое.",
-		yaml_keys_not_exists: (issue) =>
-			`Не найдены YAML-ключи: ${formatIssueList(issue.params?.tags)}.`,
-	};
-
-	function formatIssueList(value: unknown): string {
-		if (!Array.isArray(value)) {
-			return "неизвестно";
-		}
-		const normalized = value
-			.map(item => String(item).trim())
-			.filter(Boolean);
-		return normalized.length > 0 ? normalized.join(", ") : "неизвестно";
-	}
-
-	export function issueToText(issue: Issue): string {
-		return issueMessages[issue.code]?.(issue) ?? "Некорректное значение.";
-	}
 	function handleDirectionChange(e: Event) {
 		const direction = (e.target as HTMLSelectElement).value as "forward" | "backward";
-		value = {
-			...value,
-			draft: { ...value.draft, direction },
-			meta: { ...value.meta, touched: true },
-		};
-		onchange?.(value);
+		updateRow({ ...value.draft, direction }, "direction");
 	}
+
+	let titleIssues = $derived(getIssuesForPath("title"));
+	let typeIssues = $derived(getIssuesForPath("type"));
+	let showRowInvalidState = $derived(
+		value.meta.issues.some((issue) => issue.scope === "above") ||
+			(value.meta.touched && !value.meta.valid)
+	);
+	let showTitleIssues = $derived(shouldShowIssues("title"));
+	let showTypeIssues = $derived(shouldShowIssues("type"));
 </script>
 
 <div class="list-item">
-	<!-- Первая строка: title + выбор типа -->
 	<div class="top-row">
-		<div class="title-wrapper">
+		<div
+			class="status-indicator"
+			class:invalid={showRowInvalidState}
+			aria-hidden="true"
+		></div>
+
+		<div class="field-stack title-wrapper">
 			<input
 				type="text"
 				value={value.draft.title}
 				oninput={handleTitle}
 				placeholder="Введите название..."
 				aria-label="Название соединения"
-				class:invalid={!value.meta.valid}
+				class:invalid={showTitleIssues}
 			/>
-			{#if value.meta.touched && !value.meta.valid}
-				<div class="error-hint">{issueToText(value.meta.issues[0])}</div>
-			{/if}
+			<div class="error-hint" aria-live="polite">
+				{#if showTitleIssues}
+					{#each titleIssues as issue, index (`title-${issue.code}-${index}`)}
+						<div>{issueToText(issue)}</div>
+					{/each}
+				{/if}
+			</div>
 		</div>
 
-		<select
-			value={value.draft.type}
-			onchange={handleTypeChange}
-			class="type-select"
-		>
-			<option value="" disabled>— тип —</option>
-			{#each registry.all() as desc (desc.type)}
-				<option value={desc.type}>{desc.label}</option>
-			{/each}
-		</select>
-		<div class="top-row">
-	<select
-		value={value.draft.direction}
-		onchange={handleDirectionChange}
-		class="direction-select"
-	>
-		<option value="forward">→ вперёд</option>
-		<option value="backward">← назад</option>
-	</select>
-</div>
+		<div class="field-stack field-select-wrapper type-wrapper">
+			<select
+				value={value.draft.type}
+				onchange={handleTypeChange}
+				class="type-select"
+				class:invalid={showTypeIssues}
+			>
+				<option value="" disabled>— тип —</option>
+				{#each registry.all() as desc (desc.type)}
+					<option value={desc.type}>{desc.label}</option>
+				{/each}
+			</select>
+			<div class="error-hint" aria-live="polite">
+				{#if showTypeIssues}
+					{#each typeIssues as issue, index (`type-${issue.code}-${index}`)}
+						<div>{issueToText(issue)}</div>
+					{/each}
+				{/if}
+			</div>
+		</div>
+
+		<div class="field-stack field-select-wrapper direction-wrapper">
+			<select
+				value={value.draft.direction}
+				onchange={handleDirectionChange}
+				class="direction-select"
+			>
+				<option value="forward">→ вперёд</option>
+				<option value="backward">← назад</option>
+			</select>
+			<div class="error-hint" aria-hidden="true"></div>
+		</div>
 	</div>
 
-	<!-- Вторая строка: специфичный контент типа (без title) -->
 	{#if EditorComponent}
 		<div class="editor-wrapper">
-			<EditorComponent value={value.draft} onchange={handleDraftChange} />
+			<EditorComponent
+				value={value.draft}
+				onchange={handleDraftChange}
+				issues={value.meta.issues}
+				{shouldShowIssues}
+			/>
 		</div>
 	{/if}
 </div>
@@ -168,20 +184,41 @@
 		align-items: stretch;
 		min-width: 0;   
     overflow: hidden;
-    box-sizing: border-box;
+		box-sizing: border-box;
 	}
 
-.top-row {
-	display: flex;
-	gap: 8px;
-	align-items: flex-start;
-}
+	.top-row {
+		display: flex;
+		gap: 8px;
+		align-items: flex-start;
+	}
 
-.title-wrapper {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-}
+	.status-indicator {
+		width: 8px;
+		height: 8px;
+		margin-top: 10px;
+		border-radius: 50%;
+		background: transparent;
+		flex: 0 0 auto;
+	}
+
+	.status-indicator.invalid {
+		background: var(--text-error);
+	}
+
+	.field-stack {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.title-wrapper {
+		flex: 1;
+	}
+
+	.field-select-wrapper {
+		flex: 0 0 auto;
+	}
 
 	.title-wrapper input {
 		width: 100%;
@@ -198,6 +235,10 @@
 		border-color: var(--text-error);
 	}
 
+	.type-select.invalid {
+		border-color: var(--text-error);
+	}
+
 	.error-hint {
 		font-size: 0.85em;
 		color: var(--text-error);
@@ -205,6 +246,12 @@
 		margin-top: 2px;
 		line-height: 1.3;
 		opacity: 0.9;
+		min-height: 1.3em;
+	}
+
+	.type-wrapper .error-hint,
+	.direction-wrapper .error-hint {
+		padding-left: 0;
 	}
 
 	.type-select {

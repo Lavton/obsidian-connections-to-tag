@@ -6,6 +6,12 @@ export const ruleTitleRequired: ValidationLocalRule<ConnectionConfig> = {
 		return null;
 	},
 }
+export const ruleTypeRequired: ValidationLocalRule<ConnectionConfig> = {
+	run: (item) => {
+		if (item.type.trim() === "") return { code: "required_type", path: "type" };
+		return null;
+	},
+}
 export const ruleNoPlusMinusWithSpaces: ValidationLocalRule<ConnectionConfig> = {
 	run: (item) => {
 		if (item.title.includes(" + ") || item.title.includes(" - ")) {

@@ -1,10 +1,12 @@
 import { BackwardConnection, type Connection } from "src/models/connections";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ConnectionConfig, Issue, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import type { Component } from 'svelte';
 
 export interface ConnectionEditorProps<TConfig extends ConnectionConfig = ConnectionConfig> {
     value: TConfig;
-    onchange: (updated: TConfig) => void;
+    onchange: (updated: TConfig, touchedPath?: string) => void;
+    issues?: (Issue & { scope: "local" | "above" })[];
+    shouldShowIssues?: (path: string) => boolean;
 }
 type AnyDescriptor = ConnectionTypeDescriptor<any>;
 // Дескриптор типа - связывает всё в одном месте

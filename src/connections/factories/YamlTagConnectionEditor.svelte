@@ -1,8 +1,14 @@
 <script lang="ts">
 	import type { ConnectionEditorProps } from "./factory";
 	import type { YamlTagConnConfig } from "./yaml_tag";
+	import { issueToText } from "src/settings/validation_ui";
 
-	let { value, onchange }: ConnectionEditorProps<YamlTagConnConfig> = $props();
+	let {
+		value,
+		onchange,
+		issues = [],
+		shouldShowIssues = () => false,
+	}: ConnectionEditorProps<YamlTagConnConfig> = $props();
 
 	let tagsRaw = $state(
 		Array.isArray(value.tags) ? (value.tags as string[]).join(', ') : ''
@@ -14,8 +20,15 @@
 			.split(',')
 			.map(t => t.trim())
 			.filter(Boolean);
-		onchange({ ...value, tags });
+		onchange({ ...value, tags }, "tags");
 	}
+
+	function getTagsIssues() {
+		return issues.filter((issue) => issue.path === "tags");
+	}
+
+	let tagsIssues = $derived(getTagsIssues());
+	let showTagsIssues = $derived(shouldShowIssues("tags"));
 </script>
 
 <div class="root">
@@ -30,7 +43,15 @@
         value={tagsRaw}
         oninput={handleTags}
         placeholder="tag1, tag2, tag3"
+        class:invalid={showTagsIssues}
       />
+	  <div class="error-hint" aria-live="polite">
+		{#if showTagsIssues}
+			{#each tagsIssues as issue, index (`tags-${issue.code}-${index}`)}
+				<div>{issueToText(issue)}</div>
+			{/each}
+		{/if}
+	  </div>
     </label>
   </div>
 </div>
@@ -62,6 +83,17 @@ input {
 	background: var(--background-primary);
 	color: var(--text-normal);
 	box-sizing: border-box;
+}
+
+input.invalid {
+	border-color: var(--text-error);
+}
+
+.error-hint {
+	font-size: 0.85em;
+	color: var(--text-error);
+	min-height: 1.3em;
+	line-height: 1.3;
 }
 
 .description {

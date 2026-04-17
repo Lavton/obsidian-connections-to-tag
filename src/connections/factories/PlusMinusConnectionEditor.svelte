@@ -2,8 +2,14 @@
 <script lang="ts">
 	import type { ConnectionEditorProps } from "./factory";
 	import { PMSign, type PlusMinusConnConfig } from "./plus_minus";
+	import { issueToText } from "src/settings/validation_ui";
 
-	let { value, onchange }: ConnectionEditorProps<PlusMinusConnConfig> = $props();
+	let {
+		value,
+		onchange,
+		issues = [],
+		shouldShowIssues = () => false,
+	}: ConnectionEditorProps<PlusMinusConnConfig> = $props();
 
 	function toRaw(
 		connections: { sign: PMSign; title: string }[] | undefined
@@ -47,8 +53,15 @@
 	function handleExpr(e: Event) {
 		exprRaw = (e.target as HTMLInputElement).value;
 		const connections = parseExpression(exprRaw);
-		onchange({ ...value, connections });
+		onchange({ ...value, connections }, "connections");
 	}
+
+	function getConnectionIssues() {
+		return issues.filter((issue) => issue.path === "connections");
+	}
+
+	let connectionIssues = $derived(getConnectionIssues());
+	let showConnectionIssues = $derived(shouldShowIssues("connections"));
 </script>
 
 <div class="root">
@@ -61,7 +74,15 @@
 				value={exprRaw}
 				oninput={handleExpr}
 				placeholder="заголовок1 + заголовок2 - заголовок3"
+				class:invalid={showConnectionIssues}
 			/>
+			<div class="error-hint" aria-live="polite">
+				{#if showConnectionIssues}
+					{#each connectionIssues as issue, index (`connections-${issue.code}-${index}`)}
+						<div>{issueToText(issue)}</div>
+					{/each}
+				{/if}
+			</div>
 		</label>
 	</div>
 </div>
@@ -93,6 +114,17 @@
 		background: var(--background-primary);
 		color: var(--text-normal);
 		box-sizing: border-box;
+	}
+
+	input.invalid {
+		border-color: var(--text-error);
+	}
+
+	.error-hint {
+		font-size: 0.85em;
+		color: var(--text-error);
+		min-height: 1.3em;
+		line-height: 1.3;
 	}
 
 	.description {

@@ -44,6 +44,7 @@ export type RowState<T> = {
 	draft: T;
 	meta: {
 		touched: boolean,
+		touchedPaths: Record<string, boolean>;
 		dirty: boolean;
 		valid: boolean;
 		issues: (Issue & { scope: "local" | "above" })[];
@@ -59,6 +60,7 @@ export function toRowStates(items: DirectionalConnection[]): RowState<Directiona
 		draft: cloneConn(item),
 		meta: {
 			touched: false,
+			touchedPaths: {},
 			dirty: false,
 			valid: true,
 			issues: []

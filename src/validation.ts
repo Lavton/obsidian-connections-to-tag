@@ -59,6 +59,20 @@ async function checkElementsAfter<T extends { title: string }>(
     return results;
 }
 
+export async function validateAllItems<T extends { title: string }>(
+    storedItems: RowState<T>[],
+    validationConfig: ValidationConfig<T>
+): Promise<RowState<T>[]> {
+    const results = await Promise.all(
+        storedItems.map((row, index) => {
+            const titlesAbove = storedItems.slice(0, index).map((x) => x.draft.title);
+            return checkItem(row.draft, titlesAbove, validationConfig);
+        })
+    );
+
+    return storedItems.map((row, index) => applyValidationResult(row, results[index]));
+}
+
 export async function validateItemOnChange<T extends { title: string }>(
     storedItems: RowState<T>[],
     checkIndex: number,

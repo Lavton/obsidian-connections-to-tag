@@ -6,6 +6,7 @@ import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { DirectionalConnection } from "./types";
 import * as common_rules from "./common_validation_rules";
 import type { ConnectionRegistry } from "src/connections/factories/factory";
+import ChainStepListSettings from "./ChainStepListSettings.svelte";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -202,8 +203,18 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 				}
 			}
 		});
+		const listChainComponent = mount(ChainStepListSettings, {
+			target: listContainer,
+			props: {
+			}
+		});
 		const section3 = containerEl.createDiv({ cls: 'settings-section' });
 		section3.id = 'section-ui';
+
+
+		// const section4 = containerEl.createDiv({ cls: 'settings-section' });
+		// section3.id = 'section-ui';
+
 		section3.createEl('h2', { text: 'UI settings' });
 		// UI
 

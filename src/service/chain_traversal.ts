@@ -1,5 +1,4 @@
 import { TFile, type App } from "obsidian";
-import * as path from "path";
 import { ChainStep, type Chain } from "src/models/chain";
 import type { Rule } from "src/models/rule";
 import type { Traversal } from "src/models/traversal";

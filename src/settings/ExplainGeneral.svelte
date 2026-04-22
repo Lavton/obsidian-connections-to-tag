@@ -42,6 +42,7 @@ Table of content
 	<li><a href="#section-chain">What rules and chains to apply</a></li>
 	<ul>
 	<li><a href="#subsection-connection">Connections</a></li>
+	<li><a href="#subsection-chainstep">Chain Steps</a></li>
 	</ul>
 	<li><a href="#section-ui">UI settings</a></li>
 </ul>

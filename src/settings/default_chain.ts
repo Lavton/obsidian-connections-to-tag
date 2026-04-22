@@ -1,18 +1,18 @@
 import type { Chain } from "src/models/chain";
-import { YamlConnectionTag } from "src/models/connections";
+import { BackwardConnection } from "src/models/connections";
 import { FactoryRuleNSteps, FactoryRuleToTheEnd } from "src/models/rule";
+import { YamlTagConnection } from "src/connections/factories/yaml_tag";
 
 export function getDefaultChain(): Chain {
 
-	const hierarhyYamlConnection = new YamlConnectionTag(
-		[], ["topic", "entity"]
+	const hierarhyYamlConnection = new BackwardConnection(
+		new YamlTagConnection("default hierarchy", ["topic", "entity"])
 	)
-	const nextPrevYamlConnection = new YamlConnectionTag(
-		["next"], ["prev"]
+	const nextYamlConnection = new YamlTagConnection("default next", ["next"])
+	const prevYamlConnection = new BackwardConnection(
+		new YamlTagConnection("default prev", ["prev"])
 	)
-	const basedYamlConnection = new YamlConnectionTag(
-		["base"], []
-	)
+	const basedYamlConnection = new YamlTagConnection("default base", ["base"])
 	const toTheEnd = new FactoryRuleToTheEnd()
 	const nSteps = new FactoryRuleNSteps(3)
 
@@ -24,7 +24,7 @@ export function getDefaultChain(): Chain {
 			},
 			{
 				rule: nSteps,
-				connections: [nextPrevYamlConnection, basedYamlConnection]
+				connections: [nextYamlConnection, prevYamlConnection, basedYamlConnection]
 			}
 		]
 	}

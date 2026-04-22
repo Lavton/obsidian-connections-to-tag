@@ -1,24 +1,19 @@
 import { App, Editor, getLinkpath, MarkdownView, Menu, MenuItem, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
 import * as settings from 'src/settings/settings'
-import * as rules from 'src/models/rule'
 import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
-import { findAllSubtree } from 'src/parentChild'
-import { expandToNeibors } from 'src/neibors';
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
-import * as connections from 'src/models/connections';
+import type { Connection } from 'src/models/connections';
 import { ChainTraversal, StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
 import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile, getAllFilesInFolderWithFrontmatter, getAllFilesInFolder } from 'src/folderUtils';
-import type { ConnectionConfig } from 'src/settings/types';
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
-import type { RuleFactory } from 'src/models/rule';
 import { ConnectionRegistry } from 'src/connections/factories/factory';
-import { YamlTagConnection, YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
+import { YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
 import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_text';
 import { PlusMinusConnectionDescriptor } from 'src/connections/factories/plus_minus';
 import { AllYamlConnectionDescriptor } from 'src/connections/factories/all_yaml';
@@ -31,25 +26,8 @@ import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings!: settings.ConnectionsToTagSettings;
 	
-	connectionInstances: connections.Connection[] = [];
+	connectionInstances: Connection[] = [];
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
-
-	connectionFactory = {
-		"backward": connections.BackwardConnection,
-		"plus_minus": connections.PlusMinusConnection,
-		"yaml_tag": connections.YamlTagConnection,
-		"all_yaml": connections.AllYamlConnection,
-		"all_text": connections.AllInTextConnection,
-		"top_text": connections.TopInTextConnection,
-		"between": connections.BetweenInTextConnection,
-		"just_regexp": connections.JustRegexpConnection,
-		"arbitrary_danger": connections.ArbitraryDangerConnection,
-	}
-	ruleFactory = {
-		"to_the_end": rules.FactoryRuleToTheEnd,
-		"n_steps": rules.FactoryRuleNSteps,
-		"probability": rules.FactoryRuleProbabiloty
-	}
 
 	async onload() {
 		this.connectionRegistry
@@ -63,24 +41,14 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			.register(PlusMinusConnectionDescriptor)
 
 		await this.loadSettings();
-		// this.connectionInstances = this.settings.connections.map(
-            // config => this.connectionRegistry.fromConfig(config)
-        // );
-		const current_connections: connections.Connection[] = []
-		for (const cc of this.settings.connections) {
-			if (typeof cc.title !== "string") {
+		const current_connections: Connection[] = []
+		for (const connectionConfig of this.settings.connectionConfigs) {
+			if (typeof connectionConfig.title !== "string") {
 				continue
 			}
-			const connectionConfig = cc as ConnectionConfig & { direction: "forward" | "backward" }
 			current_connections.push(this.connectionRegistry.fromConfig(connectionConfig, current_connections))
 		}
 		this.connectionInstances = current_connections
-		// console.log("connections", this.connectionInstances)
-		// this.connectionInstances.push(
-		// 	new connections.BackwardConnection(
-		// 	new YamlTagConnection(["avvaa", "mmmm"])
-		// 	)
-		// )
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this, this));
@@ -93,14 +61,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (initialFile == null) {
 					return
 				}
-				// const conn = new connections.YamlTagConnection(["topic"])
-				// const conn = new connections.BackwardConnection(new connections.YamlTagConnection(["topic"]))
-				// const conn = new connections.AllYamlConnection()
-				// const conn = new connections.TopInTextConnection()
-				// const conn = new connections.BetweenInTextConnection(false, "[[note p", null) 
-				// const conn = new connections.JustRegexpConnection(false, false, true, "parent::")
 				const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
-				// const conn = new connections.ArbitraryDangerConnection("base/danger_test_connection.md")
 				console.log(conn)
 				console.log(await conn.get_connected(this.app, initialFile))
 			}
@@ -239,9 +200,6 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	}
 
 	async saveSettings() {
-		this.settings.connections = this.connectionInstances.map(
-            conn => this.connectionRegistry.toConfig(conn as any)
-        );
 		await this.saveData(this.settings);
 	}
 	public updateCommandSettingDependend() {
@@ -266,7 +224,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.addCommand({
 			id: 'implement-chain',
 			name: 'Apply rule chain starts with this file: ' + apply_name,
-			editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
@@ -281,7 +239,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.addCommand({
 			id: 'reverse-chain',
 			name: 'Rollback rule chain starts with this file: ' + rollback_name,
-			editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return

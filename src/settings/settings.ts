@@ -3,9 +3,7 @@ import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 import { mount } from "svelte";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
-import type { Connection } from "src/models/connections";
-import type { RuleFactory } from "src/models/rule";
-import type { ConnectionConfig, DirectionalConnection } from "./types";
+import type { DirectionalConnection } from "./types";
 import * as common_rules from "./common_validation_rules";
 import type { ConnectionRegistry } from "src/connections/factories/factory";
 export interface ResultsSettings {
@@ -34,7 +32,6 @@ export interface ConnectionsToTagSettings {
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
 	connectionConfigs: DirectionalConnection[]
-	connections: Array<{ type: string; direction: "forward" | "backward"; [key: string]: any }>;
 }
 
 
@@ -76,7 +73,6 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 		],
 	},
 	connectionConfigs: [{type: "yaml-tag", title: "ooo", direction: "forward"}],
-	connections: []
 }
 
 
@@ -85,11 +81,7 @@ export interface SettingsSaver extends Plugin {
 	saveSettings(): Promise<void>;
 
 }
-type ConnectionMap = Record<string, new (...args: any[]) => Connection>;
-type RulesMap = Record<string, new (...args: any[]) => RuleFactory>;
 export interface ConnectionsHolder extends Plugin {
-	// connectionFactory: ConnectionMap
-	// ruleFactory: RulesMap
 	connectionRegistry: ConnectionRegistry
 }
 

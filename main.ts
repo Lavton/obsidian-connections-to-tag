@@ -29,7 +29,8 @@ import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
-	settings: settings.ConnectionsToTagSettings;
+	settings!: settings.ConnectionsToTagSettings;
+	
 	connectionInstances: connections.Connection[] = [];
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
 
@@ -87,7 +88,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.addCommand({
 			id: 'test-connection',
 			name: 'Test Connection',
-			editorCallback: async (editor: Editor, view: MarkdownView) => {
+			editorCallback: async (editor: Editor, view) => {
 				var initialFile = view.file
 				if (initialFile == null) {
 					return
@@ -98,7 +99,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				// const conn = new connections.TopInTextConnection()
 				// const conn = new connections.BetweenInTextConnection(false, "[[note p", null) 
 				// const conn = new connections.JustRegexpConnection(false, false, true, "parent::")
-				const conn = new connections.ArbitraryDangerConnection("base/danger_test_connection.md")
+				const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
+				// const conn = new connections.ArbitraryDangerConnection("base/danger_test_connection.md")
+				console.log(conn)
 				console.log(await conn.get_connected(this.app, initialFile))
 			}
 		})

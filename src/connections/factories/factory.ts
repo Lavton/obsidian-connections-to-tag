@@ -31,17 +31,16 @@ export class ConnectionRegistry {
 		return this
     }
 
-    fromConfig(config: ConnectionConfig & { direction: "forward" | "backward" }, above_connections: Connection[]): Connection {
+    fromConfig(config: ConnectionConfig & { direction?: "forward" | "backward" }, above_connections: Connection[]): Connection {
         const descriptor = this.descriptors.get(config.type);
         if (!descriptor) {
             throw new Error(`Unknown connection type: ${config.type}`);
         }
         const connection = descriptor.createInstance(config, above_connections);
-		if (config.direction == "forward") {
-			return connection
-		} else {
+		if (config.direction === "backward") {
 			return new BackwardConnection(connection)
 		}
+		return connection
     }
 
     toConfig(instance: Connection): (ConnectionConfig & { direction: "forward" | "backward" }) {

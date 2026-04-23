@@ -1,6 +1,6 @@
 
 <script lang="ts">
-	import type { ConnectionEditorProps } from "../factory";
+	import type { ConnectionEditorProps } from "../connection_factory";
 	import { PMSign, type PlusMinusConnConfig } from "./plus_minus";
 	import { issueToText } from "src/settings/validation_ui";
 

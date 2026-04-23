@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ConnectionEditorProps } from "./factory";
+	import type { ConnectionEditorProps } from "../factory";
 	import type { ArbitraryDangerConnConfig } from "./arbitrary_danger";
 	import { issueToText } from "src/settings/validation_ui";
 

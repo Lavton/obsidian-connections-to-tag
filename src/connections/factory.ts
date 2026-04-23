@@ -1,4 +1,4 @@
-import { BackwardConnection, type Connection } from "src/models/connections";
+import { BackwardConnection, type Connection } from "src/connections/connections";
 import type { ConnectionConfig, Issue, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import type { Component } from 'svelte';
 

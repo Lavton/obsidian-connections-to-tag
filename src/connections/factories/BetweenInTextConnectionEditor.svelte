@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { BetweenInTextConnConfig } from "./between_in_text";
-	import type { ConnectionEditorProps } from "./factory";
+	import type { ConnectionEditorProps } from "../factory";
 
 	let { value, onchange }: ConnectionEditorProps<BetweenInTextConnConfig> = $props();
 

@@ -1,8 +1,8 @@
 import type { App, TFile } from "obsidian";
 import { extractLinksFromString, getFilepaths } from "src/link_utils";
-import type { Connection } from "src/models/connections";
+import type { Connection } from "src/connections/connections";
 import { convertToLinePositions, findAllOccurrences, removeFrontmatter } from "src/utils";
-import type { ConnectionTypeDescriptor } from "./factory";
+import type { ConnectionTypeDescriptor } from "../factory";
 import JustRegexpConnectionEditor from "./JustRegexpConnectionEditor.svelte";
 import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 

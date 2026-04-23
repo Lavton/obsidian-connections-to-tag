@@ -3,7 +3,7 @@ import * as settings from 'src/settings/settings'
 import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
-import type { Connection } from 'src/models/connections';
+import type { Connection } from 'src/connections/connections';
 import { ChainTraversal, StepTraversal } from 'src/service/chain_traversal';
 import { getDefaultChain } from 'src/settings/default_chain';
 import type { Chain, ChainStep } from 'src/models/chain';
@@ -12,7 +12,7 @@ import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontma
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
-import { ConnectionRegistry } from 'src/connections/factories/factory';
+import { ConnectionRegistry } from 'src/connections/factory';
 import { YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
 import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_text';
 import { PlusMinusConnectionDescriptor } from 'src/connections/factories/plus_minus';

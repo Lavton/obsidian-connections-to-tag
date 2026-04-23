@@ -1,4 +1,4 @@
-import type { Connection } from "./connections";
+import type { Connection } from "src/connections/connections";
 import type { RuleFactory } from "./rule";
 
 export class Chain {

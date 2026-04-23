@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ConnectionEditorProps } from "./factory";
+	import type { ConnectionEditorProps } from "../factory";
 	import type { YamlTagConnConfig } from "./yaml_tag";
 	import { issueToText } from "src/settings/validation_ui";
 

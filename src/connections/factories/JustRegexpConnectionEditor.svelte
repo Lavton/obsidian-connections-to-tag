@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ConnectionEditorProps } from "./factory";
+    import type { ConnectionEditorProps } from "../factory";
 	import type { JustRegexpConnConfig } from "./just_regexp";
 	import { issueToText } from "src/settings/validation_ui";
 

@@ -1,5 +1,5 @@
 import type { Chain } from "src/models/chain";
-import { BackwardConnection } from "src/models/connections";
+import { BackwardConnection } from "src/connections/connections";
 import { FactoryRuleNSteps, FactoryRuleToTheEnd } from "src/models/rule";
 import { YamlTagConnection } from "src/connections/factories/yaml_tag";
 

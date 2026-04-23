@@ -1,8 +1,8 @@
 import type { App, TFile } from "obsidian";
-import type { Connection } from "src/models/connections";
+import type { Connection } from "src/connections/connections";
 import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import { getFilesInFrontmatter } from "src/utils";
-import type { ConnectionTypeDescriptor } from "./factory";
+import type { ConnectionTypeDescriptor } from "../factory";
 import AllYamlConnectionEditor from "./AllYamlConnectionEditor.svelte";
 
 // connections "all links in frontmatter"

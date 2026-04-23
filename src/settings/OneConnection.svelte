@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ConnectionRegistry } from "src/connections/factories/factory";
+	import type { ConnectionRegistry } from "src/connections/factory";
 	import {
 		emptyRowState,
 		type ConnectionConfig,

@@ -1,5 +1,3 @@
-// import type { Entity } from "./entity"
-
 export interface RuleFactory {
 	getRule(): Rule 
 }
@@ -9,8 +7,6 @@ export interface Rule {
 	go(): Rule
 }
 
-	// entities: Array<Entity>
-	// needToGo(entity: Entity): boolean 
 // export interface RuleChain {
 // 	rules: Rule[];
 // }

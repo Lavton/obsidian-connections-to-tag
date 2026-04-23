@@ -12,7 +12,7 @@ import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontma
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
-import { ConnectionRegistry } from 'src/connections/factory';
+import { ConnectionRegistry } from 'src/connections/connection_factory';
 import { YamlTagConnectionDescriptor } from 'src/connections/factories/yaml_tag';
 import { AllInTextConnectionDescriptor } from 'src/connections/factories/all_in_text';
 import { PlusMinusConnectionDescriptor } from 'src/connections/factories/plus_minus';

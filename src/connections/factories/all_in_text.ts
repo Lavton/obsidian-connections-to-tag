@@ -2,7 +2,7 @@ import type { App, TFile } from "obsidian";
 import { extractLinksFromString, getFilepaths } from "src/link_utils";
 import type { Connection } from "src/connections/connections";
 import { removeFrontmatter } from "src/utils";
-import type { ConnectionTypeDescriptor } from "../factory";
+import type { ConnectionTypeDescriptor } from "../connection_factory";
 import AllInTextConnectionEditor from "./AllInTextConnectionEditor.svelte";
 import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 

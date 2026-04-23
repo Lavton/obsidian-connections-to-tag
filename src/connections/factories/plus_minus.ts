@@ -1,6 +1,6 @@
 import type { App, TFile } from "obsidian";
 import { type Connection } from "src/connections/connections";
-import type { ConnectionTypeDescriptor } from "../factory";
+import type { ConnectionTypeDescriptor } from "../connection_factory";
 import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 import PlusMinusConnectionEditor from "./PlusMinusConnectionEditor.svelte";
 

@@ -1,7 +1,7 @@
 import type { App, TFile } from "obsidian"
 import type { Connection } from "src/connections/connections"
 import { getFilesInFrontmatter } from "src/utils"
-import type { ConnectionTypeDescriptor } from "../factory";
+import type { ConnectionTypeDescriptor } from "../connection_factory";
 import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
 import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 

@@ -1,9 +1,12 @@
 <script lang="ts">
 	import type { ConnectionRegistry } from "src/connections/connection_factory";
 	import {
-		emptyRowState,
+		emptyConnectionConfig,
 		type ConnectionConfig,
 		type DirectionalConnection,
+	} from "src/connections/connections";
+	import {
+		emptyRowState,
 		type RowState,
 	} from "./types";
 	import { issueToText } from "./validation_ui";
@@ -15,7 +18,7 @@
 	}
 
 	let { 
-		value = $bindable(emptyRowState()), onchange, registry,
+		value = $bindable(emptyRowState(emptyConnectionConfig())), onchange, registry,
 	}: Props = $props();
 
 	let descriptor = $derived(

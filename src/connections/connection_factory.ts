@@ -1,5 +1,6 @@
 import { BackwardConnection, type Connection } from "src/connections/connections";
-import type { ConnectionConfig, Issue, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ConnectionConfig } from "src/connections/connections";
+import type { Issue, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import type { Component } from 'svelte';
 
 export interface ConnectionEditorProps<TConfig extends ConnectionConfig = ConnectionConfig> {

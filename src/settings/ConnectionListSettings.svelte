@@ -1,12 +1,15 @@
 <script lang="ts">
 	import type { ConnectionRegistry } from "src/connections/connection_factory";
+	import {
+		emptyConnectionConfig,
+		type DirectionalConnection,
+	} from "src/connections/connections";
 	import DynamicList from "./DynamicList.svelte";
 	import OneConnection from "./OneConnection.svelte";
 	import {
 		emptyRowState,
 		fromRowStates,
 		toRowStates,
-		type DirectionalConnection,
 		type RowState,
 	} from "./types";
 	import type { ValidationConfig } from "src/validation";
@@ -27,7 +30,7 @@
 	}
 
 	function createNewItem(): RowState<DirectionalConnection> {
-		return emptyRowState();
+		return emptyRowState(emptyConnectionConfig());
 	}
 
 </script>

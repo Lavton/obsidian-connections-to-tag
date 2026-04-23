@@ -1,10 +1,10 @@
 import type { App, TFile } from "obsidian";
 import { extractLinksFromString, getFilepaths } from "src/link_utils";
-import type { Connection } from "src/connections/connections";
+import type { Connection, ConnectionConfig } from "src/connections/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "../connection_factory";
 import AllInTextConnectionEditor from "./AllInTextConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 // "all links that are in the text of the note, not in the frontmatter
 export class AllInTextConnection implements Connection {

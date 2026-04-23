@@ -1,10 +1,10 @@
 import type { App, TFile } from "obsidian";
 import { extractLinksFromString, getFilepaths } from "src/link_utils";
-import type { Connection } from "src/connections/connections";
+import type { Connection, ConnectionConfig } from "src/connections/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "../connection_factory";
 import TopInTextConnectionEditor from "./TopInTextConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
+import type { ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 export class TopInTextConnection implements Connection {
 	readonly type = 'top-in-text';

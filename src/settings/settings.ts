@@ -3,7 +3,7 @@ import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 import { mount } from "svelte";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
-import type { DirectionalConnection } from "./types";
+import type { DirectionalConnection } from "src/connections/connections";
 import * as common_rules from "./common_validation_rules";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
 import ChainStepListSettings from "./ChainStepListSettings.svelte";

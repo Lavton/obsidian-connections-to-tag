@@ -1,9 +1,9 @@
 import type { App, TFile } from "obsidian"
-import type { Connection } from "src/connections/connections"
+import type { Connection, ConnectionConfig } from "src/connections/connections"
 import { getFilesInFrontmatter } from "src/utils"
 import type { ConnectionTypeDescriptor } from "../connection_factory";
 import YamlTagConnectionEditor from "./YamlTagConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
+import type { ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 
 export class YamlTagConnection implements Connection {
 	readonly type = 'yaml-tag';

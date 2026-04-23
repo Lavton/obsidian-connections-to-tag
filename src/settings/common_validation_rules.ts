@@ -1,4 +1,5 @@
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "./types";
+import type { ConnectionConfig } from "src/connections/connections";
+import type { ValidationAboveRule, ValidationLocalRule } from "./types";
 
 export const ruleTitleRequired: ValidationLocalRule<ConnectionConfig> = {
 	run: (item) => {

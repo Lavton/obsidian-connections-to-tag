@@ -1,10 +1,10 @@
 import type { App, TFile } from "obsidian";
 import { extractLinksFromString, getFilepaths } from "src/link_utils";
-import type { Connection } from "src/connections/connections";
+import type { Connection, ConnectionConfig } from "src/connections/connections";
 import { convertToLinePositions, findAllOccurrences, removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "../connection_factory";
 import JustRegexpConnectionEditor from "./JustRegexpConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
+import type { ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 
 // links after some regexp. Ex: after "parent:: "
 export class JustRegexpConnection implements Connection {

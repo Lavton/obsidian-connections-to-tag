@@ -1,6 +1,16 @@
 import { App, TFile } from 'obsidian';
 import { getBackwardLinks } from 'src/utils';
 
+export type ConnectionConfig = {
+	readonly type: string
+	title: string
+};
+export type DirectionalConnection = ConnectionConfig & { direction: "forward" | "backward" }
+
+export function emptyConnectionConfig(): DirectionalConnection {
+	return { type: "", title: "", direction: "backward" };
+}
+
 export interface Connection {
 	readonly type: string;
 	title: string;

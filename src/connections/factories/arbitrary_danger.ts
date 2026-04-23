@@ -1,10 +1,10 @@
 import { TFile, type App } from "obsidian";
 import { extractLinksFromString, getFilepaths } from "src/link_utils";
-import type { Connection } from "src/connections/connections";
+import type { Connection, ConnectionConfig } from "src/connections/connections";
 import { removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "../connection_factory";
 import ArbitraryDangerConnectionEditor from "./ArbitraryDangerConnectionEditor.svelte";
-import type { ConnectionConfig, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
+import type { ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 
 export class ArbitraryDangerConnection implements Connection {
 	readonly type = 'arbitrary-danger';

@@ -1,13 +1,3 @@
-export type ConnectionConfig = {
-	readonly type: string
-	title: string
-};
-export type DirectionalConnection = ConnectionConfig & { direction: "forward" | "backward" }
-
-export function emptyConnectionConfig(): ConnectionConfig {
-  return { type: "", title: "" };
-}
-
 export interface DragNDropProps {
 	moveUp?: () => void;
 	moveDown?: () => void;
@@ -51,13 +41,28 @@ export type RowState<T> = {
 	};
 }
 
-const cloneConn = (x: DirectionalConnection): DirectionalConnection => ({ ...x });
+function makeRowId(index = 0): string {
+	return crypto.randomUUID?.() ?? `row-${index}-${Math.random().toString(16).slice(2)}`;
+}
 
-export function toRowStates(items: DirectionalConnection[]): RowState<DirectionalConnection>[] {
+function cloneValue<T>(value: T): T {
+	if (Array.isArray(value)) {
+		return [...value] as T;
+	}
+	if (value !== null && typeof value === "object") {
+		return { ...value };
+	}
+	return value;
+}
+
+export function toRowStates<T>(
+	items: T[],
+	clone: (item: T) => T = cloneValue,
+): RowState<T>[] {
 	return items.map((item, i) => ({
-		id: crypto.randomUUID?.() ?? `row-${i}-${Math.random().toString(16).slice(2)}`,
-		saved: cloneConn(item),
-		draft: cloneConn(item),
+		id: makeRowId(i),
+		saved: clone(item),
+		draft: clone(item),
 		meta: {
 			touched: false,
 			touchedPaths: {},
@@ -67,18 +72,24 @@ export function toRowStates(items: DirectionalConnection[]): RowState<Directiona
 		}
 	}));
 }
-export function emptyRowState(): RowState<DirectionalConnection> {
-	const c: DirectionalConnection = {...emptyConnectionConfig(), direction: "forward"}
-	const rs = toRowStates([c])[0]
+
+export function emptyRowState<T>(
+	draft: T,
+	clone: (item: T) => T = cloneValue,
+): RowState<T> {
+	const rs = toRowStates([draft], clone)[0]
 	rs.saved = undefined
 	return rs
 }
 
-export function fromRowStates(rows: RowState<DirectionalConnection>[]): DirectionalConnection[] {
+export function fromRowStates<T>(
+	rows: RowState<T>[],
+	clone: (item: T) => T = cloneValue,
+): T[] {
 	// Обычно отдаём "saved" или "draft" — зависит от UX.
 	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
 	return rows
 		.map(r => r.saved)
-		.filter((v): v is DirectionalConnection => v !== undefined)
-		.map(v => cloneConn(v));
+		.filter((v): v is T => v !== undefined)
+		.map(v => clone(v));
 }

@@ -21,6 +21,8 @@ import { ArbitraryDangerConnectionDescriptor } from 'src/connections/factories/a
 import { BetweenInTextConnectionDescriptor } from 'src/connections/factories/between_in_text';
 import { JustRegexpConnectionDescriptor } from 'src/connections/factories/just_regexp';
 import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_text';
+import { RuleRegistry } from 'src/rules/rule_factory';
+import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -28,6 +30,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	
 	connectionInstances: Connection[] = [];
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
+	ruleRegistry: RuleRegistry = new RuleRegistry();
 
 	async onload() {
 		this.connectionRegistry
@@ -39,6 +42,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			.register(TopInTextConnectionDescriptor)
 			.register(new YamlTagConnectionDescriptor(this.app))
 			.register(PlusMinusConnectionDescriptor)
+		this.ruleRegistry
+			.register(ToTheEndRuleDescriptor)
 
 		await this.loadSettings();
 		const current_connections: Connection[] = []

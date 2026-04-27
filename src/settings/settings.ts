@@ -6,7 +6,9 @@ import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { DirectionalConnection } from "src/connections/connections";
 import * as common_rules from "./common_validation_rules";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
-import ChainStepListSettings from "./ChainStepListSettings.svelte";
+import RulesListSettings from "./RulesListSettings.svelte";
+import type { RuleConfig } from "src/rules/new_rule";
+import type { RuleRegistry } from "src/rules/rule_factory";
 export interface ResultsSettings {
 	workingTag: string;
 	// goalFolder: string,
@@ -33,6 +35,7 @@ export interface ConnectionsToTagSettings {
 	aroundNumber: number,
 	isFirstTagLineParentWhenEmpty: boolean,
 	connectionConfigs: DirectionalConnection[]
+	ruleConfigs: RuleConfig[]
 }
 
 
@@ -74,6 +77,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 		],
 	},
 	connectionConfigs: [{type: "yaml-tag", title: "ooo", direction: "forward"}],
+	ruleConfigs: [],
 }
 
 
@@ -84,6 +88,7 @@ export interface SettingsSaver extends Plugin {
 }
 export interface ConnectionsHolder extends Plugin {
 	connectionRegistry: ConnectionRegistry
+	ruleRegistry: RuleRegistry
 }
 
 export class ConnectionsToTagSettingTab extends PluginSettingTab {
@@ -172,6 +177,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		let listContainer = section2.createDiv();
 
 		const registry = this.connectionHolder.connectionRegistry
+		const ruleRegistry = this.connectionHolder.ruleRegistry
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
 			props: {
@@ -203,9 +209,33 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 				}
 			}
 		});
-		const listChainComponent = mount(ChainStepListSettings, {
+		const listChainComponent = mount(RulesListSettings, {
 			target: listContainer,
 			props: {
+				concreeteRules: this.plugin.settings.ruleConfigs,
+				onchange: async (items: RuleConfig[]) => {
+					this.plugin.settings.ruleConfigs = items;
+					await this.plugin.saveSettings();
+				},
+				registry: ruleRegistry,
+				validationConfig: {
+					validationCommonAboveRules: [
+						common_rules.ruleNotEqual,
+					],
+					validationCommonLocalRules: [
+						common_rules.ruleTitleRequired,
+						common_rules.ruleTypeRequired,
+					],
+					getItemRules: function (item: RuleConfig) {
+						const descriptor = ruleRegistry.get(item.type);
+						if (!descriptor) return { local: [], above: [] };
+
+						return {
+							local: descriptor.validateLocalRules,
+							above: descriptor.validateAboveRules,
+						};
+					}
+				}
 			}
 		});
 		const section3 = containerEl.createDiv({ cls: 'settings-section' });

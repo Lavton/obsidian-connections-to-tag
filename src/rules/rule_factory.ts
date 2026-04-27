@@ -5,7 +5,6 @@ import type { Component } from "svelte";
 
 export interface RuleEditorProps<TConfig extends RuleConfig = RuleConfig> {
 	value: TConfig;
-	connections: Connection[];
 	onchange: (updated: TConfig, touchedPath?: string) => void;
 	issues?: (Issue & { scope: "local" | "above" })[];
 	shouldShowIssues?: (path: string) => boolean;

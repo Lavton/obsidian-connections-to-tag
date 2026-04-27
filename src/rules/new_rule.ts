@@ -8,8 +8,8 @@ export interface NewRuleFactory {
 }
 
 export interface NewRule {
-	needToGo(): boolean
-	go(): NewRule
+	needToGo(): Promise<boolean>
+	go(): Promise<NewRule>
 	connection: Connection
 }
 export type RuleConfig = {

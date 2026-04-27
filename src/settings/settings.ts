@@ -245,7 +245,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		// const section4 = containerEl.createDiv({ cls: 'settings-section' });
 		// section3.id = 'section-ui';
 
-		section3.createEl('h2', { text: 'UI settings' });
+		// section3.createEl('h2', { text: 'UI settings' });
 		// UI
 
 		// new Setting(containerEl)

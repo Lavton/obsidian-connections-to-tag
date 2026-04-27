@@ -44,5 +44,5 @@ Table of content
 	<li><a href="#subsection-connection">Connections</a></li>
 	<li><a href="#subsection-chainstep">Chain Steps</a></li>
 	</ul>
-	<li><a href="#section-ui">UI settings</a></li>
+	<!-- <li><a href="#section-ui">UI settings</a></li> -->
 </ul>

@@ -23,6 +23,8 @@ import { JustRegexpConnectionDescriptor } from 'src/connections/factories/just_r
 import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_text';
 import { RuleRegistry } from 'src/rules/rule_factory';
 import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
+import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
+import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -44,6 +46,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			.register(PlusMinusConnectionDescriptor)
 		this.ruleRegistry
 			.register(ToTheEndRuleDescriptor)
+			.register(NStepsRuleDescriptor)
+			.register(ProbabilityRuleDescriptor)
 
 		await this.loadSettings();
 		const current_connections: Connection[] = []

@@ -11,6 +11,8 @@ const issueMessages: Record<IssueCode, (issue: Issue) => string> = {
 		"Файл не найден.",
 	connections_not_exists: (issue) =>
 		`Не найдены связи выше: ${formatIssueList(issue.params?.titles)}.`,
+	connection_title_not_found: () =>
+		"Связь с таким названием не найдена.",
 	yaml_keys_not_exists: (issue) =>
 		`Не найдены YAML-ключи: ${formatIssueList(issue.params?.tags)}.`,
 	probability_integer: () =>

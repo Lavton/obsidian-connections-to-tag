@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { emptyRuleConfig, type RuleConfig } from "src/rules/new_rule";
 	import type { RuleRegistry } from "src/rules/rule_factory";
-	import type { ValidationConfig } from "src/validation";
+	import { validateAllItems, type ValidationConfig } from "src/validation";
+	import { untrack } from "svelte";
 	import type { Readable } from "svelte/store";
 	import DynamicList from "./DynamicList.svelte";
 	import OneRule from "./OneRule.svelte";
@@ -32,6 +33,13 @@
 	function createNewItem(): RowState<RuleConfig> {
 		return emptyRowState(emptyRuleConfig());
 	}
+
+	$effect(() => {
+		$connectionTitles;
+		untrack(async () => {
+			items = await validateAllItems(items, validationConfig);
+		});
+	});
 </script>
 
 <h3 class="chainstep-section" id="subsection-chainstep">Rules</h3>

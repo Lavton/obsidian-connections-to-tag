@@ -1,4 +1,5 @@
 import type { ConnectionConfig } from "src/connections/connections";
+import type { RuleConfig } from "src/rules/new_rule";
 import type { ValidationAboveRule, ValidationLocalRule } from "./types";
 
 export const ruleTitleRequired: ValidationLocalRule<ConnectionConfig> = {
@@ -12,6 +13,29 @@ export const ruleTypeRequired: ValidationLocalRule<ConnectionConfig> = {
 		if (item.type.trim() === "") return { code: "required_type", path: "type" };
 		return null;
 	},
+}
+export const ruleConnectionTitleRequired: ValidationLocalRule<RuleConfig> = {
+	run: (item) => {
+		if (item.connectionTitle.trim() === "") return { code: "field_empty", path: "connectionTitle" };
+		return null;
+	},
+}
+export function ruleConnectionTitleExists(
+	getConnectionTitles: () => string[],
+): ValidationLocalRule<RuleConfig> {
+	return {
+		run: (item) => {
+			const connectionTitle = item.connectionTitle.trim();
+			if (connectionTitle === "") return null;
+
+			const exists = getConnectionTitles().some(
+				(title) => title.trim() === connectionTitle,
+			);
+			if (!exists) return { code: "connection_title_not_found", path: "connectionTitle" };
+
+			return null;
+		},
+	};
 }
 export const ruleNoPlusMinusWithSpaces: ValidationLocalRule<ConnectionConfig> = {
 	run: (item) => {

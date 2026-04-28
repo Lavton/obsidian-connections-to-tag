@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
 import { mount } from "svelte";
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { DirectionalConnection } from "src/connections/connections";
@@ -231,6 +231,8 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 					validationCommonLocalRules: [
 						common_rules.ruleTitleRequired,
 						common_rules.ruleTypeRequired,
+						common_rules.ruleConnectionTitleRequired,
+						common_rules.ruleConnectionTitleExists(() => get(connectionTitles)),
 					],
 					getItemRules: function (item: RuleConfig) {
 						const descriptor = ruleRegistry.get(item.type);

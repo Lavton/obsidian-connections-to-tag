@@ -106,7 +106,7 @@ export class JustRegexpConnConfig implements ConnectionConfig {
 
 function validateJustRegexpToFind(item: JustRegexpConnConfig) {
 	if (!item.to_find.trim()) {
-		return { code: "to_find_empty", path: "to_find" };
+		return { code: "field_empty", path: "to_find" };
 	}
 	return null;
 }

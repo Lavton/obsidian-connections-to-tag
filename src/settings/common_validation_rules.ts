@@ -3,7 +3,7 @@ import type { ValidationAboveRule, ValidationLocalRule } from "./types";
 
 export const ruleTitleRequired: ValidationLocalRule<ConnectionConfig> = {
 	run: (item) => {
-		if (item.title.trim() === "") return { code: "required_title", path: "title" };
+		if (item.title.trim() === "") return { code: "field_empty", path: "title" };
 		return null;
 	},
 }

@@ -109,7 +109,7 @@ export class ArbitraryDangerConnectionDescriptor implements ConnectionTypeDescri
 
 function validateArbitraryDangerEmptyFilepath(item: ArbitraryDangerConnConfig) {
 	if (!item.filepath.trim()) {
-		return { code: "filepath_empty", path: "filepath" };
+		return { code: "field_empty", path: "filepath" };
 	}
 	return null;
 }

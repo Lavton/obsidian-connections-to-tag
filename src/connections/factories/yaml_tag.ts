@@ -42,7 +42,7 @@ export class YamlTagConnConfig implements ConnectionConfig {
 
 function validateYamlTagsNotEmpty(item: YamlTagConnConfig) {
 	if (item.tags.length === 0) {
-		return { code: "yaml_tags_empty", path: "tags" };
+		return { code: "field_empty", path: "tags" };
 	}
 	return null;
 }

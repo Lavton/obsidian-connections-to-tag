@@ -53,7 +53,7 @@ export class PlusMinusConnConfig implements ConnectionConfig {
 
 function validatePlusMinusConnectionsNotEmpty(item: PlusMinusConnConfig) {
 	if (item.connections.length === 0) {
-		return { code: "connections_empty", path: "connections" };
+		return { code: "field_empty", path: "connections" };
 	}
 	return null;
 }

@@ -1,6 +1,7 @@
 import type { Connection } from "src/connections/connections"
 import type { NewRule, NewRuleFactory, RuleConfig } from "../new_rule"
 import type {RuleTypeDescriptor} from '../rule_factory'
+import type { ValidationLocalRule } from "src/settings/types"
 import NStepsRuleEditor from "./NStepsRuleEditor.svelte"
 
 export class RuleNSteps implements NewRule {
@@ -42,20 +43,59 @@ export class NStepsConfig implements RuleConfig {
 	readonly type = "n-steps"
 	title: string
 	connectionTitle: string
-	total_steps: number
+	total_steps: number | string
 
-	constructor(title: string, connectionTitle: string, total_steps: number) {
+	constructor(title: string, connectionTitle: string, total_steps: number | string) {
 		this.title = title
 		this.connectionTitle = connectionTitle
 		this.total_steps = total_steps
 	}
 }
 
+function getTotalSteps(item: NStepsConfig): number | null {
+	if (typeof item.total_steps === "string") {
+		if (!item.total_steps.trim()) {
+			return null;
+		}
+		return Number(item.total_steps);
+	}
+	return item.total_steps;
+}
+
+function validateNStepsNotEmpty(item: NStepsConfig) {
+	if (typeof item.total_steps === "string" && !item.total_steps.trim()) {
+		return { code: "field_empty", path: "total_steps" };
+	}
+	return null;
+}
+
+function validateNStepsInteger(item: NStepsConfig) {
+	const totalSteps = getTotalSteps(item);
+	if (totalSteps === null) {
+		return null;
+	}
+	if (!Number.isInteger(totalSteps)) {
+		return { code: "n_steps_integer", path: "total_steps" };
+	}
+	return null;
+}
+
+function validateNStepsRange(item: NStepsConfig) {
+	const totalSteps = getTotalSteps(item);
+	if (totalSteps === null) {
+		return null;
+	}
+	if (totalSteps < 0) {
+		return { code: "n_steps_range", path: "total_steps" };
+	}
+	return null;
+}
+
 export const NStepsRuleDescriptor: RuleTypeDescriptor<NStepsConfig> = {
 	type: "n-steps",
 	label: "N steps",
 	createInstance(config: NStepsConfig, connection: Connection): NewRuleFactory {
-		return new FactoryRuleNSteps(config.title, connection, config.total_steps)
+		return new FactoryRuleNSteps(config.title, connection, Number(config.total_steps))
 	},
 	createConfig(instance: NewRuleFactory): NStepsConfig {
 		const rule = instance as FactoryRuleNSteps
@@ -65,6 +105,10 @@ export const NStepsRuleDescriptor: RuleTypeDescriptor<NStepsConfig> = {
 		return new NStepsConfig("", "", 1)
 	},
 	editorComponent: NStepsRuleEditor,
-	validateLocalRules: [],
+	validateLocalRules: [
+		{ run: validateNStepsNotEmpty },
+		{ run: validateNStepsInteger },
+		{ run: validateNStepsRange },
+	] satisfies ValidationLocalRule<NStepsConfig>[],
 	validateAboveRules: []
 }

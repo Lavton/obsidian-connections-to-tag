@@ -1,13 +1,31 @@
 <script lang="ts">
 	import type { RuleEditorProps } from "../rule_factory";
 	import type { NStepsConfig } from "./n_steps";
+	import { issueToText } from "src/settings/validation_ui";
 
-	let { value, onchange }: RuleEditorProps<NStepsConfig> = $props();
+	let {
+		value,
+		onchange,
+		issues = [],
+		shouldShowIssues = () => false,
+	}: RuleEditorProps<NStepsConfig> = $props();
 
 	function handleSteps(event: Event) {
-		const total_steps = Number((event.target as HTMLInputElement).value);
+		const rawTotalSteps = (event.target as HTMLInputElement).value;
+		const total_steps = rawTotalSteps.trim() === ""
+			? rawTotalSteps
+			: Number.isInteger(Number(rawTotalSteps))
+				? Number(rawTotalSteps)
+				: rawTotalSteps;
 		onchange({ ...value, total_steps }, "total_steps");
 	}
+
+	function getStepsIssues() {
+		return issues.filter((issue) => issue.path === "total_steps");
+	}
+
+	let stepsIssues = $derived(getStepsIssues());
+	let showStepsIssues = $derived(shouldShowIssues("total_steps"));
 </script>
 
 <div class="root">
@@ -17,12 +35,19 @@
 	<label class="field">
 		<span>Steps</span>
 		<input
-			type="number"
-			min="0"
-			step="1"
+			type="text"
+			inputmode="numeric"
 			value={value.total_steps}
 			oninput={handleSteps}
+			class:invalid={showStepsIssues}
 		/>
+		<div class="error-hint" aria-live="polite">
+			{#if showStepsIssues}
+				{#each stepsIssues as issue, index (`total-steps-${issue.code}-${index}`)}
+					<div>{issueToText(issue)}</div>
+				{/each}
+			{/if}
+		</div>
 	</label>
 </div>
 
@@ -44,10 +69,11 @@
 
 	.field {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		gap: 8px;
 		color: var(--text-muted);
 		font-size: 0.9em;
+		flex-wrap: wrap;
 	}
 
 	input {
@@ -58,5 +84,17 @@
 		background: var(--background-primary);
 		color: var(--text-normal);
 		box-sizing: border-box;
+	}
+
+	input.invalid {
+		border-color: var(--text-error);
+	}
+
+	.error-hint {
+		font-size: 0.85em;
+		color: var(--text-error);
+		min-height: 1.3em;
+		line-height: 1.3;
+		flex-basis: 100%;
 	}
 </style>

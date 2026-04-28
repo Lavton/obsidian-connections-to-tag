@@ -19,6 +19,7 @@
 
 		createNewItem: () => RowState<T>;
 		validationConfig: ValidationConfig<T>;
+		addButtonText?: string;
 	}
 
 	let {
@@ -26,7 +27,8 @@
 		onchange,
 		itemSnippet,
 		createNewItem,
-		validationConfig
+		validationConfig,
+		addButtonText = "Добавить элемент"
 	}: Props = $props();
 
 	onMount(async () => {
@@ -124,7 +126,7 @@
 		class="add-button"
 		onclick={() => addItem(items.length)}
 	>
-		+ Добавить элемент
+		+ {addButtonText}
 	</button>
 </div>
 

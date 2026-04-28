@@ -43,6 +43,7 @@
 		onchange={handleChange}
 		{createNewItem}
 		{validationConfig}
+		addButtonText="Добавить connection"
 	>
 		{#snippet itemSnippet({ item, updateItem })}
 			<OneConnection

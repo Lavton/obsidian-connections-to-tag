@@ -50,6 +50,7 @@
 		onchange={handleChange}
 		{createNewItem}
 		{validationConfig}
+		addButtonText="Добавить правило"
 	>
 		{#snippet itemSnippet({ item, updateItem })}
 			<OneRule

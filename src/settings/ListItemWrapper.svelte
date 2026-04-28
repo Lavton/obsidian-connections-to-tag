@@ -20,11 +20,11 @@
 		index: number;
 		isDragging: boolean;
 
-		// Управление глобальным draggedIndex живет в DynamicList,
-		// но обработчики событий перенесены сюда.
+		// Global draggedIndex management lives in DynamicList,
+		// but the event handlers have been moved here.
 		setDraggedIndex: (index: number | null) => void;
 
-		// Остаток логики drop (перестановка + onchange) живет в DynamicList
+		// The rest of the drop logic (reordering + onchange) lives in DynamicList.
 		applyDrop: (dropIndex: number) => void;
 	}
 
@@ -57,7 +57,7 @@
 		}
 	}
 
-	// "Разделенный" handleDrop: эта часть перенесена сюда
+	// Split handleDrop: this part was moved here.
 	function handleDrop(event: DragEvent, dropIndex: number) {
 		event.preventDefault();
 
@@ -81,16 +81,16 @@
 	ondragend={handleDragEnd}
 >
 	<div class="list-item">
-		<div class="drag-handle" aria-label="Перетащить" title="Перетащить">⋮⋮</div>
+		<div class="drag-handle" aria-label="Drag" title="Drag">⋮⋮</div>
 
-		<div class="move-buttons" role="group" aria-label="Кнопки перемещения">
+		<div class="move-buttons" role="group" aria-label="Move buttons">
 			<button
 				type="button"
 				class="move-button"
 				onclick={dragNdrop.moveUp}
 				disabled={dragNdrop.isFirst}
-				aria-label="Переместить вверх"
-				title="Переместить вверх"
+				aria-label="Move up"
+				title="Move up"
 			>
 				↑
 			</button>
@@ -99,8 +99,8 @@
 				class="move-button"
 				onclick={dragNdrop.moveDown}
 				disabled={dragNdrop.isLast}
-				aria-label="Переместить вниз"
-				title="Переместить вниз"
+				aria-label="Move down"
+				title="Move down"
 			>
 				↓
 			</button>
@@ -117,8 +117,8 @@
 			type="button"
 			class="delete-button"
 			onclick={ondelete}
-			aria-label="Удалить элемент"
-			title="Удалить"
+			aria-label="Delete item"
+			title="Delete"
 		>
 			×
 		</button>

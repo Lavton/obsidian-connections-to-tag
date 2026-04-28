@@ -8,8 +8,8 @@ export interface DragNDropProps {
 export type IssueCode = string;
 export type Issue = {
 	code: IssueCode;
-	path?: string;                 // например "title"
-	params?: Record<string, unknown>; // например { value: "abc" }
+	path?: string;                 // for example, "title"
+	params?: Record<string, unknown>; // for example, { value: "abc" }
 };
 
 export type ValidationResult = {
@@ -86,8 +86,8 @@ export function fromRowStates<T>(
 	rows: RowState<T>[],
 	clone: (item: T) => T = cloneValue,
 ): T[] {
-	// Обычно отдаём "saved" или "draft" — зависит от UX.
-	// Чаще в onchange надо отправлять итоговый актуальный state (draft).
+	// Usually returns either "saved" or "draft", depending on the UX.
+	// In onchange, the final current state (draft) is usually the one to send.
 	return rows
 		.map(r => r.saved)
 		.filter((v): v is T => v !== undefined)

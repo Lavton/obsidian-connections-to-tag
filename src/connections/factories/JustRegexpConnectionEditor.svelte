@@ -31,11 +31,11 @@
                 checked={value.is_regexp}
                 onchange={(e) => update({ is_regexp: (e.target as HTMLInputElement).checked }, "is_regexp")}
             />
-            <span>Это регулярное выражение</span>
+            <span>This is a regular expression</span>
         </label>
 
         <label>
-            <span>Строка / regexp для поиска</span>
+            <span>String / regexp to search for</span>
             <input
                 type="text"
                 value={value.to_find}
@@ -58,7 +58,7 @@
                 checked={value.is_before}
                 onchange={(e) => update({ is_before: (e.target as HTMLInputElement).checked }, "is_before")}
             />
-            <span>Искать ссылки до вхождения (иначе — после)</span>
+            <span>Find links before the match (otherwise after it)</span>
         </label>
 
         <label class="checkbox-label">
@@ -67,7 +67,7 @@
                 checked={value.in_the_same_string}
                 onchange={(e) => update({ in_the_same_string: (e.target as HTMLInputElement).checked }, "in_the_same_string")}
             />
-            <span>Ссылки в той же строке (иначе — в соседних)</span>
+            <span>Links in the same line (otherwise in neighboring lines)</span>
         </label>
 
     </div>

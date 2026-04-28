@@ -95,7 +95,7 @@ function validateProbabilityRange(item: ProbabilityConfig) {
 export const ProbabilityRuleDescriptor: RuleTypeDescriptor<ProbabilityConfig> = {
 	type: "probability",
 	label: "probability",
-	description: "Переходит по connection с определённой вероятностью",
+	description: "Follows the connection with a specified probability.",
 	createInstance(config: ProbabilityConfig, connection: Connection): NewRuleFactory {
 		return new FactoryRuleProbability(config.title, connection, Number(config.probability))
 	},

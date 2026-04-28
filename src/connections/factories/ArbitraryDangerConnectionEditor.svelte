@@ -26,7 +26,7 @@
 <div class="root">
   <div class="editor-fields">
     <label>
-      <span>Путь к файлу</span>
+      <span>File path</span>
       <input
         type="text"
         value={value.filepath}

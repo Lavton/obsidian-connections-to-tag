@@ -31,7 +31,7 @@
 		itemSnippet,
 		createNewItem,
 		validationConfig,
-		addButtonText = "Добавить элемент",
+		addButtonText = "Add item",
 		listTitle,
 		listTitleId,
 		separatorBefore = false,

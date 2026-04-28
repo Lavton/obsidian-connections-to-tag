@@ -41,7 +41,7 @@
 		onchange={handleChange}
 		{createNewItem}
 		{validationConfig}
-		addButtonText="Добавить connection"
+		addButtonText="Add connection"
 		listTitle="Connections"
 		listTitleId="subsection-connection"
 	>

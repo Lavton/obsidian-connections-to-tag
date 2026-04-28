@@ -34,7 +34,7 @@
 <div class="root">
   <div class="editor-fields">
     <label>
-      <span>Теги (через запятую)</span>
+      <span>Tags (comma-separated)</span>
       <input
         type="text"
         value={tagsRaw}

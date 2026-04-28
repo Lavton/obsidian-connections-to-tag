@@ -10,21 +10,21 @@ export interface ConnectionEditorProps<TConfig extends ConnectionConfig = Connec
     shouldShowIssues?: (path: string) => boolean;
 }
 type AnyDescriptor = ConnectionTypeDescriptor<any>;
-// Дескриптор типа - связывает всё в одном месте
+// Type descriptor: keeps everything for a type in one place.
 export interface ConnectionTypeDescriptor<TConfig extends ConnectionConfig = ConnectionConfig> {
     type: string;
-    label: string; // человекочитаемое имя для <select>
+    label: string; // Human-readable name for <select>.
     description: string;
     createInstance(config: TConfig, above_connections: Connection[]): Connection;
     createConfig(instance: Connection): TConfig;
-    createDefaultConfig(): TConfig; // нужен при смене типа
+    createDefaultConfig(): TConfig; // Needed when switching the type.
     editorComponent: Component<ConnectionEditorProps<TConfig>>;
 	validateLocalRules: ValidationLocalRule<TConfig>[],
 	validateAboveRules: ValidationAboveRule<TConfig>[],
 
 }
 
-// Реестр всех типов
+// Registry of all types.
 export class ConnectionRegistry {
     private descriptors = new Map<string, AnyDescriptor>();
 
@@ -65,7 +65,7 @@ export class ConnectionRegistry {
         return this.descriptors.get(type);
     }
 
-    // удобно для <select>
+    // Convenient for <select>.
     all(): ConnectionTypeDescriptor[] {
         return Array.from(this.descriptors.values());
     }

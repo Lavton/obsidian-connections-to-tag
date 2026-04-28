@@ -67,12 +67,12 @@
 <div class="root">
 	<div class="editor-fields">
 		<label>
-			<span>Выражение</span>
+			<span>Expression</span>
 			<input
 				type="text"
 				value={exprRaw}
 				oninput={handleExpr}
-				placeholder="заголовок1 + заголовок2 - заголовок3"
+				placeholder="title1 + title2 - title3"
 				class:invalid={showConnectionIssues}
 			/>
 			<div class="error-hint" aria-live="polite">
@@ -132,7 +132,7 @@
 		width: 100%;
 		align-items: stretch;
 		box-sizing: border-box;
-        min-width: 0;      /* ← добавить */
-    overflow: hidden;  /* ← добавить */
+        min-width: 0;      /* add */
+    overflow: hidden;  /* add */
 	}
 </style>

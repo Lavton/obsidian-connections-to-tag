@@ -118,8 +118,8 @@
 				type="text"
 				value={value.draft.title}
 				oninput={handleTitle}
-				placeholder="Введите название..."
-				aria-label="Название соединения"
+				placeholder="Enter a title..."
+				aria-label="Connection title"
 				class:invalid={showTitleIssues}
 			/>
 			<div class="error-hint" aria-live="polite">
@@ -138,7 +138,7 @@
 				class="type-select"
 				class:invalid={showTypeIssues}
 			>
-				<option value="" disabled>— тип —</option>
+				<option value="" disabled>- type -</option>
 				{#each registry.all() as desc (desc.type)}
 					<option value={desc.type}>{desc.label}</option>
 				{/each}
@@ -158,8 +158,8 @@
 				onchange={handleDirectionChange}
 				class="direction-select"
 			>
-				<option value="forward">→ вперёд</option>
-				<option value="backward">← назад</option>
+				<option value="forward">→ forward</option>
+				<option value="backward">← backward</option>
 			</select>
 			<div class="error-hint" aria-hidden="true"></div>
 		</div>

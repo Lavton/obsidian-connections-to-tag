@@ -63,7 +63,7 @@ export const TopInTextConnectionDescriptor: ConnectionTypeDescriptor<TopInTextCo
 	},
 
 	label: "Top links in text",
-	description: "Ищет первый блок ссылок в тексте заметки (без frontmatter) и возвращает все ссылки из него",
+	description: "Finds the first link block in the note text (without frontmatter) and returns all links from it.",
 	editorComponent: TopInTextConnectionEditor,
 
 	createDefaultConfig() {

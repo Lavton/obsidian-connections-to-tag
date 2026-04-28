@@ -123,8 +123,8 @@
 				type="text"
 				value={value.draft.title}
 				oninput={handleTitle}
-				placeholder="Введите название..."
-				aria-label="Название правила"
+				placeholder="Enter a title..."
+				aria-label="Rule title"
 				class:invalid={showTitleIssues}
 			/>
 			<div class="error-hint" aria-live="polite">
@@ -143,7 +143,7 @@
 				class="type-select"
 				class:invalid={showTypeIssues}
 			>
-				<option value="" disabled>— тип —</option>
+				<option value="" disabled>- type -</option>
 				{#each registry.all() as desc (desc.type)}
 					<option value={desc.type}>{desc.label}</option>
 				{/each}
@@ -162,8 +162,8 @@
 				type="text"
 				value={value.draft.connectionTitle}
 				oninput={handleConnectionTitle}
-				placeholder="Название связи..."
-				aria-label="Название связи для правила"
+				placeholder="Connection title..."
+				aria-label="Connection title for the rule"
 				list={`connection-titles-${value.id}`}
 				class:invalid={showConnectionTitleIssues}
 			/>

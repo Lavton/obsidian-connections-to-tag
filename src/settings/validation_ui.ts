@@ -1,40 +1,40 @@
 import type { Issue, IssueCode } from "./types";
 
 const issueMessages: Record<IssueCode, (issue: Issue) => string> = {
-	field_empty: () => "Введите значение.",
-	required_type: () => "Выберите тип.",
+	field_empty: () => "Enter a value.",
+	required_type: () => "Select a type.",
 	forbitten_pm: () =>
-		"Недопустимо использовать « + » или « - » с пробелами.",
+		"Using \" + \" or \" - \" with spaces is not allowed.",
 	duplicate_with_prev: () =>
-		"Название совпадает с одним из элементов выше.",
+		"The title matches one of the items above.",
 	file_not_exists: () =>
-		"Файл не найден.",
+		"File not found.",
 	connections_not_exists: (issue) =>
-		`Не найдены связи выше: ${formatIssueList(issue.params?.titles)}.`,
+		`Connections above not found: ${formatIssueList(issue.params?.titles)}.`,
 	connection_title_not_found: () =>
-		"Связь с таким названием не найдена.",
+		"No connection with this title was found.",
 	yaml_keys_not_exists: (issue) =>
-		`Не найдены YAML-ключи: ${formatIssueList(issue.params?.tags)}.`,
+		`YAML keys not found: ${formatIssueList(issue.params?.tags)}.`,
 	probability_integer: () =>
-		"Поле должно быть целым числом.",
+		"The field must be an integer.",
 	probability_range: () =>
-		"Число должно быть от 0 до 100.",
+		"The number must be from 0 to 100.",
 	n_steps_integer: () =>
-		"Поле должно быть целым числом.",
+		"The field must be an integer.",
 	n_steps_range: () =>
-		"Число должно быть от 0.",
+		"The number must be at least 0.",
 };
 
 function formatIssueList(value: unknown): string {
 	if (!Array.isArray(value)) {
-		return "неизвестно";
+		return "unknown";
 	}
 	const normalized = value
 		.map((item) => String(item).trim())
 		.filter(Boolean);
-	return normalized.length > 0 ? normalized.join(", ") : "неизвестно";
+	return normalized.length > 0 ? normalized.join(", ") : "unknown";
 }
 
 export function issueToText(issue: Issue): string {
-	return issueMessages[issue.code]?.(issue) ?? "Некорректное значение.";
+	return issueMessages[issue.code]?.(issue) ?? "Invalid value.";
 }

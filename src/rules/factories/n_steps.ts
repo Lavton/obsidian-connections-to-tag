@@ -94,7 +94,7 @@ function validateNStepsRange(item: NStepsConfig) {
 export const NStepsRuleDescriptor: RuleTypeDescriptor<NStepsConfig> = {
 	type: "n-steps",
 	label: "N steps",
-	description: "Переходит по connection N шагов начиная со старта и останавливается",
+	description: "Follows the connection for N steps from the start, then stops.",
 	createInstance(config: NStepsConfig, connection: Connection): NewRuleFactory {
 		return new FactoryRuleNSteps(config.title, connection, Number(config.total_steps))
 	},

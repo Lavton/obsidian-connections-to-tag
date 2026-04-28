@@ -165,16 +165,16 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			})
-		// TODO: settings result folder, moved_from_fronmatter. Потом переключиться на эти
+		// TODO: settings result folder, moved_from_fronmatter. Switch to these later.
 		const section2 = containerEl.createDiv({ cls: 'settings-section' });
 		section2.id = 'section-chain';
 		section2.createEl('h2', { text: 'What rules to apply' });
 		// chains & traversal
 		// const listSetting = new Setting(containerEl)
-		// 	.setName('Список элементов')
-		// 	.setDesc('Добавьте, удалите или измените порядок элементов');
+		// 	.setName('Item list')
+		// 	.setDesc('Add, delete, or reorder items');
 
-		// Создаем контейнер для Svelte компонента
+		// Create a container for the Svelte component.
 		let listContainer = section2.createDiv();
 
 		const registry = this.connectionHolder.connectionRegistry
@@ -311,7 +311,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		// })
 	}
 	hide(): void {
-		// Очищаем компонент при закрытии
+		// Clean up the component on close.
 		// if (this.listComponent) {
 		//     unmount(this.listComponent);
 		//     this.listComponent = null;

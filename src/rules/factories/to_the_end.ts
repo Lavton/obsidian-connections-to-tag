@@ -46,7 +46,7 @@ export class ToTheEndConfig implements RuleConfig {
 export const ToTheEndRuleDescriptor: RuleTypeDescriptor<ToTheEndConfig> = {
     type: 'to-the-end',
     label: "go to the end",
-    description: "Идёт по connection до конца, пока может",
+    description: "Follows the connection to the end while possible.",
     createInstance(config: ToTheEndConfig, connection: Connection): NewRuleFactory {
         return new FactoryRuleToTheEnd(config.title, connection)
     },

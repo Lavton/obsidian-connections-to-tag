@@ -70,11 +70,11 @@ function createYamlTagsExistRule(app: App): ValidationLocalRule<YamlTagConnConfi
 	};
 }
 
-// Дескриптор - единственное место где определяется тип
+// Descriptor: the single place where the type is defined.
 export class YamlTagConnectionDescriptor implements ConnectionTypeDescriptor<YamlTagConnConfig> {
 	type: "yaml-tag" = 'yaml-tag';
 	label = "YAML tags";
-	description = "Ищет ссылки в перечисленных yaml-ключах";
+	description = "Finds links in the listed YAML keys.";
 	editorComponent = YamlTagConnectionEditor;
 	validateLocalRules: ValidationLocalRule<YamlTagConnConfig>[];
 	validateAboveRules: ValidationAboveRule<YamlTagConnConfig>[] = [];

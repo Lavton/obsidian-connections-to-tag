@@ -53,7 +53,7 @@ export const AllYamlConnectionDescriptor: ConnectionTypeDescriptor<AllYamlConnCo
     },
 
     label: "all links in frontmatter",
-    description: "Ищет все wiki-ссылки во frontmatter файла.",
+    description: "Finds all wiki links in the file frontmatter.",
     editorComponent: AllYamlConnectionEditor,
 
     createDefaultConfig() {

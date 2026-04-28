@@ -27,24 +27,24 @@
         checked={value.is_regexp}
         onchange={handleIsRegexp}
       />
-      <span>Использовать регулярные выражения</span>
+      <span>Use regular expressions</span>
     </label>
     <label>
-      <span>Начало фрагмента</span>
+      <span>Fragment start</span>
       <input
         type="text"
         value={value.start_to_find ?? ''}
         oninput={handleStart}
-        placeholder={value.is_regexp ? 'Regexp, например: ^## ' : 'Строка, например: ## Ссылки'}
+        placeholder={value.is_regexp ? 'Regexp, for example: ^## ' : 'String, for example: ## Links'}
       />
     </label>
     <label>
-      <span>Конец фрагмента</span>
+      <span>Fragment end</span>
       <input
         type="text"
         value={value.end_to_find ?? ''}
         oninput={handleEnd}
-        placeholder={value.is_regexp ? 'Regexp, например: ^## ' : 'Строка, например: ## Конец'}
+        placeholder={value.is_regexp ? 'Regexp, for example: ^## ' : 'String, for example: ## End'}
       />
     </label>
   </div>

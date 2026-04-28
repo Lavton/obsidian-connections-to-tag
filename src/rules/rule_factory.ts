@@ -12,20 +12,20 @@ export interface RuleEditorProps<TConfig extends RuleConfig = RuleConfig> {
 
 type AnyDescriptor = RuleTypeDescriptor<any>;
 
-// Дескриптор типа - связывает всё в одном месте
+// Type descriptor: keeps everything for a type in one place.
 export interface RuleTypeDescriptor<TConfig extends RuleConfig = RuleConfig> {
 	type: string;
-	label: string; // человекочитаемое имя для <select>
+	label: string; // Human-readable name for <select>.
 	description: string;
 	createInstance(config: TConfig, connection: Connection): NewRuleFactory;
 	createConfig(instance: NewRuleFactory): TConfig;
-	createDefaultConfig(): TConfig; // нужен при смене типа
+	createDefaultConfig(): TConfig; // Needed when switching the type.
 	editorComponent: Component<RuleEditorProps<TConfig>>;
 	validateLocalRules: ValidationLocalRule<TConfig>[];
 	validateAboveRules: ValidationAboveRule<TConfig>[];
 }
 
-// Реестр всех типов
+// Registry of all types.
 export class RuleRegistry {
 	private descriptors = new Map<string, AnyDescriptor>();
 
@@ -55,7 +55,7 @@ export class RuleRegistry {
 		return this.descriptors.get(type);
 	}
 
-	// удобно для <select>
+	// Convenient for <select>.
 	all(): RuleTypeDescriptor[] {
 		return Array.from(this.descriptors.values());
 	}

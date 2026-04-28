@@ -137,7 +137,7 @@ export const JustRegexpConnectionDescriptor: ConnectionTypeDescriptor<JustRegexp
     },
 
     label: "Regexp / Prefix",
-    description: "Ищет ссылки до или после найденной строки / регулярного выражения",
+    description: "Finds links before or after the matched string / regular expression.",
     editorComponent: JustRegexpConnectionEditor,
 
     createDefaultConfig() {

@@ -48,7 +48,7 @@
 		onchange={handleChange}
 		{createNewItem}
 		{validationConfig}
-		addButtonText="Добавить правило"
+		addButtonText="Add rule"
 		listTitle="Rules"
 		listTitleId="subsection-chainstep"
 		separatorBefore

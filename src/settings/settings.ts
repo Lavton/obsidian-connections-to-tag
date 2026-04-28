@@ -168,7 +168,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 		// TODO: settings result folder, moved_from_fronmatter. Потом переключиться на эти
 		const section2 = containerEl.createDiv({ cls: 'settings-section' });
 		section2.id = 'section-chain';
-		section2.createEl('h2', { text: 'What rules and chains to apply' });
+		section2.createEl('h2', { text: 'What rules to apply' });
 		// chains & traversal
 		// const listSetting = new Setting(containerEl)
 		// 	.setName('Список элементов')

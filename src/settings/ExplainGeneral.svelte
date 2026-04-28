@@ -26,12 +26,7 @@
 	</li>
 	<li>
 		<code>Rule</code> - how deep to go from the starting file? Till the end or
-		just a few steps?
-	</li>
-	<li>
-		<code>Chain step</code> - combination of "connection" and "rule": from this
-		starting note will look at all neighbours according to "Connection" and go
-		there if "Rule" told to
+		just a few steps? Through what connection will we go?
 	</li>
 </ul>
 
@@ -39,10 +34,10 @@
 Table of content
 <ul>
 	<li><a href="#section-focuser">What to do with found notes</a></li>
-	<li><a href="#section-chain">What rules and chains to apply</a></li>
+	<li><a href="#section-chain">What rules to apply</a></li>
 	<ul>
 	<li><a href="#subsection-connection">Connections</a></li>
-	<li><a href="#subsection-chainstep">Chain Steps</a></li>
+	<li><a href="#subsection-chainstep">Rules</a></li>
 	</ul>
 	<!-- <li><a href="#section-ui">UI settings</a></li> -->
 </ul>

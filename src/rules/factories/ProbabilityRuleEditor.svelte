@@ -84,6 +84,10 @@
 		flex-wrap: wrap;
 	}
 
+	.field > span {
+		align-self: center;
+	}
+
 	input {
 		width: 96px;
 		padding: 6px 10px;

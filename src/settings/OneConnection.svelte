@@ -95,10 +95,7 @@
 
 	let titleIssues = $derived(getIssuesForPath("title"));
 	let typeIssues = $derived(getIssuesForPath("type"));
-	let showRowInvalidState = $derived(
-		value.meta.issues.some((issue) => issue.scope === "above") ||
-			(value.meta.touched && !value.meta.valid)
-	);
+	let showRowInvalidState = $derived(!value.meta.valid);
 	let showTitleIssues = $derived(shouldShowIssues("title"));
 	let showTypeIssues = $derived(shouldShowIssues("type"));
 </script>

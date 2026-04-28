@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
 import { mount } from "svelte";
+import { writable } from "svelte/store";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { DirectionalConnection } from "src/connections/connections";
@@ -178,12 +179,16 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 
 		const registry = this.connectionHolder.connectionRegistry
 		const ruleRegistry = this.connectionHolder.ruleRegistry
+		const connectionTitles = writable(
+			this.plugin.settings.connectionConfigs.map((connection) => connection.title),
+		);
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
 			props: {
 				concreeteConnections: this.plugin.settings.connectionConfigs,
 				onchange: async (items: DirectionalConnection[]) => {
 					this.plugin.settings.connectionConfigs = items;
+					connectionTitles.set(items.map((connection) => connection.title));
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				},
@@ -209,7 +214,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 				}
 			}
 		});
-		const listChainComponent = mount(RulesListSettings, {
+		const listRulesComponent = mount(RulesListSettings, {
 			target: listContainer,
 			props: {
 				concreeteRules: this.plugin.settings.ruleConfigs,
@@ -218,6 +223,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				},
 				registry: ruleRegistry,
+				connectionTitles,
 				validationConfig: {
 					validationCommonAboveRules: [
 						common_rules.ruleNotEqual,

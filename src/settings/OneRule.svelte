@@ -2,6 +2,7 @@
 	import type { RuleConfig } from "src/rules/new_rule";
 	import { emptyRuleConfig } from "src/rules/new_rule";
 	import type { RuleRegistry } from "src/rules/rule_factory";
+	import type { Readable } from "svelte/store";
 	import { emptyRowState, type RowState } from "./types";
 	import { issueToText } from "./validation_ui";
 
@@ -9,12 +10,14 @@
 		value: RowState<RuleConfig>;
 		onchange?: (newValue: RowState<RuleConfig>) => void;
 		registry: RuleRegistry;
+		connectionTitles: Readable<string[]>;
 	}
 
 	let {
 		value = $bindable(emptyRowState(emptyRuleConfig())),
 		onchange,
 		registry,
+		connectionTitles,
 	}: Props = $props();
 
 	let descriptor = $derived(
@@ -155,8 +158,14 @@
 				oninput={handleConnectionTitle}
 				placeholder="Название связи..."
 				aria-label="Название связи для правила"
+				list={`connection-titles-${value.id}`}
 				class:invalid={showConnectionTitleIssues}
 			/>
+			<datalist id={`connection-titles-${value.id}`}>
+				{#each $connectionTitles as title}
+					<option value={title}></option>
+				{/each}
+			</datalist>
 			<div class="error-hint" aria-live="polite">
 				{#if showConnectionTitleIssues}
 					{#each connectionTitleIssues as issue, index (`connectionTitle-${issue.code}-${index}`)}

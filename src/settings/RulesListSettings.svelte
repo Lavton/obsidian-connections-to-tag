@@ -2,6 +2,7 @@
 	import { emptyRuleConfig, type RuleConfig } from "src/rules/new_rule";
 	import type { RuleRegistry } from "src/rules/rule_factory";
 	import type { ValidationConfig } from "src/validation";
+	import type { Readable } from "svelte/store";
 	import DynamicList from "./DynamicList.svelte";
 	import OneRule from "./OneRule.svelte";
 	import {
@@ -16,9 +17,10 @@
 		onchange?: (items: RuleConfig[]) => void;
 		validationConfig: ValidationConfig<RuleConfig>;
 		registry: RuleRegistry;
+		connectionTitles: Readable<string[]>;
 	}
 
-	let { concreeteRules = $bindable([]), onchange, validationConfig, registry }: Props = $props();
+	let { concreeteRules = $bindable([]), onchange, validationConfig, registry, connectionTitles }: Props = $props();
 	let items = $state<RowState<RuleConfig>[]>(
 		toRowStates(concreeteRules),
 	);
@@ -46,6 +48,7 @@
 				value={item}
 				onchange={(newRow) => updateItem(newRow)}
 				registry={registry}
+				connectionTitles={connectionTitles}
 			/>
 		{/snippet}
 	</DynamicList>

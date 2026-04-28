@@ -62,7 +62,7 @@
 		if (issues.length === 0) {
 			return false;
 		}
-		return issues.some((issue) => issue.scope === "above") || isTouched(path);
+		return issues.some((issue) => issue.scope === "above" || issue.code === "connection_title_not_found") || isTouched(path);
 	}
 
 	function handleTitle(event: Event) {
@@ -95,8 +95,12 @@
 	let titleIssues = $derived(getIssuesForPath("title"));
 	let typeIssues = $derived(getIssuesForPath("type"));
 	let connectionTitleIssues = $derived(getIssuesForPath("connectionTitle"));
+	let hasVisibleUntouchedIssue = $derived(
+		value.meta.issues.some((issue) => issue.code === "connection_title_not_found")
+	);
 	let showRowInvalidState = $derived(
 		value.meta.issues.some((issue) => issue.scope === "above") ||
+			hasVisibleUntouchedIssue ||
 			(value.meta.touched && !value.meta.valid)
 	);
 	let showTitleIssues = $derived(shouldShowIssues("title"));

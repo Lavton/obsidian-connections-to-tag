@@ -20,6 +20,9 @@
 		createNewItem: () => RowState<T>;
 		validationConfig: ValidationConfig<T>;
 		addButtonText?: string;
+		listTitle?: string;
+		listTitleId?: string;
+		separatorBefore?: boolean;
 	}
 
 	let {
@@ -28,7 +31,10 @@
 		itemSnippet,
 		createNewItem,
 		validationConfig,
-		addButtonText = "Добавить элемент"
+		addButtonText = "Добавить элемент",
+		listTitle,
+		listTitleId,
+		separatorBefore = false,
 	}: Props = $props();
 
 	onMount(async () => {
@@ -104,7 +110,22 @@
 	}
 </script>
 
-<div class="dynamic-list">
+<div class="dynamic-list" class:with-separator={separatorBefore}>
+	<div class="list-header">
+		{#if listTitle}
+			<h3 id={listTitleId}>{listTitle}</h3>
+		{/if}
+		<button
+			type="button"
+			class="add-button"
+			onclick={() => addItem(items.length)}
+			aria-label={addButtonText}
+			title={addButtonText}
+		>
+			+
+		</button>
+	</div>
+
 	<div class="items-container" role="list">
 		{#each items as item, index (item.id)}
 			<ListItemWrapper
@@ -120,14 +141,6 @@
 			/>
 		{/each}
 	</div>
-
-	<button
-		type="button"
-		class="add-button"
-		onclick={() => addItem(items.length)}
-	>
-		+ {addButtonText}
-	</button>
 </div>
 
 <style>
@@ -137,19 +150,44 @@
 		gap: 12px;
 	}
 
+	.dynamic-list.with-separator {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid var(--background-modifier-border);
+	}
+
+	.list-header {
+		display: flex;
+		align-items: center;
+		gap: 3px;
+	}
+
+	.list-header h3 {
+		margin: 0;
+		font-size: var(--font-ui-medium);
+		line-height: 1.4;
+	}
+
 	.items-container {
 		display: flex;
 		flex-direction: column;
 	}
 
 	.add-button {
-		padding: 8px 16px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		padding: 0;
 		background: var(--interactive-accent);
 		border: none;
 		border-radius: 4px;
 		color: var(--text-on-accent);
 		cursor: pointer;
+		font-size: 16px;
 		font-weight: 500;
+		line-height: 1;
 	}
 
 	.add-button:hover {

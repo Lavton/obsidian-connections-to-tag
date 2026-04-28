@@ -35,8 +35,6 @@
 
 </script>
 
-<h3 class="settings-section" id="subsection-connection">Connections</h3>
-
 <div class="settings-section">
 	<DynamicList
 		bind:items
@@ -44,6 +42,8 @@
 		{createNewItem}
 		{validationConfig}
 		addButtonText="Добавить connection"
+		listTitle="Connections"
+		listTitleId="subsection-connection"
 	>
 		{#snippet itemSnippet({ item, updateItem })}
 			<OneConnection

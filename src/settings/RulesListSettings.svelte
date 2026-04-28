@@ -42,8 +42,6 @@
 	});
 </script>
 
-<h3 class="chainstep-section" id="subsection-chainstep">Rules</h3>
-
 <div class="chainstep-section">
 	<DynamicList
 		bind:items
@@ -51,6 +49,9 @@
 		{createNewItem}
 		{validationConfig}
 		addButtonText="Добавить правило"
+		listTitle="Rules"
+		listTitleId="subsection-chainstep"
+		separatorBefore
 	>
 		{#snippet itemSnippet({ item, updateItem })}
 			<OneRule

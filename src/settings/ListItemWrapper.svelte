@@ -183,18 +183,25 @@
 	}
 
 	.delete-button {
-		padding: 4px 10px;
-		background: var(--interactive-accent);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		padding: 0;
+		background: var(--background-modifier-border);
 		border: none;
 		border-radius: 4px;
-		color: var(--text-on-accent);
+		color: var(--text-normal);
 		cursor: pointer;
-		font-size: 20px;
+		font-size: 16px;
+		font-weight: 500;
 		line-height: 1;
 	}
 
 	.delete-button:hover {
-		background: var(--interactive-accent-hover);
+		background: var(--interactive-accent);
+		color: var(--text-on-accent);
 	}
 	.list-item {
 		--controls-offset-y: 12px;

@@ -24,9 +24,6 @@
 </script>
 
 <div class="root">
-  <p class="description">
-    Выполняет код из первого js/ts блока указанного файла. Используйте с осторожностью.
-  </p>
   <div class="editor-fields">
     <label>
       <span>Путь к файлу</span>
@@ -86,14 +83,6 @@ input.invalid {
 	color: var(--text-error);
 	min-height: 1.3em;
 	line-height: 1.3;
-}
-
-.description {
-	font-size: 0.85em;
-	color: var(--text-faint);
-	margin: 0;
-	text-align: left;
-	width: 100%;
 }
 
 .root {

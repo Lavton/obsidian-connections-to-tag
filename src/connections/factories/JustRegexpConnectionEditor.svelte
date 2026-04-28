@@ -23,9 +23,6 @@
 </script>
 
 <div class="root">
-    <p class="description">
-        Ищет ссылки до или после найденной строки / регулярного выражения
-    </p>
     <div class="editor-fields">
 
         <label class="checkbox-label">
@@ -120,14 +117,6 @@ input[type="text"].invalid {
 	color: var(--text-error);
 	min-height: 1.3em;
 	line-height: 1.3;
-}
-
-.description {
-	font-size: 0.85em;
-	color: var(--text-faint);
-	margin: 0;
-	text-align: left;
-	width: 100%;
 }
 
 .root {

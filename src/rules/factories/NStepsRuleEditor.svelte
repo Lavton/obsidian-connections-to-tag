@@ -29,9 +29,6 @@
 </script>
 
 <div class="root">
-	<p class="description">
-		Переходит по connection N шагов начиная со старта и останавливается
-	</p>
 	<label class="field">
 		<span>Steps</span>
 		<input
@@ -59,14 +56,6 @@
 		align-items: stretch;
 		box-sizing: border-box;
 	}
-	.description {
-		font-size: 0.85em;
-		color: var(--text-faint);
-		margin: 0;
-		text-align: left;
-		width: 100%;
-	}
-
 	.field {
 		display: flex;
 		align-items: flex-start;

@@ -4,27 +4,3 @@
 
 	let { value, onchange }: RuleEditorProps<ToTheEndConfig> = $props();
 </script>
-
-<div class="root">
-	<p class="description">
-		Идёт по connection до конца, пока может
-	</p>
-</div>
-
-<style>
-	.root {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		align-items: stretch;
-		box-sizing: border-box;
-	}
-
-	.description {
-		font-size: 0.85em;
-		color: var(--text-faint);
-		margin: 0;
-		text-align: left;
-		width: 100%;
-	}
-</style>

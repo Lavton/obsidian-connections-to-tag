@@ -32,9 +32,6 @@
 </script>
 
 <div class="root">
-  <p class="description">
-    Ищет ссылки в перечисленных yaml-ключах
-  </p>
   <div class="editor-fields">
     <label>
       <span>Теги (через запятую)</span>
@@ -96,13 +93,6 @@ input.invalid {
 	line-height: 1.3;
 }
 
-.description {
-	font-size: 0.85em;
-	color: var(--text-faint);
-	margin: 0;
-	text-align: left;
-	width: 100%;
-}
 .root {
   display: flex;
   flex-direction: column;

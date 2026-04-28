@@ -20,9 +20,6 @@
 </script>
 
 <div class="root">
-  <p class="description">
-    Ищет ссылки в тексте между двумя строками/паттернами
-  </p>
   <div class="editor-fields">
     <label class="checkbox-label">
       <input
@@ -86,14 +83,6 @@ input[type="text"] {
 	background: var(--background-primary);
 	color: var(--text-normal);
 	box-sizing: border-box;
-}
-
-.description {
-	font-size: 0.85em;
-	color: var(--text-faint);
-	margin: 0;
-	text-align: left;
-	width: 100%;
 }
 
 .root {

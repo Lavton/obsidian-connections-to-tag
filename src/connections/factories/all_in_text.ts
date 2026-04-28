@@ -47,6 +47,7 @@ export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<AllInTextCo
 		};
 	},
 	label: "all links in text",
+	description: "Ищет все wiki-ссылки в тексте файла (кроме frontmatter).",
 	editorComponent: AllInTextConnectionEditor,
 	createDefaultConfig() {
 		return { type: 'all-in-text', title: '' };

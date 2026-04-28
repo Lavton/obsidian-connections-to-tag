@@ -65,7 +65,6 @@
 </script>
 
 <div class="root">
-	<p class="description">Комбинированный: объединить или вычесть результаты. Связи в формате: заголовок1 + заголовок2 - заголовок3</p>
 	<div class="editor-fields">
 		<label>
 			<span>Выражение</span>
@@ -125,14 +124,6 @@
 		color: var(--text-error);
 		min-height: 1.3em;
 		line-height: 1.3;
-	}
-
-	.description {
-		font-size: 0.85em;
-		color: var(--text-faint);
-		margin: 0;
-		text-align: left;
-		width: 100%;
 	}
 
 	.root {

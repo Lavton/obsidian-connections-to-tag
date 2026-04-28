@@ -37,9 +37,6 @@
 </script>
 
 <div class="root">
-	<p class="description">
-		Переходит по connection с определённой вероятностью
-	</p>
 	<label class="field">
 		<span>Probability, %</span>
 		<input
@@ -68,13 +65,6 @@
 		box-sizing: border-box;
 	}
 
-	.description {
-		font-size: 0.85em;
-		color: var(--text-faint);
-		margin: 0;
-		text-align: left;
-		width: 100%;
-	}
 	.field {
 		display: flex;
 		align-items: flex-start;

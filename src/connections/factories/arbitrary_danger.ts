@@ -80,6 +80,7 @@ export class ArbitraryDangerConnConfig implements ConnectionConfig {
 export class ArbitraryDangerConnectionDescriptor implements ConnectionTypeDescriptor<ArbitraryDangerConnConfig> {
 	type: "arbitrary-danger" = 'arbitrary-danger';
 	label = "Arbitrary (danger)";
+	description = "Выполняет код из первого js/ts блока указанного файла. Используйте с осторожностью.";
 	editorComponent = ArbitraryDangerConnectionEditor;
 	validateAboveRules: ValidationAboveRule<ArbitraryDangerConnConfig>[] = [];
 	validateLocalRules: ValidationLocalRule<ArbitraryDangerConnConfig>[];

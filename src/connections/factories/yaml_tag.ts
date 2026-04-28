@@ -74,6 +74,7 @@ function createYamlTagsExistRule(app: App): ValidationLocalRule<YamlTagConnConfi
 export class YamlTagConnectionDescriptor implements ConnectionTypeDescriptor<YamlTagConnConfig> {
 	type: "yaml-tag" = 'yaml-tag';
 	label = "YAML tags";
+	description = "Ищет ссылки в перечисленных yaml-ключах";
 	editorComponent = YamlTagConnectionEditor;
 	validateLocalRules: ValidationLocalRule<YamlTagConnConfig>[];
 	validateAboveRules: ValidationAboveRule<YamlTagConnConfig>[] = [];

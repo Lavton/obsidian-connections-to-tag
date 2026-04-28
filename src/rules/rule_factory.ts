@@ -16,6 +16,7 @@ type AnyDescriptor = RuleTypeDescriptor<any>;
 export interface RuleTypeDescriptor<TConfig extends RuleConfig = RuleConfig> {
 	type: string;
 	label: string; // человекочитаемое имя для <select>
+	description: string;
 	createInstance(config: TConfig, connection: Connection): NewRuleFactory;
 	createConfig(instance: NewRuleFactory): TConfig;
 	createDefaultConfig(): TConfig; // нужен при смене типа
@@ -67,4 +68,3 @@ export class RuleRegistry {
 		return connection;
 	}
 }
-

@@ -99,6 +99,7 @@ export const PlusMinusConnectionDescriptor: ConnectionTypeDescriptor<PlusMinusCo
 		};
 	},
 	label: "Combine",
+	description: "Комбинированный: объединить или вычесть результаты. Связи в формате: заголовок1 + заголовок2 - заголовок3",
 	createDefaultConfig() {
 		return { type: 'plus-minus', title: '', connections: [] };
 	},

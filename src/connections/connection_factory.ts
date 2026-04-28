@@ -14,6 +14,7 @@ type AnyDescriptor = ConnectionTypeDescriptor<any>;
 export interface ConnectionTypeDescriptor<TConfig extends ConnectionConfig = ConnectionConfig> {
     type: string;
     label: string; // человекочитаемое имя для <select>
+    description: string;
     createInstance(config: TConfig, above_connections: Connection[]): Connection;
     createConfig(instance: Connection): TConfig;
     createDefaultConfig(): TConfig; // нужен при смене типа

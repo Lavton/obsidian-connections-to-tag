@@ -104,6 +104,8 @@
 </script>
 
 <div class="list-item">
+	<p class="description">{descriptor?.description ?? ""}</p>
+
 	<div class="top-row">
 		<div
 			class="status-indicator"
@@ -255,6 +257,16 @@
 	.type-wrapper .error-hint,
 	.direction-wrapper .error-hint {
 		padding-left: 0;
+	}
+
+	.description {
+		font-size: 0.85em;
+		color: var(--text-faint);
+		margin: 0;
+		min-height: 1.3em;
+		line-height: 1.3;
+		text-align: left;
+		width: 100%;
 	}
 
 	.type-select {

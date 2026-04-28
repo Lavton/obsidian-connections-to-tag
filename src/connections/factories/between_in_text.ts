@@ -71,6 +71,7 @@ export const BetweenInTextConnectionDescriptor: ConnectionTypeDescriptor<Between
 	},
 
 	label: "Between in text",
+	description: "Ищет ссылки в тексте между двумя строками/паттернами",
 	editorComponent: BetweenInTextConnectionEditor,
 
 	createDefaultConfig() {

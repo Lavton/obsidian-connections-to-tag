@@ -92,6 +92,10 @@ export interface ConnectionsHolder extends Plugin {
 	ruleRegistry: RuleRegistry
 }
 
+function isPublicTitle(title: string): boolean {
+	return !title.startsWith("_");
+}
+
 export class ConnectionsToTagSettingTab extends PluginSettingTab {
 	plugin: SettingsSaver;
 	connectionHolder: ConnectionsHolder
@@ -179,8 +183,10 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 
 		const registry = this.connectionHolder.connectionRegistry
 		const ruleRegistry = this.connectionHolder.ruleRegistry
+		const getPublicConnectionTitles = (items: DirectionalConnection[]): string[] =>
+			items.map((connection) => connection.title).filter(isPublicTitle);
 		const connectionTitles = writable(
-			this.plugin.settings.connectionConfigs.map((connection) => connection.title),
+			getPublicConnectionTitles(this.plugin.settings.connectionConfigs),
 		);
 		const listComponent = mount(ConnectionListSettings, {
 			target: listContainer,
@@ -188,7 +194,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 				concreeteConnections: this.plugin.settings.connectionConfigs,
 				onchange: async (items: DirectionalConnection[]) => {
 					this.plugin.settings.connectionConfigs = items;
-					connectionTitles.set(items.map((connection) => connection.title));
+					connectionTitles.set(getPublicConnectionTitles(items));
 					await this.plugin.saveSettings();
 					// await this.plugin.saveSettings();
 				},

@@ -51,6 +51,7 @@
 		addButtonText="Add rule"
 		listTitle="Rules"
 		listTitleId="subsection-chainstep"
+		listDescription='A rule selects a connection and defines how far traversal should continue through that connection. Rules with titles starting with "_" are private and are not shown for selection.'
 		separatorBefore
 	>
 		{#snippet itemSnippet({ item, updateItem })}

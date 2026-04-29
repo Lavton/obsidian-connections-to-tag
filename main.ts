@@ -266,7 +266,6 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 					return
 				}
 				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
-				console.log({ruleFactory})
 				if (ruleFactory == null) {
 					return
 				}

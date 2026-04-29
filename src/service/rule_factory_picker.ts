@@ -42,6 +42,6 @@ class RuleFactorySuggestModal extends FuzzySuggestModal<NewRuleFactory> {
 
 export function selectRuleFactory(app: App, rules: NewRuleFactory[]): Promise<NewRuleFactory | null> {
 	return new Promise((resolve) => {
-		new RuleFactorySuggestModal(app, rules, resolve).open();
+		new RuleFactorySuggestModal(app, rules.filter((rule) => !rule.title.startsWith("_")), resolve).open();
 	});
 }

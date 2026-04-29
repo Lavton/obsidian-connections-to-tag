@@ -22,6 +22,7 @@
 		addButtonText?: string;
 		listTitle?: string;
 		listTitleId?: string;
+		listDescription?: string;
 		separatorBefore?: boolean;
 	}
 
@@ -34,6 +35,7 @@
 		addButtonText = "Add item",
 		listTitle,
 		listTitleId,
+		listDescription,
 		separatorBefore = false,
 	}: Props = $props();
 
@@ -125,6 +127,9 @@
 			+
 		</button>
 	</div>
+	{#if listDescription}
+		<p class="list-description">{listDescription}</p>
+	{/if}
 
 	<div class="items-container" role="list">
 		{#each items as item, index (item.id)}
@@ -165,6 +170,13 @@
 	.list-header h3 {
 		margin: 0;
 		font-size: var(--font-ui-medium);
+		line-height: 1.4;
+	}
+
+	.list-description {
+		margin: 0;
+		color: var(--text-muted);
+		font-size: var(--font-ui-small);
 		line-height: 1.4;
 	}
 

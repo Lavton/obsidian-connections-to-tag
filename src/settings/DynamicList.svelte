@@ -17,26 +17,24 @@
 			]
 		>;
 
+		beforeList?: Snippet<
+			[
+				{
+					addItem: () => Promise<void>;
+				},
+			]
+		>;
 		createNewItem: () => RowState<T>;
 		validationConfig: ValidationConfig<T>;
-		addButtonText?: string;
-		listTitle?: string;
-		listTitleId?: string;
-		listDescription?: string;
-		separatorBefore?: boolean;
 	}
 
 	let {
 		items = $bindable([]),
 		onchange,
 		itemSnippet,
+		beforeList,
 		createNewItem,
 		validationConfig,
-		addButtonText = "Add item",
-		listTitle,
-		listTitleId,
-		listDescription,
-		separatorBefore = false,
 	}: Props = $props();
 
 	onMount(async () => {
@@ -64,6 +62,10 @@
 		items = [...items, newItem]
 		items = await validateItemOnChange(items, items.length - 1, validationConfig)
 		onchange?.(items)
+	}
+
+	async function addItemToEnd() {
+		await addItem(items.length);
 	}
 
 	async function moveItem(index: number, direction: "up" | "down") {
@@ -112,23 +114,9 @@
 	}
 </script>
 
-<div class="dynamic-list" class:with-separator={separatorBefore}>
-	<div class="list-header">
-		{#if listTitle}
-			<h3 id={listTitleId}>{listTitle}</h3>
-		{/if}
-		<button
-			type="button"
-			class="add-button"
-			onclick={() => addItem(items.length)}
-			aria-label={addButtonText}
-			title={addButtonText}
-		>
-			+
-		</button>
-	</div>
-	{#if listDescription}
-		<p class="list-description">{listDescription}</p>
+<div class="dynamic-list">
+	{#if beforeList}
+		{@render beforeList({ addItem: addItemToEnd })}
 	{/if}
 
 	<div class="items-container" role="list">
@@ -155,54 +143,8 @@
 		gap: 12px;
 	}
 
-	.dynamic-list.with-separator {
-		margin-top: 16px;
-		padding-top: 16px;
-		border-top: 1px solid var(--background-modifier-border);
-	}
-
-	.list-header {
-		display: flex;
-		align-items: center;
-		gap: 3px;
-	}
-
-	.list-header h3 {
-		margin: 0;
-		font-size: var(--font-ui-medium);
-		line-height: 1.4;
-	}
-
-	.list-description {
-		margin: 0;
-		color: var(--text-muted);
-		font-size: var(--font-ui-small);
-		line-height: 1.4;
-	}
-
 	.items-container {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.add-button {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 24px;
-		height: 24px;
-		padding: 0;
-		background: var(--interactive-accent);
-		border: none;
-		border-radius: 4px;
-		color: var(--text-on-accent);
-		cursor: pointer;
-		font-size: 16px;
-		font-weight: 500;
-		line-height: 1;
-	}
-
-	.add-button:hover {
-		background: var(--interactive-accent-hover);
 	}
 </style>

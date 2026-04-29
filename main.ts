@@ -4,9 +4,8 @@ import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
 import type { Connection } from 'src/connections/connections';
-import { ChainTraversal, StepTraversal } from 'src/service/chain_traversal';
-import { getDefaultChain } from 'src/settings/default_chain';
-import type { Chain, ChainStep } from 'src/models/chain';
+import { RuleTraversal } from 'src/service/chain_traversal';
+import type { ChainStep } from 'src/models/chain';
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
 import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile, getAllFilesInFolderWithFrontmatter, getAllFilesInFolder } from 'src/folderUtils';
 
@@ -26,6 +25,7 @@ import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 import type { NewRule, NewRuleFactory } from 'src/rules/new_rule';
+import { selectRuleFactory } from 'src/service/rule_factory_picker';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -100,20 +100,25 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				const normalizePath = (path: string): string => path.replace(/\/+$/, '');
 				const current_settings = settings.NEW_DEFAULT_SETTINGS
 				const focusMaker = new FocusMaker(current_settings.getInterfaceFields(), this.app)
-				const chain: Chain = getDefaultChain()
-				const traversal = new ChainTraversal(chain)
+				const getTraversal = async () => {
+					const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
+					if (ruleFactory == null) {
+						return null
+					}
+					return new RuleTraversal(ruleFactory)
+				}
 				if (file instanceof TFolder) {
 					if (normalizePath(file.path) === normalizePath(current_settings.resultFolder)) {
 						menu.addItem((item) => menuItems.moveBackFromFolder(item, current_settings.resultFolder, current_settings.movedNameFrontmatter, this.app))
 					}
 
-					menu.addItem((item) => menuItems.applyChainToFolder(item, file, this.app, traversal, focusMaker))
-					menu.addItem((item) => menuItems.rollbackChainFromFolder(item, file, this.app, traversal, focusMaker))
+					menu.addItem((item) => menuItems.applyChainToFolder(item, file, this.app, getTraversal, focusMaker))
+					menu.addItem((item) => menuItems.rollbackChainFromFolder(item, file, this.app, getTraversal, focusMaker))
 
 				}
 				if (file instanceof TFile) {
-					menu.addItem((item) => menuItems.applyChainToFile(item, file, this.app, traversal, focusMaker))
-					menu.addItem((item) => menuItems.rollbackChainFromFile(item, file, this.app, traversal, focusMaker))
+					menu.addItem((item) => menuItems.applyChainToFile(item, file, this.app, getTraversal, focusMaker))
+					menu.addItem((item) => menuItems.rollbackChainFromFile(item, file, this.app, getTraversal, focusMaker))
 
 				}
 				// menu.addItem((item) => menuItems.pureRemovingFromIgnoreList(item, dirpath, ignoreList, this.app));
@@ -260,8 +265,12 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (initialFile == null) {
 					return
 				}
-				const chain: Chain = getDefaultChain()
-				const traversal = new ChainTraversal(chain)
+				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
+				console.log({ruleFactory})
+				if (ruleFactory == null) {
+					return
+				}
+				const traversal = new RuleTraversal(ruleFactory)
 
 				const derivativeNotes = await traversal.go(this.app, [initialFile])
 				await focusMaker.doDependendOn(derivativeNotes)
@@ -275,8 +284,11 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (initialFile == null) {
 					return
 				}
-				const chain: Chain = getDefaultChain()
-				const traversal = new ChainTraversal(chain)
+				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
+				if (ruleFactory == null) {
+					return
+				}
+				const traversal = new RuleTraversal(ruleFactory)
 
 				const derivativeNotes = await traversal.go(this.app, [initialFile])
 				focusMaker.reverseDependendOn(derivativeNotes)

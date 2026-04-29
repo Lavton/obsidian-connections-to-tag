@@ -25,6 +25,7 @@ import { RuleRegistry } from 'src/rules/rule_factory';
 import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
+import type { NewRule, NewRuleFactory } from 'src/rules/new_rule';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -33,6 +34,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	connectionInstances: Connection[] = [];
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
 	ruleRegistry: RuleRegistry = new RuleRegistry();
+	ruleInstances: NewRuleFactory[] = [];
+
 
 	async onload() {
 		this.connectionRegistry
@@ -50,18 +53,10 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			.register(ProbabilityRuleDescriptor)
 
 		await this.loadSettings();
-		const current_connections: Connection[] = []
-		for (const connectionConfig of this.settings.connectionConfigs) {
-			if (typeof connectionConfig.title !== "string") {
-				continue
-			}
-			current_connections.push(this.connectionRegistry.fromConfig(connectionConfig, current_connections))
-		}
-		this.connectionInstances = current_connections
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this, this));
-		this.updateCommandSettingDependend() 
+		this.updateSettingDependend() 
 		this.addCommand({
 			id: 'test-connection',
 			name: 'Test Connection',
@@ -210,8 +205,35 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		this.updateSettingDependend()
 	}
-	public updateCommandSettingDependend() {
+	public updateSettingDependend() {
+		const current_connections: Connection[] = []
+		for (const connectionConfig of this.settings.connectionConfigs) {
+			if (typeof connectionConfig.title !== "string") {
+				continue
+			}
+			try {
+				current_connections.push(this.connectionRegistry.fromConfig(connectionConfig, current_connections))
+			} catch (error) {
+				new Notice(`Connection '${connectionConfig.title}' was ignored: ${error instanceof Error ? error.message : String(error)}`)
+			}
+		}
+		this.connectionInstances = current_connections
+
+		const current_rules: NewRuleFactory[] = []
+		for (const ruleConfig of this.settings.ruleConfigs) {
+			if (typeof ruleConfig.title !== "string") {
+				continue
+			}
+			try {
+				current_rules.push(this.ruleRegistry.fromConfig(ruleConfig, current_connections))
+			} catch (error) {
+				new Notice(`Rule '${ruleConfig.title}' was ignored: ${error instanceof Error ? error.message : String(error)}`)
+			}
+		}
+		this.ruleInstances = current_rules
+
 		const current_settings = settings.NEW_DEFAULT_SETTINGS
 		const markModes = current_settings.markNoteModes
 		const focusMaker = new FocusMaker(current_settings.getInterfaceFields(), this.app)

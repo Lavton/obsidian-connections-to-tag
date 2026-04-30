@@ -75,7 +75,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'total-remove-hashtag',
 			name: 'Totally remove the tag from vault',
 			callback: async () => {
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const current_settings = this.settings.focusMakerSettings
 				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
 
 				console.log(districtFiles.length)
@@ -88,7 +88,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'total-move-back-files',
 			name: "Move all files back to original",
 			callback: async () => {
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const current_settings = this.settings.focusMakerSettings
 				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
 
 				console.log(districtFiles.length)
@@ -98,8 +98,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
 				const normalizePath = (path: string): string => path.replace(/\/+$/, '');
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
-				const focusMaker = new FocusMaker(current_settings.getInterfaceFields(), this.app)
+				const current_settings = this.settings.focusMakerSettings
+				const focusMaker = new FocusMaker(current_settings, this.app)
 				const getTraversal = async () => {
 					const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
 					if (ruleFactory == null) {
@@ -138,7 +138,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				// this.settings.savedFilters = graphOptions.search;
 
 				await this.saveSettings();
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const current_settings = this.settings.focusMakerSettings
 				const markModes = current_settings.markNoteModes
 				if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
 					graphOptions.search = `tag:${current_settings.resultTag}`
@@ -239,9 +239,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		}
 		this.ruleInstances = current_rules
 
-		const current_settings = settings.NEW_DEFAULT_SETTINGS
+		const current_settings = this.settings.focusMakerSettings
 		const markModes = current_settings.markNoteModes
-		const focusMaker = new FocusMaker(current_settings.getInterfaceFields(), this.app)
+		const focusMaker = new FocusMaker(current_settings, this.app)
 		let apply_name: string;
 		let rollback_name: string;
 		if (markModes.contains(settings.MarkNoteMode.ADD_TAG) && (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER))) {
@@ -297,7 +297,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'total-remove-from-front',
 			name: `Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
 			callback: async () => {
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const current_settings = this.settings.focusMakerSettings
 				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
 
 				console.log(districtFiles.length)
@@ -309,7 +309,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'move-the-tag-to-folder',
 			name: `Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
 			callback: async () => {
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const current_settings = this.settings.focusMakerSettings
 				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
 
 				console.log(districtFiles.length)
@@ -322,7 +322,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'add-tag-to-the-folder',
 			name: `Add for in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
 			callback: async () => {
-				const current_settings = settings.NEW_DEFAULT_SETTINGS
+				const current_settings = this.settings.focusMakerSettings
 				var districtFiles: TFile[] = getAllFilesInFolder(this.app, current_settings.resultFolder)
 
 				console.log(districtFiles.length)

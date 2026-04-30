@@ -2,7 +2,7 @@ import { TFile, TFolder, Vault, type App } from "obsidian"
 
 export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory: string, reverseTag: string) {
 	const distDir = distDirectory.endsWith("/") ? distDirectory : (distDirectory + "/")
-	createFolderIfNotExist(app, distDir)
+	await createFolderIfNotExist(app, distDir)
 	await app.fileManager.processFrontMatter(file, (frontmatter) => {
 		frontmatter[reverseTag] = file?.path
 	})

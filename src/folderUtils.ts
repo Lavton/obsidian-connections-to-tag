@@ -31,7 +31,7 @@ class CachedFolderAccessStrategy implements FolderAccessStrategy {
 	}
 
 	async rename(app: App, file: TFile, newPath: string): Promise<void> {
-		await app.vault.rename(file, newPath)
+		await app.fileManager.renameFile(file, newPath)
 	}
 
 	isFrontmatterInFile(app: App, file: TFile, frontmatter: string): boolean {
@@ -87,7 +87,7 @@ class DiskCheckedFolderAccessStrategy implements FolderAccessStrategy {
 	private async renameAndWait(app: App, file: TFile, newPath: string): Promise<void> {
 		const oldPath = file.path
 		const renameWait = this.waitForVaultRename(app, oldPath, newPath)
-		await app.vault.rename(file, newPath)
+		await app.fileManager.renameFile(file, newPath)
 		await renameWait
 	}
 
@@ -122,9 +122,21 @@ export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory:
 		frontmatter[reverseTag] = currentFile.path
 	})
 	// console.log("whant to", file.path, "->", distDir + file.name)
-	const newPath = distDir + currentFile.name
-	await folderAccessStrategy.rename(app, currentFile, newPath)
+	const newPath = await renameFileWithCheckDoublicates(app, distDir, currentFile)
 	return getFileByPathOrCurrent(app, newPath, currentFile)
+}
+
+async function renameFileWithCheckDoublicates(app: App, distDir: string, currentFile: TFile): Promise<string> {
+	const baseName = currentFile.basename
+	const extension = currentFile.extension.length > 0 ? `.${currentFile.extension}` : ""
+	let newPath = distDir + currentFile.name
+	let index = 1
+	while (app.vault.getAbstractFileByPath(newPath) != null) {
+		newPath = `${distDir}${baseName}_${index}${extension}`
+		index++
+	}
+	await folderAccessStrategy.rename(app, currentFile, newPath)
+	return newPath
 }
 
 async function createFolderIfNotExist(app: App, distDirectory: string) {

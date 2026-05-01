@@ -1,4 +1,4 @@
-import { BackwardConnection, type Connection } from "src/connections/connections";
+import { BackwardConnection, BothWayConnection, type Connection } from "src/connections/connections";
 import type { ConnectionConfig, DirectionalConnectionConfig } from "src/connections/connections";
 import type { Issue, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import type { Component } from 'svelte';
@@ -42,13 +42,19 @@ export class ConnectionRegistry {
 		if (config.direction === "backward") {
 			return new BackwardConnection(connection)
 		}
+        if (config.direction === "both") {
+            return new BothWayConnection(connection)
+        }
 		return connection
     }
 
     toConfig(instance: Connection): (DirectionalConnectionConfig) {
-		let direction: "forward" | "backward";
+		let direction: DirectionalConnectionConfig["direction"];
 		if (instance instanceof BackwardConnection) {
 			direction = "backward"
+			instance = instance.real_connection
+        } else if (instance instanceof BothWayConnection) {
+			direction = "both"
 			instance = instance.real_connection
 		} else {
 			direction = "forward"

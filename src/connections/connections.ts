@@ -5,7 +5,7 @@ export type ConnectionConfig = {
 	readonly type: string
 	title: string
 };
-export type DirectionalConnectionConfig = ConnectionConfig & { direction: "forward" | "backward" }
+export type DirectionalConnectionConfig = ConnectionConfig & { direction: "forward" | "backward" | "both" }
 
 export function emptyConnectionConfig(): DirectionalConnectionConfig {
 	return { type: "", title: "", direction: "forward" };
@@ -40,6 +40,22 @@ export class BackwardConnection implements Connection {
 	real_connection: Connection
 	constructor(real_connection: Connection) {
 		this.real_connection = real_connection
+		this.title = real_connection.title
+	}
+}
+
+export class BothWayConnection implements Connection {
+	readonly type = '';
+    title: string;
+    readonly locality: "local" = 'local';
+	async get_connected(app: App, node: TFile): Promise<TFile[]> {
+		return [...await this.real_connection.get_connected(app, node),...await this.backward_connection.get_connected(app, node)]
+	}
+	real_connection: Connection
+	backward_connection: BackwardConnection
+	constructor(real_connection: Connection) {
+		this.real_connection = real_connection
+		this.backward_connection = new BackwardConnection(this.real_connection)
 		this.title = real_connection.title
 	}
 }

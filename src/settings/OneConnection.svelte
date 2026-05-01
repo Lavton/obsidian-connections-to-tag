@@ -89,7 +89,7 @@
 	}
 
 	function handleDirectionChange(e: Event) {
-		const direction = (e.target as HTMLSelectElement).value as "forward" | "backward";
+		const direction = (e.target as HTMLSelectElement).value as DirectionalConnectionConfig["direction"];
 		updateRow({ ...value.draft, direction }, "direction");
 	}
 
@@ -157,6 +157,7 @@
 			>
 				<option value="forward">→ forward</option>
 				<option value="backward">← backward</option>
+				<option value="both">↔ both</option>
 			</select>
 			<div class="error-hint" aria-hidden="true"></div>
 		</div>

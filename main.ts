@@ -26,6 +26,7 @@ import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 import type { NewRule, NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
+import { applyFocusAndFindNewInitialFile, rollbackFocusAndFindNewInitialFile } from 'src/tests/ui_manual';
 
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
@@ -61,13 +62,34 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'test-connection',
 			name: 'Test Connection',
 			editorCallback: async (editor: Editor, view) => {
-				var initialFile = view.file
+				// var initialFile = view.file
+				// if (initialFile == null) {
+				// 	return
+				// }
+				// const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
+				// console.log(conn)
+				// console.log(await conn.get_connected(this.app, initialFile))
+
+				const current_settings = this.settings.focusMakerSettings
+				const focusMaker = new FocusMaker(current_settings, this.app)
+				const ruleFactory = this.ruleInstances[0]
+				let initialFile = view.file
 				if (initialFile == null) {
 					return
 				}
-				const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
-				console.log(conn)
-				console.log(await conn.get_connected(this.app, initialFile))
+				if (ruleFactory == null) {
+					return
+				}
+				for (let i = 0; i < 10; i++) {
+					initialFile = await applyFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
+					if (initialFile == null) {
+						return
+					}
+					initialFile = await rollbackFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
+					if (initialFile == null) {
+						return
+					}
+				}
 			}
 		})
 
@@ -290,7 +312,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				const traversal = new RuleTraversal(ruleFactory)
 
 				const derivativeNotes = await traversal.go(this.app, [initialFile])
-				focusMaker.reverseDependendOn(derivativeNotes)
+				await focusMaker.reverseDependendOn(derivativeNotes)
 			}
 		})
 		this.addCommand({

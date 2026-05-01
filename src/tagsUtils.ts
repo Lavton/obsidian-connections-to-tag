@@ -104,7 +104,7 @@ class DiskCheckedTagsAccessStrategy implements TagsAccessStrategy {
 	}
 }
 
-const tagsAccessStrategy: TagsAccessStrategy = new DiskCheckedTagsAccessStrategy()
+const tagsAccessStrategy: TagsAccessStrategy = new CachedTagsAccessStrategy()
 
 async function addTagToFileText(app: App, file: TFile, tag: string): Promise<TFile> {
 	const currentFile = getCurrentFile(app, file)

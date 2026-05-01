@@ -13,8 +13,8 @@ export class FocusMaker {
 	}
 
 	async doDependendOn(files: TFile[]): Promise<TFile[]> {
-		// const markModes = this.settings.markNoteModes
-		const markModes = [settings.MarkNoteMode.ADD_TAG, settings.MarkNoteMode.MOVE_TO_FOLDER] // debug
+		const markModes = this.settings.markNoteModes
+		// const markModes = [settings.MarkNoteMode.ADD_TAG, settings.MarkNoteMode.MOVE_TO_FOLDER] // debug
 		const updatedFiles: TFile[] = []
 		for (const f of files) {
 			let currentFile = f
@@ -29,8 +29,8 @@ export class FocusMaker {
 		return updatedFiles
 	}
 	async reverseDependendOn(files: TFile[]): Promise<TFile[]> {
-		// const markModes = this.settings.markNoteModes
-		const markModes = [settings.MarkNoteMode.ADD_TAG, settings.MarkNoteMode.MOVE_TO_FOLDER] // debug
+		const markModes = this.settings.markNoteModes
+		// const markModes = [settings.MarkNoteMode.ADD_TAG, settings.MarkNoteMode.MOVE_TO_FOLDER] // debug
 		const updatedFiles: TFile[] = []
 		for (const f of files) {
 			let currentFile = f

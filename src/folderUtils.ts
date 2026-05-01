@@ -106,7 +106,7 @@ class DiskCheckedFolderAccessStrategy implements FolderAccessStrategy {
 	}
 }
 
-const folderAccessStrategy: FolderAccessStrategy = new DiskCheckedFolderAccessStrategy()
+const folderAccessStrategy: FolderAccessStrategy = new CachedFolderAccessStrategy()
 
 export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory: string, reverseTag: string): Promise<TFile> {
 	const currentFile = getCurrentFile(app, file)

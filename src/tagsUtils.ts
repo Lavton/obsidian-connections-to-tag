@@ -3,20 +3,22 @@ import { TFile, App, getAllTags } from "obsidian";
 
 
 
-export async function addTagToFileIfNeeded(app: App, file: TFile, tag: string) {
+export async function addTagToFileIfNeeded(app: App, file: TFile, tag: string): Promise<TFile> {
 	if (tag.startsWith("#")) {
 		await addTagToFileText(app, file, tag)
 	} else {
 		await addTagToFileFronmatter(app, file, tag)
 	}
+	return file
 }
 
-export async function removeTagFromFileIfNeeded(app: App, file: TFile, tag: string) {
+export async function removeTagFromFileIfNeeded(app: App, file: TFile, tag: string): Promise<TFile> {
 	if (tag.startsWith("#")) {
 		await removeTagFromFileText(app, file, tag)
 	} else {
 		await removeTagFromFileFrontmatter(app, file, tag)
 	}
+	return file
 }
 
 async function addTagToFileText(app: App, file: TFile, tag: string) {

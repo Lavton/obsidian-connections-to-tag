@@ -8,10 +8,10 @@ export function moveBackFromFolder(item: MenuItem, dirpath: string, movingTag: s
 	item.setTitle("Move files back from the folder")
 		.setIcon("undo-2") // https://lucide.dev/icons/
 		.onClick(() => {
-			var districtFiles: TFile[] = getAllFilesInFolderWithFrontmatter(this.app, dirpath, movingTag)
+			var districtFiles: TFile[] = getAllFilesInFolderWithFrontmatter(app, dirpath, movingTag)
 
 			console.log(districtFiles.length)
-			districtFiles.forEach(async (fp) => await moveFileFromAndRemoveMeta(this.app, fp, movingTag))
+			districtFiles.forEach(async (fp) => await moveFileFromAndRemoveMeta(app, fp, movingTag))
 
 			console.log("will undo")
 		});
@@ -27,7 +27,7 @@ export function applyChainToFile(item: MenuItem, file: TFile, app: App,
 				return
 			}
 			const derivativeNotes = await traversal.go(app, [file])
-			focusMaker.doDependendOn(derivativeNotes)
+			await focusMaker.doDependendOn(derivativeNotes)
 		});
 }
 export function rollbackChainFromFile(item: MenuItem, file: TFile, app: App,
@@ -40,7 +40,7 @@ export function rollbackChainFromFile(item: MenuItem, file: TFile, app: App,
 				return
 			}
 			const derivativeNotes = await traversal.go(app, [file])
-			focusMaker.reverseDependendOn(derivativeNotes)
+			await focusMaker.reverseDependendOn(derivativeNotes)
 		});
 }
 export function applyChainToFolder(item: MenuItem, folder: TFolder, app: App,
@@ -54,7 +54,7 @@ export function applyChainToFolder(item: MenuItem, folder: TFolder, app: App,
 			}
 			const initial = getAllMarkdownFiles(folder)
 			const derivativeNotes = await traversal.go(app, initial)
-			focusMaker.doDependendOn(derivativeNotes)
+			await focusMaker.doDependendOn(derivativeNotes)
 		});
 }
 export function rollbackChainFromFolder(item: MenuItem, folder: TFolder, app: App,
@@ -68,6 +68,6 @@ export function rollbackChainFromFolder(item: MenuItem, folder: TFolder, app: Ap
 			}
 			const initial = getAllMarkdownFiles(folder)
 			const derivativeNotes = await traversal.go(app, initial)
-			focusMaker.reverseDependendOn(derivativeNotes)
+			await focusMaker.reverseDependendOn(derivativeNotes)
 		});
 }

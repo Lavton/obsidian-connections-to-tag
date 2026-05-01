@@ -12,26 +12,36 @@ export class FocusMaker {
 		this.app = app
 	}
 
-	async doDependendOn(files: TFile[]) {
-		const markModes = this.settings.markNoteModes
+	async doDependendOn(files: TFile[]): Promise<TFile[]> {
+		// const markModes = this.settings.markNoteModes
+		const markModes = [settings.MarkNoteMode.ADD_TAG, settings.MarkNoteMode.MOVE_TO_FOLDER] // debug
+		const updatedFiles: TFile[] = []
 		for (const f of files) {
+			let currentFile = f
 			if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
-				await addTagToFileIfNeeded(this.app, f, this.settings.resultTag)
+				currentFile = await addTagToFileIfNeeded(this.app, currentFile, this.settings.resultTag)
 			}
 			if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
-				await moveFileToAndAddMeta(this.app, f, this.settings.resultFolder, this.settings.movedNameFrontmatter)
+				currentFile = await moveFileToAndAddMeta(this.app, currentFile, this.settings.resultFolder, this.settings.movedNameFrontmatter)
 			}
+			updatedFiles.push(currentFile)
 		}
+		return updatedFiles
 	}
-	async reverseDependendOn(files: TFile[]) {
-		const markModes = this.settings.markNoteModes
+	async reverseDependendOn(files: TFile[]): Promise<TFile[]> {
+		// const markModes = this.settings.markNoteModes
+		const markModes = [settings.MarkNoteMode.ADD_TAG, settings.MarkNoteMode.MOVE_TO_FOLDER] // debug
+		const updatedFiles: TFile[] = []
 		for (const f of files) {
+			let currentFile = f
 			if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
-				await removeTagFromFileIfNeeded(this.app, f, this.settings.resultTag)
+				currentFile = await removeTagFromFileIfNeeded(this.app, currentFile, this.settings.resultTag)
 			}
 			if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
-				await moveFileFromAndRemoveMeta(this.app, f, this.settings.movedNameFrontmatter)
+				currentFile = await moveFileFromAndRemoveMeta(this.app, currentFile, this.settings.movedNameFrontmatter)
 			}
+			updatedFiles.push(currentFile)
 		}
+		return updatedFiles
 	}
 }

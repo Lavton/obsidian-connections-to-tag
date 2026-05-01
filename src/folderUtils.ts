@@ -1,16 +1,23 @@
 import { TFile, TFolder, Vault, type App } from "obsidian"
 
-export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory: string, reverseTag: string) {
+function getFileByPathOrCurrent(app: App, path: string, current: TFile): TFile {
+	const movedFile = app.vault.getAbstractFileByPath(path)
+	return movedFile instanceof TFile ? movedFile : current
+}
+
+export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory: string, reverseTag: string): Promise<TFile> {
 	const distDir = distDirectory.endsWith("/") ? distDirectory : (distDirectory + "/")
 	if (file.path.startsWith(distDir)) {
-		return
+		return file
 	}
 	await createFolderIfNotExist(app, distDir)
 	await app.fileManager.processFrontMatter(file, (frontmatter) => {
 		frontmatter[reverseTag] = file?.path
 	})
 	// console.log("whant to", file.path, "->", distDir + file.name)
-	await app.vault.rename(file, distDir + file?.name)
+	const newPath = distDir + file.name
+	await app.vault.rename(file, newPath)
+	return getFileByPathOrCurrent(app, newPath, file)
 }
 
 async function createFolderIfNotExist(app: App, distDirectory: string) {
@@ -22,26 +29,29 @@ async function createFolderIfNotExist(app: App, distDirectory: string) {
 }
 
 
-export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTag: string) {
+export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTag: string): Promise<TFile> {
 	var frontmatter = app.metadataCache.getFileCache(file)?.frontmatter
 	if (frontmatter == null) {
 		// new Notice(`in file ${filename} no frontmatter exisist`)
-		return
+		return file
 	}
 	var originalDist: string = frontmatter[reverseTag]
 	if (originalDist == null) {
 		// new Notice(`in file ${filename} ${reverseTag} is not in frontmatter`)
 		// console.log(filename, frontmatter, reverseTag)
-		return
+		return file
 	}
 	try {
 		await app.vault.rename(file, originalDist)
-		await app.fileManager.processFrontMatter(file, (frontmatter) => {
+		const movedFile = getFileByPathOrCurrent(app, originalDist, file)
+		await app.fileManager.processFrontMatter(movedFile, (frontmatter) => {
 			delete frontmatter[reverseTag]
 		})
+		return movedFile
 	} catch (error: any) {
 		console.log(error)
 		// new Notice(`cant move ${filename}\nback to ${originalDist}. \nMaybe original folder was deleted?`)
+		return file
 	}
 }
 export async function removeMetaFromFile(app: App, file: TFile, reverseTag: string) {
@@ -63,7 +73,7 @@ function isFrontmatterInFile(app: App, file: TFile, frontmatter: string): boolea
 }
 
 export function getAllFilesWithFrontmatter(app: App, frontmatter: string): TFile[] {
-	const files: TFile[] = this.app.vault.getMarkdownFiles();
+	const files: TFile[] = app.vault.getMarkdownFiles();
 	return files
 		.filter(f => f instanceof TFile)
 		.filter(f =>

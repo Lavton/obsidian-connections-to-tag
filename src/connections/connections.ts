@@ -5,9 +5,9 @@ export type ConnectionConfig = {
 	readonly type: string
 	title: string
 };
-export type DirectionalConnection = ConnectionConfig & { direction: "forward" | "backward" }
+export type DirectionalConnectionConfig = ConnectionConfig & { direction: "forward" | "backward" }
 
-export function emptyConnectionConfig(): DirectionalConnection {
+export function emptyConnectionConfig(): DirectionalConnectionConfig {
 	return { type: "", title: "", direction: "backward" };
 }
 

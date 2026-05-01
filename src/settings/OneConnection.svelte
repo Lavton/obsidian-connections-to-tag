@@ -3,7 +3,7 @@
 	import {
 		emptyConnectionConfig,
 		type ConnectionConfig,
-		type DirectionalConnection,
+		type DirectionalConnectionConfig,
 	} from "src/connections/connections";
 	import {
 		emptyRowState,
@@ -12,8 +12,8 @@
 	import { issueToText } from "./validation_ui";
 
 	interface Props {
-		value: RowState<DirectionalConnection>;
-		onchange?: (newValue: RowState<DirectionalConnection>) => void;
+		value: RowState<DirectionalConnectionConfig>;
+		onchange?: (newValue: RowState<DirectionalConnectionConfig>) => void;
 		registry: ConnectionRegistry;
 	}
 
@@ -27,7 +27,7 @@
 
 	let EditorComponent = $derived(descriptor?.editorComponent);
 
-	type RowIssue = RowState<DirectionalConnection>["meta"]["issues"][number];
+	type RowIssue = RowState<DirectionalConnectionConfig>["meta"]["issues"][number];
 
 	function applyTouched(path?: string) {
 		if (!path) return value.meta;
@@ -41,7 +41,7 @@
 		};
 	}
 
-	function updateRow(nextDraft: DirectionalConnection, touchedPath?: string) {
+	function updateRow(nextDraft: DirectionalConnectionConfig, touchedPath?: string) {
 		value = {
 			...value,
 			draft: nextDraft,
@@ -76,8 +76,8 @@
 		const newDescriptor = registry.get(newType);
 
 		const newDraft = newDescriptor
-			? (newDescriptor.createDefaultConfig() as DirectionalConnection)
-			: ({ type: newType, title: value.draft.title } as DirectionalConnection);
+			? (newDescriptor.createDefaultConfig() as DirectionalConnectionConfig)
+			: ({ type: newType, title: value.draft.title } as DirectionalConnectionConfig);
 
 		newDraft.title = value.draft.title;
 		newDraft.direction = value.draft.direction;

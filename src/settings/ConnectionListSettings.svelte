@@ -2,7 +2,7 @@
 	import type { ConnectionRegistry } from "src/connections/connection_factory";
 	import {
 		emptyConnectionConfig,
-		type DirectionalConnection,
+		type DirectionalConnectionConfig,
 	} from "src/connections/connections";
 	import DynamicList from "./DynamicList.svelte";
 	import OneConnection from "./OneConnection.svelte";
@@ -14,22 +14,22 @@
 	} from "./types";
 	import type { ValidationConfig } from "src/validation";
 	interface Props {
-		concreeteConnections: DirectionalConnection[];
-		onchange?: (items: DirectionalConnection[]) => void;
-		validationConfig: ValidationConfig<DirectionalConnection>;
+		concreeteConnections: DirectionalConnectionConfig[];
+		onchange?: (items: DirectionalConnectionConfig[]) => void;
+		validationConfig: ValidationConfig<DirectionalConnectionConfig>;
 		registry: ConnectionRegistry
 	}
 
 	let { concreeteConnections = $bindable([]), onchange, validationConfig, registry }: Props = $props();
-	let items = $state<RowState<DirectionalConnection>[]>(
+	let items = $state<RowState<DirectionalConnectionConfig>[]>(
 		toRowStates(concreeteConnections),
 	);
 
-	function handleChange(newItems: RowState<DirectionalConnection>[]) {
+	function handleChange(newItems: RowState<DirectionalConnectionConfig>[]) {
 		onchange?.(fromRowStates(newItems));
 	}
 
-	function createNewItem(): RowState<DirectionalConnection> {
+	function createNewItem(): RowState<DirectionalConnectionConfig> {
 		return emptyRowState(emptyConnectionConfig());
 	}
 

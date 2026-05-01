@@ -4,7 +4,7 @@ import { mount } from "svelte";
 import { get, writable } from "svelte/store";
 import ExplainGeneral from './ExplainGeneral.svelte';
 import ConnectionListSettings from "./ConnectionListSettings.svelte";
-import type { DirectionalConnection } from "src/connections/connections";
+import type { DirectionalConnectionConfig } from "src/connections/connections";
 import * as common_rules from "./common_validation_rules";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
 import RulesListSettings from "./RulesListSettings.svelte";
@@ -25,7 +25,7 @@ export interface FocusMakerSettings {
 
 export interface ConnectionsToTagSettings {
 	focusMakerSettings: FocusMakerSettings,
-	connectionConfigs: DirectionalConnection[]
+	connectionConfigs: DirectionalConnectionConfig[]
 	ruleConfigs: RuleConfig[]
 }
 
@@ -145,7 +145,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 
 		const registry = this.connectionHolder.connectionRegistry
 		const ruleRegistry = this.connectionHolder.ruleRegistry
-		const getPublicConnectionTitles = (items: DirectionalConnection[]): string[] =>
+		const getPublicConnectionTitles = (items: DirectionalConnectionConfig[]): string[] =>
 			items.map((connection) => connection.title).filter(isPublicTitle);
 		const connectionTitles = writable(
 			getPublicConnectionTitles(this.plugin.settings.connectionConfigs),
@@ -154,7 +154,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			target: listContainer,
 			props: {
 				concreeteConnections: this.plugin.settings.connectionConfigs,
-				onchange: async (items: DirectionalConnection[]) => {
+				onchange: async (items: DirectionalConnectionConfig[]) => {
 					this.plugin.settings.connectionConfigs = items;
 					connectionTitles.set(getPublicConnectionTitles(items));
 					await this.plugin.saveSettings();
@@ -170,7 +170,7 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 						common_rules.ruleTypeRequired,
 						common_rules.ruleNoPlusMinusWithSpaces,
 					],
-					getItemRules: function (item: DirectionalConnection) {
+					getItemRules: function (item: DirectionalConnectionConfig) {
 						const descriptor = registry.get(item.type);
 						if (!descriptor) return { local: [], above: [] };
 

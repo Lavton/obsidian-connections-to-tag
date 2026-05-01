@@ -1,5 +1,5 @@
 import { BackwardConnection, type Connection } from "src/connections/connections";
-import type { ConnectionConfig } from "src/connections/connections";
+import type { ConnectionConfig, DirectionalConnectionConfig } from "src/connections/connections";
 import type { Issue, ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 import type { Component } from 'svelte';
 
@@ -33,7 +33,7 @@ export class ConnectionRegistry {
 		return this
     }
 
-    fromConfig(config: ConnectionConfig & { direction?: "forward" | "backward" }, above_connections: Connection[]): Connection {
+    fromConfig(config: DirectionalConnectionConfig, above_connections: Connection[]): Connection {
         const descriptor = this.descriptors.get(config.type);
         if (!descriptor) {
             throw new Error(`Unknown connection type: ${config.type}`);
@@ -45,7 +45,7 @@ export class ConnectionRegistry {
 		return connection
     }
 
-    toConfig(instance: Connection): (ConnectionConfig & { direction: "forward" | "backward" }) {
+    toConfig(instance: Connection): (DirectionalConnectionConfig) {
 		let direction: "forward" | "backward";
 		if (instance instanceof BackwardConnection) {
 			direction = "backward"

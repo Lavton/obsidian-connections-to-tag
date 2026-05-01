@@ -8,7 +8,7 @@ export type ConnectionConfig = {
 export type DirectionalConnectionConfig = ConnectionConfig & { direction: "forward" | "backward" }
 
 export function emptyConnectionConfig(): DirectionalConnectionConfig {
-	return { type: "", title: "", direction: "backward" };
+	return { type: "", title: "", direction: "forward" };
 }
 
 export interface Connection {

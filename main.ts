@@ -1,11 +1,7 @@
-import { App, Editor, getLinkpath, MarkdownView, Menu, MenuItem, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
+import { Editor, Menu, Plugin, TFile, TFolder } from 'obsidian';
 import * as settings from 'src/settings/settings'
-import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
-import * as utils from 'src/utils'
-import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
 import type { Connection } from 'src/connections/connections';
 import { RuleTraversal } from 'src/models/traversal';
-import { getAllFilesInFolderWithFrontmatter } from 'src/folderUtils';
 import { addResultTagToResultFolder, applyRuleChainToFile, applyRuleChainToSearchResults, focusGraphView, moveAllFilesBackToOriginal, moveTaggedFilesToResultFolder, removeMovedFrontmatterFromVault, removeResultTagFromVault, rollbackRuleChainFromFile } from 'src/menuCommands';
 
 import * as menuItems from 'src/menuItems'
@@ -23,9 +19,8 @@ import { RuleRegistry } from 'src/rules/rule_factory';
 import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
-import type { NewRule, NewRuleFactory } from 'src/rules/new_rule';
+import type { NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
-import { applyFocusAndFindNewInitialFile, rollbackFocusAndFindNewInitialFile } from 'tests/ui_manual';
 import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {

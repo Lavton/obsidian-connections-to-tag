@@ -1,7 +1,6 @@
 import type { App, TFile } from "obsidian";
 import { type Connection, type ConnectionConfig } from "src/connections/connections";
 import type { ConnectionTypeDescriptor } from "../connection_factory";
-import type { ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 import PlusMinusConnectionEditor from "./PlusMinusConnectionEditor.svelte";
 
 export enum PMSign {

@@ -4,7 +4,6 @@ import type { Connection, ConnectionConfig } from "src/connections/connections";
 import { findTextFragment, removeFrontmatter } from "src/utils";
 import type { ConnectionTypeDescriptor } from "../connection_factory";
 import BetweenInTextConnectionEditor from "./BetweenInTextConnectionEditor.svelte";
-import type { ValidationAboveRule, ValidationLocalRule, ValidationResult } from "src/settings/types";
 
 export class BetweenInTextConnection implements Connection {
 	readonly type = 'between-in-text';

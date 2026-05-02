@@ -1,6 +1,6 @@
 import type { App, TFile } from "obsidian";
 import type { NewRuleFactory } from "src/rules/new_rule";
-import { RuleTraversal } from "src/service/chain_traversal";
+import { RuleTraversal } from "src/models/traversal";
 import type { FocusMaker } from "src/service/focus_marker";
 
 export async function applyFocusAndFindNewInitialFile(

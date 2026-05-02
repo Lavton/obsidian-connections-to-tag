@@ -4,8 +4,7 @@ import { addTagForFile, removeTagFromFile } from 'src/tagsModifier'
 import * as utils from 'src/utils'
 import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from 'src/utils';
 import type { Connection } from 'src/connections/connections';
-import { RuleTraversal } from 'src/service/chain_traversal';
-import type { ChainStep } from 'src/models/chain';
+import { RuleTraversal } from 'src/models/traversal';
 import { getAllFilesInFolderWithFrontmatter } from 'src/folderUtils';
 import { addResultTagToResultFolder, applyRuleChainToFile, applyRuleChainToSearchResults, focusGraphView, moveAllFilesBackToOriginal, moveTaggedFilesToResultFolder, removeMovedFrontmatterFromVault, removeResultTagFromVault, rollbackRuleChainFromFile } from 'src/menuCommands';
 

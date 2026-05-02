@@ -3,7 +3,7 @@ import { Notice } from "obsidian";
 import { getAllFilesInFolder, getAllFilesWithFrontmatter, moveFileFromAndRemoveMeta, moveFileToAndAddMeta, removeMetaFromFile } from "src/folderUtils";
 import type { NewRuleFactory } from "src/rules/new_rule";
 import { MarkNoteMode, type FocusMakerSettings } from "src/settings/settings";
-import { RuleTraversal } from "src/service/chain_traversal";
+import { RuleTraversal } from "src/models/traversal";
 import type { FocusMaker } from "src/service/focus_marker";
 import { selectRuleFactory } from "src/service/rule_factory_picker";
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from "src/tagsUtils";

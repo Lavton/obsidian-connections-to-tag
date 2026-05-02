@@ -4,6 +4,14 @@ import type { Traversal } from "./models/traversal";
 import type { FocusMaker } from "./service/focus_marker";
 import { getAllMarkdownFiles } from "src/folderUtils"
 
+function normalizePath(path: string): string {
+	return path.replace(/\/+$/, '');
+}
+
+export function isResultFolder(folder: TFolder, resultFolder: string): boolean {
+	return normalizePath(folder.path) === normalizePath(resultFolder)
+}
+
 export function moveBackFromFolder(item: MenuItem, dirpath: string, movingTag: string, app: App): void {
 	item.setTitle("Move files back from the folder")
 		.setIcon("undo-2") // https://lucide.dev/icons/

@@ -6,8 +6,8 @@ import { getBackwardFilesFromFronmatter, getForwardFilesFromFrontmatter } from '
 import type { Connection } from 'src/connections/connections';
 import { RuleTraversal } from 'src/service/chain_traversal';
 import type { ChainStep } from 'src/models/chain';
-import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from 'src/tagsUtils';
-import { moveFileToAndAddMeta, moveFileFromAndRemoveMeta, getAllFilesWithFrontmatter, removeMetaFromFile, getAllFilesInFolderWithFrontmatter, getAllFilesInFolder } from 'src/folderUtils';
+import { getAllFilesInFolderWithFrontmatter } from 'src/folderUtils';
+import { addResultTagToResultFolder, applyRuleChainToFile, applyRuleChainToSearchResults, focusGraphView, moveAllFilesBackToOriginal, moveTaggedFilesToResultFolder, removeMovedFrontmatterFromVault, removeResultTagFromVault, rollbackRuleChainFromFile } from 'src/menuCommands';
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
@@ -26,14 +26,8 @@ import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 import type { NewRule, NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
-import { applyFocusAndFindNewInitialFile, rollbackFocusAndFindNewInitialFile } from 'src/tests/ui_manual';
-
-type SearchViewWithFiles = {
-	dom?: {
-		getFiles?: () => TFile[];
-	};
-};
-
+import { applyFocusAndFindNewInitialFile, rollbackFocusAndFindNewInitialFile } from 'tests/ui_manual';
+import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings!: settings.ConnectionsToTagSettings;
@@ -64,68 +58,57 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this, this));
 		this.updateSettingDependend() 
-		this.addCommand({
-			id: 'test-connection',
-			name: 'Test Connection',
-			editorCallback: async (editor: Editor, view) => {
-				// var initialFile = view.file
-				// if (initialFile == null) {
-				// 	return
-				// }
-				// const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
-				// console.log(conn)
-				// console.log(await conn.get_connected(this.app, initialFile))
+		// this.addCommand({
+		// 	id: 'test-connection',
+		// 	name: 'Test Connection',
+		// 	editorCallback: async (editor: Editor, view) => {
+		// 		// var initialFile = view.file
+		// 		// if (initialFile == null) {
+		// 		// 	return
+		// 		// }
+		// 		// const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
+		// 		// console.log(conn)
+		// 		// console.log(await conn.get_connected(this.app, initialFile))
 
-				const current_settings = this.settings.focusMakerSettings
-				const focusMaker = new FocusMaker(current_settings, this.app)
-				const ruleFactory = this.ruleInstances[0]
-				let initialFile = view.file
-				if (initialFile == null) {
-					return
-				}
-				if (ruleFactory == null) {
-					return
-				}
-				for (let i = 0; i < 10; i++) {
-					initialFile = await applyFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
-					if (initialFile == null) {
-						return
-					}
-					initialFile = await rollbackFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
-					if (initialFile == null) {
-						return
-					}
-				}
-			}
-		})
+		// 		const current_settings = this.settings.focusMakerSettings
+		// 		const focusMaker = new FocusMaker(current_settings, this.app)
+		// 		const ruleFactory = this.ruleInstances[0]
+		// 		let initialFile = view.file
+		// 		if (initialFile == null) {
+		// 			return
+		// 		}
+		// 		if (ruleFactory == null) {
+		// 			return
+		// 		}
+		// 		for (let i = 0; i < 10; i++) {
+		// 			initialFile = await applyFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
+		// 			if (initialFile == null) {
+		// 				return
+		// 			}
+		// 			initialFile = await rollbackFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
+		// 			if (initialFile == null) {
+		// 				return
+		// 			}
+		// 		}
+		// 	}
+		// })
 
 		this.addCommand({
 			id: 'total-remove-hashtag',
 			name: 'Totally remove the tag from vault',
 			callback: async () => {
-				const current_settings = this.settings.focusMakerSettings
-				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
-
-				console.log(districtFiles.length)
-				districtFiles.forEach(async (fp) =>
-					await removeTagFromFileIfNeeded(this.app, fp, current_settings.resultTag)
-				) // async!
+				await removeResultTagFromVault(this.app, this.settings.focusMakerSettings)
 			}
 		})
 		this.addCommand({
 			id: 'total-move-back-files',
 			name: "Move all files back to original",
 			callback: async () => {
-				const current_settings = this.settings.focusMakerSettings
-				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
-
-				console.log(districtFiles.length)
-				districtFiles.forEach(async (fp) => await moveFileFromAndRemoveMeta(this.app, fp, current_settings.movedNameFrontmatter))
+				await moveAllFilesBackToOriginal(this.app, this.settings.focusMakerSettings)
 			}
 		})
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
-				const normalizePath = (path: string): string => path.replace(/\/+$/, '');
 				const current_settings = this.settings.focusMakerSettings
 				const focusMaker = new FocusMaker(current_settings, this.app)
 				const getTraversal = async () => {
@@ -136,7 +119,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 					return new RuleTraversal(ruleFactory)
 				}
 				if (file instanceof TFolder) {
-					if (normalizePath(file.path) === normalizePath(current_settings.resultFolder)) {
+					if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
 						menu.addItem((item) => menuItems.moveBackFromFolder(item, current_settings.resultFolder, current_settings.movedNameFrontmatter, this.app))
 					}
 
@@ -158,74 +141,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			id: 'focus-graph',
 			name: 'Filter graph view to show only selected files',
 			callback: async () => {
-				const graphOptions = this.getGraphOptions()
-				if (!graphOptions) {
-					new Notice("graph view is unavaliable")
-					return;
-				}
-				// this.settings.savedFilters = graphOptions.search;
-
-				await this.saveSettings();
-				const current_settings = this.settings.focusMakerSettings
-				const markModes = current_settings.markNoteModes
-				if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
-					graphOptions.search = `tag:${current_settings.resultTag}`
-				} else if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
-					graphOptions.search = `path:${current_settings.resultFolder}`
-				}
-				if (!this.checkGraphPlugin()) return;
-
-
-				const graphLeaf = this.getGraphLeaf();
-				if (!graphLeaf) {
-					return;
-				}
-
-				// Получаем текущую конфигурацию
-				const graphView = (graphLeaf.view as any);
-				const currentFilters = graphView.dataEngine?.options;
-
-				if (!currentFilters) {
-					return;
-				}
-
-				// Сохраняем текущие фильтры
-				const newFilters = {
-					...currentFilters,
-					search: graphOptions.search
-				};
-				graphView.dataEngine.setOptions(newFilters);
+				await focusGraphView(this.app, this.settings.focusMakerSettings)
 			}
 		});
-	}
-	getGraphOptions(): any {
-		// @ts-ignore
-		const internal = this.app.internalPlugins
-		const graph = internal?.plugins?.graph?.instance;
-		const options = graph?.options
-		return options
-	}
-	// Проверка доступности core-плагина "Граф"
-	checkGraphPlugin(): boolean {
-		const graphPlugin = (this.app as any).internalPlugins?.plugins?.graph;
-
-		if (!graphPlugin) {
-			new Notice('Core-плагин "Граф" не найден');
-			return false;
-		}
-
-		if (!graphPlugin.enabled) {
-			new Notice('Core-плагин "Граф" отключён. Включите его в настройках.');
-			return false;
-		}
-
-		return true;
-	}
-
-	// Получить открытый граф
-	getGraphLeaf() {
-		const leaves = this.app.workspace.getLeavesOfType('graph');
-		return leaves.length > 0 ? leaves[0] : null;
 	}
 
 	onunload() {
@@ -241,150 +159,56 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.updateSettingDependend()
 	}
 	public updateSettingDependend() {
-		const current_connections: Connection[] = []
-		for (const connectionConfig of this.settings.connectionConfigs) {
-			if (typeof connectionConfig.title !== "string") {
-				continue
-			}
-			try {
-				current_connections.push(this.connectionRegistry.fromConfig(connectionConfig, current_connections))
-			} catch (error) {
-				new Notice(`Connection '${connectionConfig.title}' was ignored: ${error instanceof Error ? error.message : String(error)}`)
-			}
-		}
+		const current_connections = createConnectionInstances(this.settings.connectionConfigs, this.connectionRegistry)
 		this.connectionInstances = current_connections
 
-		const current_rules: NewRuleFactory[] = []
-		for (const ruleConfig of this.settings.ruleConfigs) {
-			if (typeof ruleConfig.title !== "string") {
-				continue
-			}
-			try {
-				current_rules.push(this.ruleRegistry.fromConfig(ruleConfig, current_connections))
-			} catch (error) {
-				new Notice(`Rule '${ruleConfig.title}' was ignored: ${error instanceof Error ? error.message : String(error)}`)
-			}
-		}
+		const current_rules = createRuleInstances(this.settings.ruleConfigs, this.ruleRegistry, current_connections)
 		this.ruleInstances = current_rules
 
 		const current_settings = this.settings.focusMakerSettings
-		const markModes = current_settings.markNoteModes
 		const focusMaker = new FocusMaker(current_settings, this.app)
-		let apply_name: string;
-		let rollback_name: string;
-		if (markModes.contains(settings.MarkNoteMode.ADD_TAG) && (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER))) {
-			apply_name = "add tag and move to folder"
-			rollback_name = "remove tag and return to original directory"
-		} else if (markModes.contains(settings.MarkNoteMode.ADD_TAG)) {
-			apply_name = "add tag"
-			rollback_name = "remove tag"
-		} else if (markModes.contains(settings.MarkNoteMode.MOVE_TO_FOLDER)) {
-			apply_name = "move to folder"
-			rollback_name = "return to original directory"
-		} else {
-			apply_name = ""
-			rollback_name = ""
-		}
+		const { apply_name, rollback_name } = getFocusActionNames(current_settings)
 		this.addCommand({
 			id: 'implement-chain',
 			name: 'Apply rule chain starts with this file: ' + apply_name,
 			editorCallback: async (editor: Editor, view) => {
-				var initialFile = view.file
-				if (initialFile == null) {
-					return
-				}
-				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
-				if (ruleFactory == null) {
-					return
-				}
-				const traversal = new RuleTraversal(ruleFactory)
-
-				const derivativeNotes = await traversal.go(this.app, [initialFile])
-				await focusMaker.doDependendOn(derivativeNotes)
+				await applyRuleChainToFile(this.app, view.file, this.ruleInstances, focusMaker)
 			}
 		})
 		this.addCommand({
 			id: 'reverse-chain',
 			name: 'Rollback rule chain starts with this file: ' + rollback_name,
 			editorCallback: async (editor: Editor, view) => {
-				var initialFile = view.file
-				if (initialFile == null) {
-					return
-				}
-				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
-				if (ruleFactory == null) {
-					return
-				}
-				const traversal = new RuleTraversal(ruleFactory)
-
-				const derivativeNotes = await traversal.go(this.app, [initialFile])
-				await focusMaker.reverseDependendOn(derivativeNotes)
+				await rollbackRuleChainFromFile(this.app, view.file, this.ruleInstances, focusMaker)
 			}
 		})
 		this.addCommand({
 			id: 'from-search',
-			name: 'Apply rules starting with search results' + apply_name,
+			name: 'Apply rules starting with search results: ' + apply_name,
 			callback: async () => {
-				const searchView = this.app.workspace.getLeavesOfType('search')[0]?.view as SearchViewWithFiles | undefined;
-
-				if (!searchView?.dom?.getFiles) {
-					new Notice('The core search plugin is not enabled', 5000);
-					return;
-				}
-
-				const searchResults = searchView.dom.getFiles();
-
-				if (!searchResults.length) {
-					new Notice('No search results available', 5000);
-					return;
-				}
-
-				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
-				if (ruleFactory == null) {
-					return
-				}
-				const traversal = new RuleTraversal(ruleFactory)
-
-				const derivativeNotes = await traversal.go(this.app, searchResults)
-				await focusMaker.doDependendOn(derivativeNotes)
+				await applyRuleChainToSearchResults(this.app, this.ruleInstances, focusMaker)
 			}
 		})
 		this.addCommand({
 			id: 'total-remove-from-front',
 			name: `Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
 			callback: async () => {
-				const current_settings = this.settings.focusMakerSettings
-				var districtFiles: TFile[] = getAllFilesWithFrontmatter(this.app, current_settings.movedNameFrontmatter)
-
-				console.log(districtFiles.length)
-				districtFiles.forEach(async (fp) => await removeMetaFromFile(this.app, fp, current_settings.movedNameFrontmatter))
+				await removeMovedFrontmatterFromVault(this.app, this.settings.focusMakerSettings)
 			}
 		})
 
 		this.addCommand({
 			id: 'move-the-tag-to-folder',
-			name: `Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
+			name: `Tag->folder. Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
 			callback: async () => {
-				const current_settings = this.settings.focusMakerSettings
-				var districtFiles: TFile[] = getAllFilesWithTag(this.app, current_settings.resultTag)
-
-				console.log(districtFiles.length)
-				districtFiles.forEach(async (fp) =>
-					await moveFileToAndAddMeta(this.app, fp, current_settings.resultFolder, current_settings.movedNameFrontmatter)
-				) // async!
+				await moveTaggedFilesToResultFolder(this.app, this.settings.focusMakerSettings)
 			}
 		})
 		this.addCommand({
 			id: 'add-tag-to-the-folder',
-			name: `Add for in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
+			name: `Folder->tag. Add for files in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
 			callback: async () => {
-				const current_settings = this.settings.focusMakerSettings
-				var districtFiles: TFile[] = getAllFilesInFolder(this.app, current_settings.resultFolder)
-
-				console.log(districtFiles.length)
-				districtFiles.forEach(async (fp) =>
-					await addTagToFileIfNeeded(this.app, fp, current_settings.resultTag)
-				)
+				await addResultTagToResultFolder(this.app, this.settings.focusMakerSettings)
 			}
 		})
 	}

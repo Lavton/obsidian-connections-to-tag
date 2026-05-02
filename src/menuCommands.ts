@@ -168,12 +168,12 @@ export function checkGraphPlugin(app: App): boolean {
 	const graphPlugin = (app as any).internalPlugins?.plugins?.graph
 
 	if (!graphPlugin) {
-		new Notice('Core-плагин "Граф" не найден')
+		new Notice('Core plugin "Graph" was not found')
 		return false
 	}
 
 	if (!graphPlugin.enabled) {
-		new Notice('Core-плагин "Граф" отключён. Включите его в настройках.')
+		new Notice('Core plugin "Graph" is disabled. Enable it in the settings.')
 		return false
 	}
 

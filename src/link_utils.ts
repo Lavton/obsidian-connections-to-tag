@@ -4,7 +4,7 @@ import { App, TFile } from "obsidian";
 export function extractLinksFromString(text: string): string[] {
 	const links: string[] = [];
 
-	// 1. Wikilinks: [[link]] или [[link|alias]]
+	// 1. Wikilinks: [[link]] or [[link|alias]]
 	const wikilinkRegex = /\[\[([^\]|#]+)(?:#[^\]|]*)?\|?[^\]]*\]\]/g;
 	let match;
 	while ((match = wikilinkRegex.exec(text)) !== null) {
@@ -15,7 +15,7 @@ export function extractLinksFromString(text: string): string[] {
 	const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
 	while ((match = markdownLinkRegex.exec(text)) !== null) {
 		const link = match[2].trim();
-		// Пропускаем внешние URL и якоря
+		// Skip external URLs and anchors
 		if (!link.startsWith('http') && !link.startsWith('#') && !link.startsWith('mailto:')) {
 			// remove #
 			const cleanLink = link.split('#')[0];
@@ -25,7 +25,7 @@ export function extractLinksFromString(text: string): string[] {
 		}
 	}
 
-	// 3. Embedded files: ![[image.png]] или ![[note]]
+	// 3. Embedded files: ![[image.png]] or ![[note]]
 	const embedRegex = /!\[\[([^\]|#]+)(?:#[^\]|]*)?\|?[^\]]*\]\]/g;
 	while ((match = embedRegex.exec(text)) !== null) {
 		links.push(match[1].trim());

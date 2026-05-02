@@ -138,21 +138,21 @@ async function addTagToFileFronmatter(app: App, file: TFile, tag: string): Promi
 	const currentFile = getCurrentFile(app, file)
 	if (currentFile == null) { return file }
 	if (!(await tagsAccessStrategy.shouldAddFrontmatterTag(app, currentFile, tag))) { return currentFile }
-	// Используем API для безопасной работы с YAML-секцией
+	// Use the API to work safely with the YAML section
 	await app.fileManager.processFrontMatter(currentFile, (fm) => {
-		// В YAML теги хранятся без символа '#'
+		// YAML stores tags without the '#' symbol
 		// const tagValue = tag.stagetAllFilesWithTagrtsWith('#') ? tag.substring(1) : tag;
 
-		// Если свойства 'tags' нет, создаем его как массив с одним тегом
+		// If the 'tags' property does not exist, create it as an array with one tag
 		if (!fm.tags) {
 			fm.tags = [tag];
 		} else {
-			// Если 'tags' уже есть, убеждаемся, что это массив
+			// If 'tags' already exists, make sure it is an array
 			if (!Array.isArray(fm.tags)) {
-				// Если это не массив (например, просто строка), преобразуем в массив
+				// If it is not an array (for example, just a string), convert it to an array
 				fm.tags = String(fm.tags).split(/, ?/).map(t => t.trim());
 			}
-			// Добавляем новый тег, если его еще нет
+			// Add the new tag if it is not already present
 			if (!fm.tags.includes(tag)) {
 				fm.tags.push(tag);
 			}
@@ -166,18 +166,18 @@ async function removeTagFromFileFrontmatter(app: App, file: TFile, tag: string):
 	if (!(await tagsAccessStrategy.shouldRemoveFrontmatterTag(app, currentFile, tag))) { return currentFile }
 
 	await app.fileManager.processFrontMatter(currentFile, (fm) => {
-		// Если свойства 'tags' нет или это не массив, ничего не делаем
+		// If the 'tags' property does not exist or is not an array, do nothing
 		if (!fm.tags || !Array.isArray(fm.tags)) {
 			return;
 		}
 
 		// const tagValue = tag.startsWith('#') ? tag.substring(1) : tag;
 
-		// Фильтруем массив, удаляя нужный тег
+		// Filter the array and remove the requested tag
 		fm.tags = fm.tags.filter((t: string) => t !== tag);
 
-		// Если после фильтрации массив тегов оказался пустым,
-		// удаляем само свойство 'tags' из YAML.
+		// If the tags array is empty after filtering,
+		// remove the 'tags' property from YAML.
 		if (fm.tags.length === 0) {
 			delete fm.tags;
 		}

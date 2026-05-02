@@ -55,7 +55,7 @@ export function getFilesInFrontmatter(app: App, source: TFile): Record<string, T
 	const result: Record<string, TFile[]> = {};
 
 	for (const [key, value] of Object.entries(frontmatter)) {
-		// Пропускаем служебные ключи Obsidian
+		// Skip Obsidian internal keys
 		if (key === 'position') continue;
 
 		const links = extractLinksFromFrontmatter(value);
@@ -107,7 +107,7 @@ export function getBackwardLinks(app: App, initial: TFile): TFile[] {
 // @deprecated
 export function getBackwardFilesFromFronmatter(app: App, initial: TFile, frontKeys: string[]): TFile[] {
 	if (frontKeys.length === 0) return []
-	// смотрим все "обратные" файлы и оставляем те, у которых есть ссылка на initial (через фронтматтер)
+	// Check all backlink files and keep the ones that link to initial through frontmatter
 	const backwardLinks = getBackwardLinks(app, initial)
 	const goodBackLinks = backwardLinks.filter((t) =>
 		hasThisFileForwardLink(app, t, initial, frontKeys)
@@ -118,18 +118,17 @@ export function getBackwardFilesFromFronmatter(app: App, initial: TFile, frontKe
 
 function hasThisFileForwardLink(app: App, source: TFile, dest: TFile, frontKeys: string[]): boolean {
 	const allDestFiles = getForwardFilesFromFrontmatter(app, source, frontKeys)
-	// сравниваем по пути (или по другой уникальной метке, если используете другую)
-	// console.log({allDestFiles})
+	// Compare by path, or by another unique marker if you use one
 	return allDestFiles.map((f) => f.path).includes(dest.path)
 
 }
 export function removeFrontmatter(content: string): string {
-	// Проверяем, начинается ли файл с ---
+	// Check whether the file starts with ---
 	if (!content.startsWith('---')) {
 		return content;
 	}
 
-	// Ищем закрывающий ---
+	// Look for the closing ---
 	const lines = content.split('\n');
 	let endIndex = -1;
 
@@ -140,12 +139,12 @@ export function removeFrontmatter(content: string): string {
 		}
 	}
 
-	// Если нашли закрывающий ---, возвращаем текст после него
+	// If the closing --- was found, return the text after it
 	if (endIndex !== -1) {
 		return lines.slice(endIndex + 1).join('\n');
 	}
 
-	// Если не нашли закрывающий ---, возвращаем весь текст
+	// If the closing --- was not found, return the full text
 	return content;
 }
 
@@ -173,12 +172,12 @@ export function findTextFragment(
 			return content.slice(start_indexes[0][0], end_indexes[end_indexes.length - 1][0] + end_indexes[end_indexes.length - 1][1])
 		}
 
-		// проверяем, надо ли пройти на следующий endPosition 
+		// Check whether we need to move to the next endPosition
 		if (start_indexes[startPosition][0] > end_indexes[endPosition][0]) {
 			endPosition += 1;
 			continue
 		}
-		// идём пока не дохдим до ближайшего к endPosition 
+		// Continue until we reach the closest item to endPosition
 
 		if (startPosition == start_indexes.length - 1) {
 			return content.slice(start_indexes[startPosition][0], end_indexes[endPosition][0] + end_indexes[endPosition][1])
@@ -202,8 +201,8 @@ export function findAllOccurrences(
 	const results: Array<[number, number]> = [];
 
 	if (is_regexp) {
-		// Интерпретируем to_find как регулярное выражение
-		const flags = 'g'; // Глобальный поиск
+		// Interpret to_find as a regular expression
+		const flags = 'g'; // Global search
 		const regex = new RegExp(to_find, flags);
 		let match: RegExpExecArray | null;
 
@@ -212,13 +211,13 @@ export function findAllOccurrences(
 			const length = match[0].length;
 			results.push([startIndex, length]);
 
-			// Защита от бесконечного цикла при пустых совпадениях
+			// Prevent an infinite loop on empty matches
 			if (match[0].length === 0) {
 				regex.lastIndex++;
 			}
 		}
 	} else {
-		// Обычный поиск подстроки
+		// Plain substring search
 		let startIndex = 0;
 
 		while (true) {
@@ -240,36 +239,36 @@ export function convertToLinePositions(
 	matches: Array<[number, number]>,
 	lines: string[]
 ): Array<[[number, number], [number, number]]> {
-	// Сортируем массив по начальному индексу
+	// Sort the array by the start index
 	// const sortedMatches = [...matches].sort((a, b) => a[0] - b[0]);
 
-	// Разбиваем content на строки и вычисляем их длины
+	// Split content into lines and calculate their lengths
 	const lineLengths: number[] = [];
-	const lineStarts: number[] = [0]; // Абсолютные позиции начала каждой строки
+	const lineStarts: number[] = [0]; // Absolute start positions for each line
 
 	let currentPos = 0;
 	for (let i = 0; i < lines.length; i++) {
 		lineLengths.push(lines[i].length);
 		if (i < lines.length - 1) {
-			currentPos += lines[i].length + 1; // +1 для символа новой строки
+			currentPos += lines[i].length + 1; // +1 for the newline character
 			lineStarts.push(currentPos);
 		}
 	}
 
 	const result: Array<[[number, number], [number, number]]> = [];
-	let lineIndex = 0; // Указатель на текущую строку
+	let lineIndex = 0; // Pointer to the current line
 
 	for (const [startIndex, length] of matches) {
 		const endIndex = startIndex + length;
 
-		// Находим строку начала подстроки
+		// Find the line where the substring starts
 		while (lineIndex < lineStarts.length - 1 && lineStarts[lineIndex + 1] <= startIndex) {
 			lineIndex++;
 		}
 		const startLine = lineIndex;
 		const startColumn = startIndex - lineStarts[startLine];
 
-		// Находим строку окончания подстроки
+		// Find the line where the substring ends
 		let endLineIndex = lineIndex;
 		while (endLineIndex < lineStarts.length - 1 && lineStarts[endLineIndex + 1] < endIndex) {
 			endLineIndex++;

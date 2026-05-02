@@ -58,41 +58,6 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this, this));
 		this.updateSettingDependend() 
-		// this.addCommand({
-		// 	id: 'test-connection',
-		// 	name: 'Test Connection',
-		// 	editorCallback: async (editor: Editor, view) => {
-		// 		// var initialFile = view.file
-		// 		// if (initialFile == null) {
-		// 		// 	return
-		// 		// }
-		// 		// const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
-		// 		// console.log(conn)
-		// 		// console.log(await conn.get_connected(this.app, initialFile))
-
-		// 		const current_settings = this.settings.focusMakerSettings
-		// 		const focusMaker = new FocusMaker(current_settings, this.app)
-		// 		const ruleFactory = this.ruleInstances[0]
-		// 		let initialFile = view.file
-		// 		if (initialFile == null) {
-		// 			return
-		// 		}
-		// 		if (ruleFactory == null) {
-		// 			return
-		// 		}
-		// 		for (let i = 0; i < 10; i++) {
-		// 			initialFile = await applyFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
-		// 			if (initialFile == null) {
-		// 				return
-		// 			}
-		// 			initialFile = await rollbackFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
-		// 			if (initialFile == null) {
-		// 				return
-		// 			}
-		// 		}
-		// 	}
-		// })
-
 		this.addCommand({
 			id: 'total-remove-hashtag',
 			name: 'Totally remove the tag from vault',
@@ -132,11 +97,10 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 					menu.addItem((item) => menuItems.rollbackChainFromFile(item, file, this.app, getTraversal, focusMaker))
 
 				}
-				// menu.addItem((item) => menuItems.pureRemovingFromIgnoreList(item, dirpath, ignoreList, this.app));
 
 			})
 		)
-		// Команда 1: Сохранить текущие фильтры и установить #focus_on
+		// Command 1: save the current filters and set #focus_on
 		this.addCommand({
 			id: 'focus-graph',
 			name: 'Filter graph view to show only selected files',
@@ -211,5 +175,40 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				await addResultTagToResultFolder(this.app, this.settings.focusMakerSettings)
 			}
 		})
+		// this.addCommand({
+		// 	id: 'test-connection',
+		// 	name: 'Test Connection',
+		// 	editorCallback: async (editor: Editor, view) => {
+		// 		// var initialFile = view.file
+		// 		// if (initialFile == null) {
+		// 		// 	return
+		// 		// }
+		// 		// const conn = this.connectionRegistry.fromConfig(this.settings.connectionConfigs[0], [])
+		// 		// console.log(conn)
+		// 		// console.log(await conn.get_connected(this.app, initialFile))
+
+		// 		const current_settings = this.settings.focusMakerSettings
+		// 		const focusMaker = new FocusMaker(current_settings, this.app)
+		// 		const ruleFactory = this.ruleInstances[0]
+		// 		let initialFile = view.file
+		// 		if (initialFile == null) {
+		// 			return
+		// 		}
+		// 		if (ruleFactory == null) {
+		// 			return
+		// 		}
+		// 		for (let i = 0; i < 10; i++) {
+		// 			initialFile = await applyFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
+		// 			if (initialFile == null) {
+		// 				return
+		// 			}
+		// 			initialFile = await rollbackFocusAndFindNewInitialFile(this.app, ruleFactory, focusMaker, initialFile)
+		// 			if (initialFile == null) {
+		// 				return
+		// 			}
+		// 		}
+		// 	}
+		// })
+
 	}
 }

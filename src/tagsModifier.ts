@@ -12,7 +12,7 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
         var frontmatterTagInfo2 = null
     }
     if (frontmatterTagInfo2 != null) {
-        // ищем среди фронтметтер
+        // Search in frontmatter
         if (Array.isArray(frontmatterTagInfo2)) {
             return frontmatterTagInfo2
         } else {
@@ -22,7 +22,7 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
             // }
         }
     } else {
-        // ищем среди полного файла
+        // Search in the full file
         var content: string = await app.vault.cachedRead(file)
         var lines = content.split("\n")
         var tagStart = `${tag}::`
@@ -41,7 +41,7 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
         // if (linesWithTag.length == 0) {
             // return null
         // }
-        // return linesWithTag.join(", ").split(",").map(l => l.trim()) // TODO: тут не обработаются заметки с ',' в названии!
+        // return linesWithTag.join(", ").split(",").map(l => l.trim()) // TODO: this does not handle notes with ',' in the name!
     }
     // return null
 }

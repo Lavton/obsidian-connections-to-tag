@@ -28,6 +28,12 @@ import type { NewRule, NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
 import { applyFocusAndFindNewInitialFile, rollbackFocusAndFindNewInitialFile } from 'src/tests/ui_manual';
 
+type SearchViewWithFiles = {
+	dom?: {
+		getFiles?: () => TFile[];
+	};
+};
+
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings!: settings.ConnectionsToTagSettings;
@@ -313,6 +319,34 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 				const derivativeNotes = await traversal.go(this.app, [initialFile])
 				await focusMaker.reverseDependendOn(derivativeNotes)
+			}
+		})
+		this.addCommand({
+			id: 'from-search',
+			name: 'Apply rules starting with search results' + apply_name,
+			callback: async () => {
+				const searchView = this.app.workspace.getLeavesOfType('search')[0]?.view as SearchViewWithFiles | undefined;
+
+				if (!searchView?.dom?.getFiles) {
+					new Notice('The core search plugin is not enabled', 5000);
+					return;
+				}
+
+				const searchResults = searchView.dom.getFiles();
+
+				if (!searchResults.length) {
+					new Notice('No search results available', 5000);
+					return;
+				}
+
+				const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
+				if (ruleFactory == null) {
+					return
+				}
+				const traversal = new RuleTraversal(ruleFactory)
+
+				const derivativeNotes = await traversal.go(this.app, searchResults)
+				await focusMaker.doDependendOn(derivativeNotes)
 			}
 		})
 		this.addCommand({

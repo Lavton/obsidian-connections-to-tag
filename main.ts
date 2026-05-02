@@ -22,6 +22,7 @@ import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 import type { NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
 import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
+import type { StateSnapshot } from 'src/cancellation';
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings!: settings.ConnectionsToTagSettings;
@@ -30,6 +31,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
 	ruleRegistry: RuleRegistry = new RuleRegistry();
 	ruleInstances: NewRuleFactory[] = [];
+	history: StateSnapshot[] = [];
 
 
 	async onload() {

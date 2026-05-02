@@ -7,29 +7,31 @@ import { RuleTraversal } from "src/models/traversal";
 import type { FocusMaker } from "src/service/focus_marker";
 import { selectRuleFactory } from "src/service/rule_factory_picker";
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from "src/tagsUtils";
+import { createStateSnapshot, HistoryElement, StateSnapshot, type HistoryDirection } from "src/cancellation";
 
-type SearchViewWithFiles = {
-	dom?: {
-		getFiles?: () => TFile[];
-	};
-};
 
-export async function removeResultTagFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
+export async function removeResultTagFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
+	const previousPaths = districtFiles.map(f => f.path)
 
-	console.log(districtFiles.length)
-	await Promise.all(districtFiles.map((fp) =>
+	const movedFiles = await Promise.all(districtFiles.map((fp) =>
 		removeTagFromFileIfNeeded(app, fp, focusMakerSettings.resultTag)
 	))
+
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "rollback", [MarkNoteMode.ADD_TAG])
 }
 
-export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
+export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithFrontmatter(app, focusMakerSettings.movedNameFrontmatter)
+	const previousPaths = districtFiles.map(f => f.path)
 
-	console.log(districtFiles.length)
-	await Promise.all(districtFiles.map((fp) =>
+	const movedFiles = await Promise.all(districtFiles.map((fp) =>
 		moveFileFromAndRemoveMeta(app, fp, focusMakerSettings.movedNameFrontmatter)
 	))
+
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "rollback", [MarkNoteMode.MOVE_TO_FOLDER])
 }
 
 export async function removeMovedFrontmatterFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
@@ -41,22 +43,27 @@ export async function removeMovedFrontmatterFromVault(app: App, focusMakerSettin
 	))
 }
 
-export async function moveTaggedFilesToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
+export async function moveTaggedFilesToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
+	const previousPaths = districtFiles.map(f => f.path)
 
-	console.log(districtFiles.length)
-	await Promise.all(districtFiles.map((fp) =>
+	const movedFiles = await Promise.all(districtFiles.map((fp) =>
 		moveFileToAndAddMeta(app, fp, focusMakerSettings.resultFolder, focusMakerSettings.movedNameFrontmatter)
 	))
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "apply", [MarkNoteMode.MOVE_TO_FOLDER])
 }
 
-export async function addResultTagToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
+export async function addResultTagToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesInFolder(app, focusMakerSettings.resultFolder)
+	const previousPaths = districtFiles.map(f => f.path)
 
 	console.log(districtFiles.length)
-	await Promise.all(districtFiles.map((fp) =>
+	const movedFiles = await Promise.all(districtFiles.map((fp) =>
 		addTagToFileIfNeeded(app, fp, focusMakerSettings.resultTag)
 	))
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "apply", [MarkNoteMode.ADD_TAG])
 }
 
 export async function applyRuleChainToFile(
@@ -64,18 +71,21 @@ export async function applyRuleChainToFile(
 	initialFile: TFile | null | undefined,
 	ruleInstances: NewRuleFactory[],
 	focusMaker: FocusMaker,
-): Promise<void> {
+): Promise<StateSnapshot | null> {
 	if (initialFile == null) {
-		return
+		return null 
 	}
 	const ruleFactory = await selectRuleFactory(app, ruleInstances)
 	if (ruleFactory == null) {
-		return
+		return null
 	}
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, [initialFile])
-	await focusMaker.doDependendOn(derivativeNotes)
+	const previousPaths = derivativeNotes.map(f => f.path)
+	const movedFiles = await focusMaker.doDependendOn(derivativeNotes)
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMaker.settings, currentPaths, previousPaths, "apply", null)
 }
 
 export async function rollbackRuleChainFromFile(
@@ -83,46 +93,59 @@ export async function rollbackRuleChainFromFile(
 	initialFile: TFile | null | undefined,
 	ruleInstances: NewRuleFactory[],
 	focusMaker: FocusMaker,
-): Promise<void> {
+): Promise<StateSnapshot | null> {
 	if (initialFile == null) {
-		return
+		return null
 	}
 	const ruleFactory = await selectRuleFactory(app, ruleInstances)
 	if (ruleFactory == null) {
-		return
+		return null
 	}
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, [initialFile])
-	await focusMaker.reverseDependendOn(derivativeNotes)
+	const previousPaths = derivativeNotes.map(f => f.path)
+	const movedFiles = await focusMaker.reverseDependendOn(derivativeNotes)
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMaker.settings, currentPaths, previousPaths, "rollback", null)
 }
+
+
+type SearchViewWithFiles = {
+	dom?: {
+		getFiles?: () => TFile[];
+	};
+};
 
 export async function applyRuleChainToSearchResults(
 	app: App,
 	ruleInstances: NewRuleFactory[],
 	focusMaker: FocusMaker,
-): Promise<void> {
+): Promise<StateSnapshot | null> {
 	const searchView = app.workspace.getLeavesOfType('search')[0]?.view as SearchViewWithFiles | undefined
 
 	if (!searchView?.dom?.getFiles) {
 		new Notice('The core search plugin is not enabled', 5000)
-		return
+		return null
 	}
 
 	const searchResults = searchView.dom.getFiles()
 	if (!searchResults.length) {
 		new Notice('No search results available', 5000)
-		return
+		return null
 	}
 
 	const ruleFactory = await selectRuleFactory(app, ruleInstances)
 	if (ruleFactory == null) {
-		return
+		return null
 	}
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, searchResults)
-	await focusMaker.doDependendOn(derivativeNotes)
+	const previousPaths = derivativeNotes.map(f => f.path)
+	const movedFiles = await focusMaker.doDependendOn(derivativeNotes)
+	const currentPaths = movedFiles.map(f => f.path)
+	return createStateSnapshot(focusMaker.settings, currentPaths, previousPaths, "apply", null)
 }
 
 export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {

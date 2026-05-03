@@ -80,7 +80,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		this.history = this.history.slice(-10)
 	}
 
-	private async runWithHistory(action: () => StateSnapshot | null | void | Promise<StateSnapshot | null | void>): Promise<void> {
+	private async runWithHistory(action: () => StateSnapshot | null | Promise<StateSnapshot | null>): Promise<void> {
 		const snapshot = await action()
 		this.saveHistorySnapshot(snapshot)
 	}
@@ -174,9 +174,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			this,
 			'focus-graph',
 			'Filter graph view to show only selected files',
-			() => this.runWithHistory(() =>
-				focusGraphView(this.app, this.settings.focusMakerSettings)
-			),
+			async () => {
+				await focusGraphView(this.app, this.settings.focusMakerSettings)
+			},
 		);
 	}
 
@@ -230,9 +230,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			this,
 			'total-remove-from-front',
 			`Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
-			() => this.runWithHistory(() =>
-				removeMovedFrontmatterFromVault(this.app, this.settings.focusMakerSettings)
-			),
+			async () => {
+				await removeMovedFrontmatterFromVault(this.app, this.settings.focusMakerSettings)
+			},
 		)
 
 		addCommand(

@@ -1,4 +1,4 @@
-import type { App, TFile } from "obsidian";
+import { Notice, type App, type TFile } from "obsidian";
 import type { StateSnapshot } from "src/cancellation";
 import type { Traversal } from "src/models/traversal";
 import type { FocusMaker } from "src/service/focus_marker";
@@ -47,12 +47,15 @@ export async function runTraversalFocusOperation({
 			onFound: (_file, foundCount) => progressModal.setTraversalFound(foundCount),
 		})
 		if (progressModal.isCancelled()) {
+			showCancelledNotice()
 			return null
 		}
 		const result = await runFocusStage(progressModal, focusMaker, derivativeNotes, mode)
+		showOperationNotice(progressModal.isCancelled(), result.updatedFiles.length)
 		return result.snapshot
 	} catch (error) {
 		if (error instanceof OperationCancelled) {
+			showCancelledNotice()
 			return null
 		}
 		throw error
@@ -73,6 +76,7 @@ export async function runFocusOnlyOperation({
 
 	try {
 		const result = await runFocusStage(progressModal, focusMaker, files, mode)
+		showOperationNotice(progressModal.isCancelled(), result.updatedFiles.length)
 		return result.snapshot
 	} finally {
 		progressModal.finish()
@@ -98,4 +102,16 @@ async function runFocusStage(
 		onProcessed: (_file, processedCount, totalCount) =>
 			progressModal.setFocusProgress(processedCount, totalCount),
 	})
+}
+
+function showOperationNotice(cancelled: boolean, processedCount: number): void {
+	if (cancelled) {
+		showCancelledNotice()
+		return
+	}
+	new Notice(`Completed. Processed ${processedCount} files`)
+}
+
+function showCancelledNotice(): void {
+	new Notice("Cancelled")
 }

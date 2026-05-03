@@ -28,7 +28,7 @@ function addMenuCommand(
 	menu: Menu,
 	title: string,
 	icon: string,
-	callback: () => void | Promise<void>,
+	callback: () => void | Promise<StateSnapshot | null>,
 ): void {
 	menu.addItem((item) => {
 		item.setTitle(title)
@@ -123,7 +123,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (file instanceof TFolder) {
 					if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
 						addMenuCommand(menu, "Move files back from the folder", "undo-2", () =>
-							menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter)
+							menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
 						)
 					}
 

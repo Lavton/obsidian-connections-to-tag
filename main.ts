@@ -28,7 +28,7 @@ function addMenuCommand(
 	menu: Menu,
 	title: string,
 	icon: string,
-	callback: () => void | Promise<StateSnapshot | null>,
+	callback: () => void | Promise<void>,
 ): void {
 	menu.addItem((item) => {
 		item.setTitle(title)
@@ -72,6 +72,18 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	ruleInstances: NewRuleFactory[] = [];
 	history: StateSnapshot[] = [];
 
+	private saveHistorySnapshot(snapshot: StateSnapshot | null | void): void {
+		if (snapshot == null) {
+			return
+		}
+		this.history.push(snapshot)
+		this.history = this.history.slice(-10)
+	}
+
+	private async runWithHistory(action: () => StateSnapshot | null | void | Promise<StateSnapshot | null | void>): Promise<void> {
+		const snapshot = await action()
+		this.saveHistorySnapshot(snapshot)
+	}
 
 	async onload() {
 		this.connectionRegistry
@@ -97,17 +109,17 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			this,
 			'total-remove-hashtag',
 			'Totally remove the tag from vault',
-			async () => {
-				await removeResultTagFromVault(this.app, this.settings.focusMakerSettings)
-			},
+			() => this.runWithHistory(() =>
+				removeResultTagFromVault(this.app, this.settings.focusMakerSettings)
+			),
 		)
 		addCommand(
 			this,
 			'total-move-back-files',
 			"Move all files back to original",
-			async () => {
-				await moveAllFilesBackToOriginal(this.app, this.settings.focusMakerSettings)
-			},
+			() => this.runWithHistory(() =>
+				moveAllFilesBackToOriginal(this.app, this.settings.focusMakerSettings)
+			),
 		)
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
@@ -123,24 +135,34 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				if (file instanceof TFolder) {
 					if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
 						addMenuCommand(menu, "Move files back from the folder", "undo-2", () =>
-							menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
+							this.runWithHistory(() =>
+								menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
+							)
 						)
 					}
 
 					addMenuCommand(menu, "Apply chain starts with every sub-file", "redo-2", () =>
-						menuItems.applyChainToFolder(this.app, file, getTraversal, focusMaker)
+						this.runWithHistory(() =>
+							menuItems.applyChainToFolder(this.app, file, getTraversal, focusMaker)
+						)
 					)
 					addMenuCommand(menu, "Rollback chain starts with every sub-file", "undo-2", () =>
-						menuItems.rollbackChainFromFolder(this.app, file, getTraversal, focusMaker)
+						this.runWithHistory(() =>
+							menuItems.rollbackChainFromFolder(this.app, file, getTraversal, focusMaker)
+						)
 					)
 
 				}
 				if (file instanceof TFile) {
 					addMenuCommand(menu, "Apply chain starts with the file", "redo-2", () =>
-						menuItems.applyChainToFile(this.app, file, getTraversal, focusMaker)
+						this.runWithHistory(() =>
+							menuItems.applyChainToFile(this.app, file, getTraversal, focusMaker)
+						)
 					)
 					addMenuCommand(menu, "Rollback chain starts with the file", "undo-2", () =>
-						menuItems.rollbackChainFromFile(this.app, file, getTraversal, focusMaker)
+						this.runWithHistory(() =>
+							menuItems.rollbackChainFromFile(this.app, file, getTraversal, focusMaker)
+						)
 					)
 
 				}
@@ -152,9 +174,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			this,
 			'focus-graph',
 			'Filter graph view to show only selected files',
-			async () => {
-				await focusGraphView(this.app, this.settings.focusMakerSettings)
-			},
+			() => this.runWithHistory(() =>
+				focusGraphView(this.app, this.settings.focusMakerSettings)
+			),
 		);
 	}
 
@@ -184,50 +206,50 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			this,
 			'implement-chain',
 			'Apply rule chain starts with this file: ' + apply_name,
-			async (editor, view) => {
-				await applyRuleChainToFile(this.app, view.file, this.ruleInstances, focusMaker)
-			},
+			(editor, view) => this.runWithHistory(() =>
+				applyRuleChainToFile(this.app, view.file, this.ruleInstances, focusMaker)
+			),
 		)
 		addEditorCommand(
 			this,
 			'reverse-chain',
 			'Rollback rule chain starts with this file: ' + rollback_name,
-			async (editor, view) => {
-				await rollbackRuleChainFromFile(this.app, view.file, this.ruleInstances, focusMaker)
-			},
+			(editor, view) => this.runWithHistory(() =>
+				rollbackRuleChainFromFile(this.app, view.file, this.ruleInstances, focusMaker)
+			),
 		)
 		addCommand(
 			this,
 			'from-search',
 			'Apply rules starting with search results: ' + apply_name,
-			async () => {
-				await applyRuleChainToSearchResults(this.app, this.ruleInstances, focusMaker)
-			},
+			() => this.runWithHistory(() =>
+				applyRuleChainToSearchResults(this.app, this.ruleInstances, focusMaker)
+			),
 		)
 		addCommand(
 			this,
 			'total-remove-from-front',
 			`Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
-			async () => {
-				await removeMovedFrontmatterFromVault(this.app, this.settings.focusMakerSettings)
-			},
+			() => this.runWithHistory(() =>
+				removeMovedFrontmatterFromVault(this.app, this.settings.focusMakerSettings)
+			),
 		)
 
 		addCommand(
 			this,
 			'move-the-tag-to-folder',
 			`Tag->folder. Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
-			async () => {
-				await moveTaggedFilesToResultFolder(this.app, this.settings.focusMakerSettings)
-			},
+			() => this.runWithHistory(() =>
+				moveTaggedFilesToResultFolder(this.app, this.settings.focusMakerSettings)
+			),
 		)
 		addCommand(
 			this,
 			'add-tag-to-the-folder',
 			`Folder->tag. Add for files in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
-			async () => {
-				await addResultTagToResultFolder(this.app, this.settings.focusMakerSettings)
-			},
+			() => this.runWithHistory(() =>
+				addResultTagToResultFolder(this.app, this.settings.focusMakerSettings)
+			),
 		)
 		// this.addCommand({
 		// 	id: 'test-connection',

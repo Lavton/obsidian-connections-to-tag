@@ -33,6 +33,10 @@ export class FocusMaker {
 			if (options?.signal?.isCancelled()) {
 				break
 			}
+			// await waitForTestOperationDelay()
+			if (options?.signal?.isCancelled()) {
+				break
+			}
 			previousPaths.push(f.path)
 			let currentFile = f
 			if (markModes.includes(settings.MarkNoteMode.ADD_TAG)) {
@@ -53,6 +57,10 @@ export class FocusMaker {
 		const markModes = this.settings.markNoteModes
 		const updatedFiles: TFile[] = []
 		for (const f of files) {
+			if (options?.signal?.isCancelled()) {
+				break
+			}
+			await waitForTestOperationDelay()
 			if (options?.signal?.isCancelled()) {
 				break
 			}

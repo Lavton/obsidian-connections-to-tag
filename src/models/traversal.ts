@@ -50,6 +50,8 @@ export class RuleTraversal implements Traversal {
 			const [currentFile, currentRule] = notesQueue.pop() ?? [undefined, undefined]
 			// console.log({currentFile, currentRule})
 			if (currentFile == undefined || currentRule == undefined) continue
+			// await waitForTestOperationDelay()
+			throwIfCancelled(options?.signal)
 			const filesToLookAt: TFile[] = []
 			const c = await connection.get_connected(app, currentFile)
 			throwIfCancelled(options?.signal)

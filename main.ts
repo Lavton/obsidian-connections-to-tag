@@ -1,4 +1,4 @@
-import { Editor, Menu, Plugin, TFile, TFolder } from 'obsidian';
+import { Menu, Plugin, TFile, TFolder, type Command } from 'obsidian';
 import * as settings from 'src/settings/settings'
 import type { Connection } from 'src/connections/connections';
 import { RuleTraversal } from 'src/models/traversal';
@@ -23,6 +23,45 @@ import type { NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
 import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
 import type { StateSnapshot } from 'src/cancellation';
+
+function addMenuCommand(
+	menu: Menu,
+	title: string,
+	icon: string,
+	callback: () => void | Promise<void>,
+): void {
+	menu.addItem((item) => {
+		item.setTitle(title)
+			.setIcon(icon)
+			.onClick(callback)
+	})
+}
+
+function addCommand(
+	plugin: Plugin,
+	id: string,
+	name: string,
+	callback: NonNullable<Command['callback']>,
+): void {
+	plugin.addCommand({
+		id,
+		name,
+		callback,
+	})
+}
+
+function addEditorCommand(
+	plugin: Plugin,
+	id: string,
+	name: string,
+	editorCallback: NonNullable<Command['editorCallback']>,
+): void {
+	plugin.addCommand({
+		id,
+		name,
+		editorCallback,
+	})
+}
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings!: settings.ConnectionsToTagSettings;
@@ -54,20 +93,22 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new settings.ConnectionsToTagSettingTab(this.app, this, this));
 		this.updateSettingDependend() 
-		this.addCommand({
-			id: 'total-remove-hashtag',
-			name: 'Totally remove the tag from vault',
-			callback: async () => {
+		addCommand(
+			this,
+			'total-remove-hashtag',
+			'Totally remove the tag from vault',
+			async () => {
 				await removeResultTagFromVault(this.app, this.settings.focusMakerSettings)
-			}
-		})
-		this.addCommand({
-			id: 'total-move-back-files',
-			name: "Move all files back to original",
-			callback: async () => {
+			},
+		)
+		addCommand(
+			this,
+			'total-move-back-files',
+			"Move all files back to original",
+			async () => {
 				await moveAllFilesBackToOriginal(this.app, this.settings.focusMakerSettings)
-			}
-		})
+			},
+		)
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {
 				const current_settings = this.settings.focusMakerSettings
@@ -81,29 +122,40 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				}
 				if (file instanceof TFolder) {
 					if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
-						menu.addItem((item) => menuItems.moveBackFromFolder(item, current_settings.resultFolder, current_settings.movedNameFrontmatter, this.app))
+						addMenuCommand(menu, "Move files back from the folder", "undo-2", () =>
+							menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter)
+						)
 					}
 
-					menu.addItem((item) => menuItems.applyChainToFolder(item, file, this.app, getTraversal, focusMaker))
-					menu.addItem((item) => menuItems.rollbackChainFromFolder(item, file, this.app, getTraversal, focusMaker))
+					addMenuCommand(menu, "Apply chain starts with every sub-file", "redo-2", () =>
+						menuItems.applyChainToFolder(this.app, file, getTraversal, focusMaker)
+					)
+					addMenuCommand(menu, "Rollback chain starts with every sub-file", "undo-2", () =>
+						menuItems.rollbackChainFromFolder(this.app, file, getTraversal, focusMaker)
+					)
 
 				}
 				if (file instanceof TFile) {
-					menu.addItem((item) => menuItems.applyChainToFile(item, file, this.app, getTraversal, focusMaker))
-					menu.addItem((item) => menuItems.rollbackChainFromFile(item, file, this.app, getTraversal, focusMaker))
+					addMenuCommand(menu, "Apply chain starts with the file", "redo-2", () =>
+						menuItems.applyChainToFile(this.app, file, getTraversal, focusMaker)
+					)
+					addMenuCommand(menu, "Rollback chain starts with the file", "undo-2", () =>
+						menuItems.rollbackChainFromFile(this.app, file, getTraversal, focusMaker)
+					)
 
 				}
 
 			})
 		)
 		// Command 1: save the current filters and set #focus_on
-		this.addCommand({
-			id: 'focus-graph',
-			name: 'Filter graph view to show only selected files',
-			callback: async () => {
+		addCommand(
+			this,
+			'focus-graph',
+			'Filter graph view to show only selected files',
+			async () => {
 				await focusGraphView(this.app, this.settings.focusMakerSettings)
-			}
-		});
+			},
+		);
 	}
 
 	onunload() {
@@ -128,49 +180,55 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		const current_settings = this.settings.focusMakerSettings
 		const focusMaker = new FocusMaker(current_settings, this.app)
 		const { apply_name, rollback_name } = getFocusActionNames(current_settings)
-		this.addCommand({
-			id: 'implement-chain',
-			name: 'Apply rule chain starts with this file: ' + apply_name,
-			editorCallback: async (editor: Editor, view) => {
+		addEditorCommand(
+			this,
+			'implement-chain',
+			'Apply rule chain starts with this file: ' + apply_name,
+			async (editor, view) => {
 				await applyRuleChainToFile(this.app, view.file, this.ruleInstances, focusMaker)
-			}
-		})
-		this.addCommand({
-			id: 'reverse-chain',
-			name: 'Rollback rule chain starts with this file: ' + rollback_name,
-			editorCallback: async (editor: Editor, view) => {
+			},
+		)
+		addEditorCommand(
+			this,
+			'reverse-chain',
+			'Rollback rule chain starts with this file: ' + rollback_name,
+			async (editor, view) => {
 				await rollbackRuleChainFromFile(this.app, view.file, this.ruleInstances, focusMaker)
-			}
-		})
-		this.addCommand({
-			id: 'from-search',
-			name: 'Apply rules starting with search results: ' + apply_name,
-			callback: async () => {
+			},
+		)
+		addCommand(
+			this,
+			'from-search',
+			'Apply rules starting with search results: ' + apply_name,
+			async () => {
 				await applyRuleChainToSearchResults(this.app, this.ruleInstances, focusMaker)
-			}
-		})
-		this.addCommand({
-			id: 'total-remove-from-front',
-			name: `Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
-			callback: async () => {
+			},
+		)
+		addCommand(
+			this,
+			'total-remove-from-front',
+			`Remove all '${current_settings.movedNameFrontmatter}' frontmatter`,
+			async () => {
 				await removeMovedFrontmatterFromVault(this.app, this.settings.focusMakerSettings)
-			}
-		})
+			},
+		)
 
-		this.addCommand({
-			id: 'move-the-tag-to-folder',
-			name: `Tag->folder. Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
-			callback: async () => {
+		addCommand(
+			this,
+			'move-the-tag-to-folder',
+			`Tag->folder. Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
+			async () => {
 				await moveTaggedFilesToResultFolder(this.app, this.settings.focusMakerSettings)
-			}
-		})
-		this.addCommand({
-			id: 'add-tag-to-the-folder',
-			name: `Folder->tag. Add for files in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
-			callback: async () => {
+			},
+		)
+		addCommand(
+			this,
+			'add-tag-to-the-folder',
+			`Folder->tag. Add for files in folder '${current_settings.resultFolder}' tag ${current_settings.resultTag}`,
+			async () => {
 				await addResultTagToResultFolder(this.app, this.settings.focusMakerSettings)
-			}
-		})
+			},
+		)
 		// this.addCommand({
 		// 	id: 'test-connection',
 		// 	name: 'Test Connection',

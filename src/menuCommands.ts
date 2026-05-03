@@ -4,7 +4,7 @@ import { getAllFilesInFolder, getAllFilesWithFrontmatter, moveFileFromAndRemoveM
 import type { NewRuleFactory } from "src/rules/new_rule";
 import { MarkNoteMode, type FocusMakerSettings } from "src/settings/settings";
 import { RuleTraversal } from "src/models/traversal";
-import type { FocusMaker } from "src/service/focus_marker";
+import { FocusMaker } from "src/service/focus_marker";
 import { selectRuleFactory } from "src/service/rule_factory_picker";
 import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from "src/tagsUtils";
 import { createStateSnapshot, HistoryElement, StateSnapshot, type HistoryDirection } from "src/cancellation";
@@ -14,9 +14,8 @@ export async function removeResultTagFromVault(app: App, focusMakerSettings: Foc
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
 	const previousPaths = districtFiles.map(f => f.path)
 
-	const movedFiles = await Promise.all(districtFiles.map((fp) =>
-		removeTagFromFileIfNeeded(app, fp, focusMakerSettings.resultTag)
-	))
+	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
+	const movedFiles = await focusMaker.reverseDependendOn(districtFiles)
 
 	const currentPaths = movedFiles.map(f => f.path)
 	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "rollback", [MarkNoteMode.ADD_TAG])
@@ -26,9 +25,8 @@ export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: F
 	const districtFiles = getAllFilesWithFrontmatter(app, focusMakerSettings.movedNameFrontmatter)
 	const previousPaths = districtFiles.map(f => f.path)
 
-	const movedFiles = await Promise.all(districtFiles.map((fp) =>
-		moveFileFromAndRemoveMeta(app, fp, focusMakerSettings.movedNameFrontmatter)
-	))
+	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
+	const movedFiles = await focusMaker.reverseDependendOn(districtFiles)
 
 	const currentPaths = movedFiles.map(f => f.path)
 	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "rollback", [MarkNoteMode.MOVE_TO_FOLDER])
@@ -37,7 +35,6 @@ export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: F
 export async function removeMovedFrontmatterFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
 	const districtFiles = getAllFilesWithFrontmatter(app, focusMakerSettings.movedNameFrontmatter)
 
-	console.log(districtFiles.length)
 	await Promise.all(districtFiles.map((fp) =>
 		removeMetaFromFile(app, fp, focusMakerSettings.movedNameFrontmatter)
 	))
@@ -47,9 +44,8 @@ export async function moveTaggedFilesToResultFolder(app: App, focusMakerSettings
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
 	const previousPaths = districtFiles.map(f => f.path)
 
-	const movedFiles = await Promise.all(districtFiles.map((fp) =>
-		moveFileToAndAddMeta(app, fp, focusMakerSettings.resultFolder, focusMakerSettings.movedNameFrontmatter)
-	))
+	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
+	const movedFiles = await focusMaker.doDependendOn(districtFiles)
 	const currentPaths = movedFiles.map(f => f.path)
 	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "apply", [MarkNoteMode.MOVE_TO_FOLDER])
 }
@@ -58,10 +54,8 @@ export async function addResultTagToResultFolder(app: App, focusMakerSettings: F
 	const districtFiles = getAllFilesInFolder(app, focusMakerSettings.resultFolder)
 	const previousPaths = districtFiles.map(f => f.path)
 
-	console.log(districtFiles.length)
-	const movedFiles = await Promise.all(districtFiles.map((fp) =>
-		addTagToFileIfNeeded(app, fp, focusMakerSettings.resultTag)
-	))
+	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
+	const movedFiles = await focusMaker.doDependendOn(districtFiles)
 	const currentPaths = movedFiles.map(f => f.path)
 	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "apply", [MarkNoteMode.ADD_TAG])
 }

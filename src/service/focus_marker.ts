@@ -11,6 +11,12 @@ export class FocusMaker {
 		this.settings = settings
 		this.app = app
 	}
+	withMark(markNoteModes: settings.MarkNoteMode[]): FocusMaker {
+		return new FocusMaker({
+			...this.settings,
+			markNoteModes,
+		}, this.app)
+	} 
 
 	async doDependendOn(files: TFile[]): Promise<TFile[]> {
 		const markModes = this.settings.markNoteModes

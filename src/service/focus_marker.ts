@@ -5,7 +5,6 @@ import type { FocusMakerSettings } from "src/settings/settings";
 import * as settings from 'src/settings/settings'
 import { addTagToFileIfNeeded, removeTagFromFileIfNeeded } from "src/tagsUtils";
 import type { FocusProgressOptions } from "./operation_control";
-import { waitForTestOperationDelay } from "../../tests/test_delay";
 
 export type FocusResult = {
 	updatedFiles: TFile[];
@@ -61,7 +60,7 @@ export class FocusMaker {
 			if (options?.signal?.isCancelled()) {
 				break
 			}
-			await waitForTestOperationDelay()
+			// await waitForTestOperationDelay()
 			if (options?.signal?.isCancelled()) {
 				break
 			}

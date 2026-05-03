@@ -2,8 +2,8 @@ import { Notice, type App, type TFile } from "obsidian";
 import type { StateSnapshot } from "src/cancellation";
 import type { Traversal } from "src/models/traversal";
 import type { FocusMaker } from "src/service/focus_marker";
+import { DeferredProgressController } from "./deferred_progress";
 import { OperationCancelled } from "./operation_control";
-import { OperationProgressModal } from "./progress_modal";
 
 type FocusMode = "apply" | "rollback"
 
@@ -37,21 +37,21 @@ export async function runTraversalFocusOperation({
 		return null
 	}
 
-	const progressModal = new OperationProgressModal(app, title)
-	progressModal.open()
-	progressModal.setTraversalFound(0)
+	const progress = new DeferredProgressController(app, title)
+	progress.start()
+	progress.setTraversalFound(0)
 
 	try {
 		const derivativeNotes = await traversal.go(app, seed, {
-			signal: progressModal,
-			onFound: (_file, foundCount) => progressModal.setTraversalFound(foundCount),
+			signal: progress,
+			onFound: (_file, foundCount) => progress.setTraversalFound(foundCount),
 		})
-		if (progressModal.isCancelled()) {
+		if (progress.isCancelled()) {
 			showCancelledNotice()
 			return null
 		}
-		const result = await runFocusStage(progressModal, focusMaker, derivativeNotes, mode)
-		showOperationNotice(progressModal.isCancelled(), result.updatedFiles.length)
+		const result = await runFocusStage(progress, focusMaker, derivativeNotes, mode)
+		showOperationNotice(progress.isCancelled(), result.updatedFiles.length)
 		return result.snapshot
 	} catch (error) {
 		if (error instanceof OperationCancelled) {
@@ -60,7 +60,7 @@ export async function runTraversalFocusOperation({
 		}
 		throw error
 	} finally {
-		progressModal.finish()
+		progress.finish()
 	}
 }
 
@@ -71,36 +71,36 @@ export async function runFocusOnlyOperation({
 	focusMaker,
 	mode,
 }: RunFocusOnlyOperationParams): Promise<StateSnapshot> {
-	const progressModal = new OperationProgressModal(app, title)
-	progressModal.open()
+	const progress = new DeferredProgressController(app, title)
+	progress.start()
 
 	try {
-		const result = await runFocusStage(progressModal, focusMaker, files, mode)
-		showOperationNotice(progressModal.isCancelled(), result.updatedFiles.length)
+		const result = await runFocusStage(progress, focusMaker, files, mode)
+		showOperationNotice(progress.isCancelled(), result.updatedFiles.length)
 		return result.snapshot
 	} finally {
-		progressModal.finish()
+		progress.finish()
 	}
 }
 
 async function runFocusStage(
-	progressModal: OperationProgressModal,
+	progress: DeferredProgressController,
 	focusMaker: FocusMaker,
 	files: TFile[],
 	mode: FocusMode,
 ) {
-	progressModal.startFocus(files.length)
+	progress.startFocus(files.length)
 	if (mode === "apply") {
 		return await focusMaker.doDependendOn(files, {
-			signal: progressModal,
+			signal: progress,
 			onProcessed: (_file, processedCount, totalCount) =>
-				progressModal.setFocusProgress(processedCount, totalCount),
+				progress.setFocusProgress(processedCount, totalCount),
 		})
 	}
 	return await focusMaker.reverseDependendOn(files, {
-		signal: progressModal,
+		signal: progress,
 		onProcessed: (_file, processedCount, totalCount) =>
-			progressModal.setFocusProgress(processedCount, totalCount),
+			progress.setFocusProgress(processedCount, totalCount),
 	})
 }
 

@@ -1,8 +1,8 @@
 import { Modal, Setting, type App, type ButtonComponent, type ProgressBarComponent } from "obsidian";
-import type { CancellationSignal } from "./operation_control";
 
-export class OperationProgressModal extends Modal implements CancellationSignal {
+export class OperationProgressModal extends Modal {
 	private readonly operationTitle: string
+	private readonly onCancel: () => void
 	private cancelled = false
 	private closingFromOperation = false
 	private stageEl: HTMLElement | null = null
@@ -12,9 +12,10 @@ export class OperationProgressModal extends Modal implements CancellationSignal 
 	private progressBar: ProgressBarComponent | null = null
 	private cancelButton: ButtonComponent | null = null
 
-	constructor(app: App, operationTitle: string) {
+	constructor(app: App, operationTitle: string, onCancel: () => void) {
 		super(app)
 		this.operationTitle = operationTitle
+		this.onCancel = onCancel
 	}
 
 	onOpen(): void {
@@ -64,10 +65,6 @@ export class OperationProgressModal extends Modal implements CancellationSignal 
 		this.contentEl.empty()
 	}
 
-	isCancelled(): boolean {
-		return this.cancelled
-	}
-
 	setTraversalFound(foundCount: number): void {
 		this.stageEl?.setText("Finding connected notes...")
 		this.detailEl?.setText("Traversal is scanning note connections.")
@@ -95,7 +92,11 @@ export class OperationProgressModal extends Modal implements CancellationSignal 
 	}
 
 	private requestCancel(): void {
+		if (this.cancelled) {
+			return
+		}
 		this.cancelled = true
+		this.onCancel()
 		this.stageEl?.setText("Cancelling...")
 		this.detailEl?.setText("The current file operation will finish before the action stops.")
 		this.cancelButton?.setDisabled(true)

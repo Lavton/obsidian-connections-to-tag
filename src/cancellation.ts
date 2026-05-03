@@ -39,18 +39,11 @@ export function createStateSnapshot(
 	currentPaths: string[],
 	previousPaths: string[],
 	direction: HistoryDirection,
-	markNoteModes: MarkNoteMode[] | null,
 ): StateSnapshot {
 	const history = previousPaths.map((previousPath, index) => new HistoryElement({
 		current_path: currentPaths[index],
 		previous_path: previousPath,
 	}))
-	const snapshotSettings: FocusMakerSettings = markNoteModes == null
-		? focusMakerSettings
-		: {
-			...focusMakerSettings,
-			markNoteModes,
-		}
 
-	return new StateSnapshot(history, direction, snapshotSettings)
+	return new StateSnapshot(history, direction, focusMakerSettings)
 }

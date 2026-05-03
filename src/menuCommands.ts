@@ -1,35 +1,29 @@
 import type { App, TFile } from "obsidian";
 import { Notice } from "obsidian";
-import { getAllFilesInFolder, getAllFilesWithFrontmatter, moveFileFromAndRemoveMeta, moveFileToAndAddMeta, removeMetaFromFile } from "src/folderUtils";
+import { getAllFilesInFolder, getAllFilesWithFrontmatter, removeMetaFromFile } from "src/folderUtils";
 import type { NewRuleFactory } from "src/rules/new_rule";
 import { MarkNoteMode, type FocusMakerSettings } from "src/settings/settings";
 import { RuleTraversal } from "src/models/traversal";
 import { FocusMaker } from "src/service/focus_marker";
 import { selectRuleFactory } from "src/service/rule_factory_picker";
-import { addTagToFileIfNeeded, getAllFilesWithTag, removeTagFromFileIfNeeded } from "src/tagsUtils";
-import { createStateSnapshot, HistoryElement, StateSnapshot, type HistoryDirection } from "src/cancellation";
+import { getAllFilesWithTag } from "src/tagsUtils";
+import { StateSnapshot } from "src/cancellation";
 
 
 export async function removeResultTagFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
-	const previousPaths = districtFiles.map(f => f.path)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
-	const movedFiles = await focusMaker.reverseDependendOn(districtFiles)
-
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "rollback", [MarkNoteMode.ADD_TAG])
+	const result = await focusMaker.reverseDependendOn(districtFiles)
+	return result.snapshot
 }
 
 export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithFrontmatter(app, focusMakerSettings.movedNameFrontmatter)
-	const previousPaths = districtFiles.map(f => f.path)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
-	const movedFiles = await focusMaker.reverseDependendOn(districtFiles)
-
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "rollback", [MarkNoteMode.MOVE_TO_FOLDER])
+	const result = await focusMaker.reverseDependendOn(districtFiles)
+	return result.snapshot
 }
 
 export async function removeMovedFrontmatterFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
@@ -42,22 +36,18 @@ export async function removeMovedFrontmatterFromVault(app: App, focusMakerSettin
 
 export async function moveTaggedFilesToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
-	const previousPaths = districtFiles.map(f => f.path)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
-	const movedFiles = await focusMaker.doDependendOn(districtFiles)
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "apply", [MarkNoteMode.MOVE_TO_FOLDER])
+	const result = await focusMaker.doDependendOn(districtFiles)
+	return result.snapshot
 }
 
 export async function addResultTagToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesInFolder(app, focusMakerSettings.resultFolder)
-	const previousPaths = districtFiles.map(f => f.path)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
-	const movedFiles = await focusMaker.doDependendOn(districtFiles)
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMakerSettings, currentPaths, previousPaths, "apply", [MarkNoteMode.ADD_TAG])
+	const result = await focusMaker.doDependendOn(districtFiles)
+	return result.snapshot
 }
 
 export async function applyRuleChainToFile(
@@ -76,10 +66,8 @@ export async function applyRuleChainToFile(
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, [initialFile])
-	const previousPaths = derivativeNotes.map(f => f.path)
-	const movedFiles = await focusMaker.doDependendOn(derivativeNotes)
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMaker.settings, currentPaths, previousPaths, "apply", null)
+	const result = await focusMaker.doDependendOn(derivativeNotes)
+	return result.snapshot
 }
 
 export async function rollbackRuleChainFromFile(
@@ -98,10 +86,8 @@ export async function rollbackRuleChainFromFile(
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, [initialFile])
-	const previousPaths = derivativeNotes.map(f => f.path)
-	const movedFiles = await focusMaker.reverseDependendOn(derivativeNotes)
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMaker.settings, currentPaths, previousPaths, "rollback", null)
+	const result = await focusMaker.reverseDependendOn(derivativeNotes)
+	return result.snapshot
 }
 
 
@@ -136,10 +122,8 @@ export async function applyRuleChainToSearchResults(
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, searchResults)
-	const previousPaths = derivativeNotes.map(f => f.path)
-	const movedFiles = await focusMaker.doDependendOn(derivativeNotes)
-	const currentPaths = movedFiles.map(f => f.path)
-	return createStateSnapshot(focusMaker.settings, currentPaths, previousPaths, "apply", null)
+	const result = await focusMaker.doDependendOn(derivativeNotes)
+	return result.snapshot
 }
 
 export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
@@ -150,9 +134,9 @@ export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSet
 	}
 
 	const markModes = focusMakerSettings.markNoteModes
-	if (markModes.contains(MarkNoteMode.ADD_TAG)) {
+	if (markModes.includes(MarkNoteMode.ADD_TAG)) {
 		graphOptions.search = `tag:${focusMakerSettings.resultTag}`
-	} else if (markModes.contains(MarkNoteMode.MOVE_TO_FOLDER)) {
+	} else if (markModes.includes(MarkNoteMode.MOVE_TO_FOLDER)) {
 		graphOptions.search = `path:${focusMakerSettings.resultFolder}`
 	}
 	if (!checkGraphPlugin(app)) return

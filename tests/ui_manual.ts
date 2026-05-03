@@ -13,9 +13,9 @@ export async function applyFocusAndFindNewInitialFile(
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, [initialFile])
-	const newFiles: TFile[] = await focusMaker.doDependendOn(derivativeNotes)
+	const { updatedFiles } = await focusMaker.doDependendOn(derivativeNotes)
 	const initialFileIndex = derivativeNotes.findIndex((file) => file === initialFile || file.path === initialFilePath)
-	return initialFileIndex >= 0 ? newFiles[initialFileIndex] : null
+	return initialFileIndex >= 0 ? updatedFiles[initialFileIndex] : null
 }
 
 export async function rollbackFocusAndFindNewInitialFile(
@@ -28,7 +28,7 @@ export async function rollbackFocusAndFindNewInitialFile(
 	const traversal = new RuleTraversal(ruleFactory)
 
 	const derivativeNotes = await traversal.go(app, [initialFile])
-	const newFiles: TFile[] = await focusMaker.reverseDependendOn(derivativeNotes)
+	const { updatedFiles } = await focusMaker.reverseDependendOn(derivativeNotes)
 	const initialFileIndex = derivativeNotes.findIndex((file) => file === initialFile || file.path === initialFilePath)
-	return initialFileIndex >= 0 ? newFiles[initialFileIndex] : null
+	return initialFileIndex >= 0 ? updatedFiles[initialFileIndex] : null
 }

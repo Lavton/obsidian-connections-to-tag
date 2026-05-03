@@ -4,6 +4,7 @@ import { moveFileFromAndRemoveMeta, moveFileToAndAddMeta } from "src/folderUtils
 import type { FocusMakerSettings } from "src/settings/settings";
 import * as settings from 'src/settings/settings'
 import { addTagToFileIfNeeded, removeTagFromFileIfNeeded } from "src/tagsUtils";
+import type { FocusProgressOptions } from "./operation_control";
 
 export type FocusResult = {
 	updatedFiles: TFile[];
@@ -24,11 +25,15 @@ export class FocusMaker {
 		}, this.app)
 	} 
 
-	async doDependendOn(files: TFile[]): Promise<FocusResult> {
-		const previousPaths = files.map(f => f.path)
+	async doDependendOn(files: TFile[], options?: FocusProgressOptions): Promise<FocusResult> {
+		const previousPaths: string[] = []
 		const markModes = this.settings.markNoteModes
 		const updatedFiles: TFile[] = []
 		for (const f of files) {
+			if (options?.signal?.isCancelled()) {
+				break
+			}
+			previousPaths.push(f.path)
 			let currentFile = f
 			if (markModes.includes(settings.MarkNoteMode.ADD_TAG)) {
 				currentFile = await addTagToFileIfNeeded(this.app, currentFile, this.settings.resultTag)
@@ -37,16 +42,21 @@ export class FocusMaker {
 				currentFile = await moveFileToAndAddMeta(this.app, currentFile, this.settings.resultFolder, this.settings.movedNameFrontmatter)
 			}
 			updatedFiles.push(currentFile)
+			options?.onProcessed?.(currentFile, updatedFiles.length, files.length)
 		}
 		const currentPaths = updatedFiles.map(f => f.path)
 		const snapshot = createStateSnapshot(this.settings, currentPaths, previousPaths, "apply")
 		return {updatedFiles, snapshot}
 	}
-	async reverseDependendOn(files: TFile[]): Promise<FocusResult> {
-		const previousPaths = files.map(f => f.path)
+	async reverseDependendOn(files: TFile[], options?: FocusProgressOptions): Promise<FocusResult> {
+		const previousPaths: string[] = []
 		const markModes = this.settings.markNoteModes
 		const updatedFiles: TFile[] = []
 		for (const f of files) {
+			if (options?.signal?.isCancelled()) {
+				break
+			}
+			previousPaths.push(f.path)
 			let currentFile = f
 			if (markModes.includes(settings.MarkNoteMode.ADD_TAG)) {
 				currentFile = await removeTagFromFileIfNeeded(this.app, currentFile, this.settings.resultTag)
@@ -55,6 +65,7 @@ export class FocusMaker {
 				currentFile = await moveFileFromAndRemoveMeta(this.app, currentFile, this.settings.movedNameFrontmatter)
 			}
 			updatedFiles.push(currentFile)
+			options?.onProcessed?.(currentFile, updatedFiles.length, files.length)
 		}
 		const currentPaths = updatedFiles.map(f => f.path)
 		const snapshot = createStateSnapshot(this.settings, currentPaths, previousPaths, "rollback")

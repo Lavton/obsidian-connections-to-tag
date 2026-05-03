@@ -6,3 +6,34 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.connections-to-tag-progress-modal {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.connections-to-tag-progress-stage {
+	font-weight: 600;
+}
+
+.connections-to-tag-progress-detail,
+.connections-to-tag-progress-found {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.connections-to-tag-progress-wrapper .setting-item {
+	border-top: none;
+	padding: 0;
+}
+
+.connections-to-tag-progress-wrapper .setting-item-info {
+	margin-right: 12px;
+}
+
+.connections-to-tag-progress-actions {
+	justify-content: flex-end;
+	border-top: none;
+	padding: 4px 0 0;
+}

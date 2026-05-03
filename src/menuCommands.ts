@@ -6,7 +6,8 @@ import { RuleTraversal } from "src/models/traversal";
 import { FocusMaker } from "src/service/focus_marker";
 import { selectRuleFactory } from "src/service/rule_factory_picker";
 import { getAllFilesWithTag } from "src/tagsUtils";
-import { StateSnapshot } from "src/cancellation";
+import type { StateSnapshot } from "src/cancellation";
+import { runFocusOnlyOperation, runTraversalFocusOperation } from "./service/focus_operation";
 
 function getCurrentFilesFromSnapshot(app: App, stateSnapshot: StateSnapshot): TFile[] {
 	return stateSnapshot.history
@@ -19,9 +20,21 @@ export async function snapshotRedo(app: App, stateSnapshot: StateSnapshot): Prom
 	const currentFiles = getCurrentFilesFromSnapshot(app, stateSnapshot)
 
 	if (stateSnapshot.direction === "apply") {
-		return (await focusMaker.reverseDependendOn(currentFiles)).snapshot
+		return await runFocusOnlyOperation({
+			app,
+			title: "Redo focus action",
+			files: currentFiles,
+			focusMaker,
+			mode: "rollback",
+		})
 	}
-		return (await focusMaker.doDependendOn(currentFiles)).snapshot
+	return await runFocusOnlyOperation({
+		app,
+		title: "Redo focus action",
+		files: currentFiles,
+		focusMaker,
+		mode: "apply",
+	})
 }
 
 export async function snapshotUndo(app: App, stateSnapshot: StateSnapshot): Promise<StateSnapshot> {
@@ -29,9 +42,21 @@ export async function snapshotUndo(app: App, stateSnapshot: StateSnapshot): Prom
 	const currentFiles = getCurrentFilesFromSnapshot(app, stateSnapshot)
 
 	if (stateSnapshot.direction === "apply") {
-		return (await focusMaker.reverseDependendOn(currentFiles)).snapshot
+		return await runFocusOnlyOperation({
+			app,
+			title: "Undo focus action",
+			files: currentFiles,
+			focusMaker,
+			mode: "rollback",
+		})
 	}
-	return (await focusMaker.doDependendOn(currentFiles)).snapshot
+	return await runFocusOnlyOperation({
+		app,
+		title: "Undo focus action",
+		files: currentFiles,
+		focusMaker,
+		mode: "apply",
+	})
 }
 
 
@@ -39,16 +64,26 @@ export async function removeResultTagFromVault(app: App, focusMakerSettings: Foc
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
-	const result = await focusMaker.reverseDependendOn(districtFiles)
-	return result.snapshot
+	return await runFocusOnlyOperation({
+		app,
+		title: "Remove tag from vault",
+		files: districtFiles,
+		focusMaker,
+		mode: "rollback",
+	})
 }
 
 export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesWithFrontmatter(app, focusMakerSettings.movedNameFrontmatter)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
-	const result = await focusMaker.reverseDependendOn(districtFiles)
-	return result.snapshot
+	return await runFocusOnlyOperation({
+		app,
+		title: "Move files back",
+		files: districtFiles,
+		focusMaker,
+		mode: "rollback",
+	})
 }
 
 export async function removeMovedFrontmatterFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
@@ -63,16 +98,26 @@ export async function moveTaggedFilesToResultFolder(app: App, focusMakerSettings
 	const districtFiles = getAllFilesWithTag(app, focusMakerSettings.resultTag)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
-	const result = await focusMaker.doDependendOn(districtFiles)
-	return result.snapshot
+	return await runFocusOnlyOperation({
+		app,
+		title: "Move tagged files to folder",
+		files: districtFiles,
+		focusMaker,
+		mode: "apply",
+	})
 }
 
 export async function addResultTagToResultFolder(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {
 	const districtFiles = getAllFilesInFolder(app, focusMakerSettings.resultFolder)
 
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
-	const result = await focusMaker.doDependendOn(districtFiles)
-	return result.snapshot
+	return await runFocusOnlyOperation({
+		app,
+		title: "Add tag to folder files",
+		files: districtFiles,
+		focusMaker,
+		mode: "apply",
+	})
 }
 
 export async function applyRuleChainToFile(
@@ -88,11 +133,14 @@ export async function applyRuleChainToFile(
 	if (ruleFactory == null) {
 		return null
 	}
-	const traversal = new RuleTraversal(ruleFactory)
-
-	const derivativeNotes = await traversal.go(app, [initialFile])
-	const result = await focusMaker.doDependendOn(derivativeNotes)
-	return result.snapshot
+	return await runTraversalFocusOperation({
+		app,
+		title: "Apply rule chain",
+		seed: [initialFile],
+		getTraversal: async () => new RuleTraversal(ruleFactory),
+		focusMaker,
+		mode: "apply",
+	})
 }
 
 export async function rollbackRuleChainFromFile(
@@ -108,11 +156,14 @@ export async function rollbackRuleChainFromFile(
 	if (ruleFactory == null) {
 		return null
 	}
-	const traversal = new RuleTraversal(ruleFactory)
-
-	const derivativeNotes = await traversal.go(app, [initialFile])
-	const result = await focusMaker.reverseDependendOn(derivativeNotes)
-	return result.snapshot
+	return await runTraversalFocusOperation({
+		app,
+		title: "Rollback rule chain",
+		seed: [initialFile],
+		getTraversal: async () => new RuleTraversal(ruleFactory),
+		focusMaker,
+		mode: "rollback",
+	})
 }
 
 
@@ -144,11 +195,14 @@ export async function applyRuleChainToSearchResults(
 	if (ruleFactory == null) {
 		return null
 	}
-	const traversal = new RuleTraversal(ruleFactory)
-
-	const derivativeNotes = await traversal.go(app, searchResults)
-	const result = await focusMaker.doDependendOn(derivativeNotes)
-	return result.snapshot
+	return await runTraversalFocusOperation({
+		app,
+		title: "Apply rule chain to search results",
+		seed: searchResults,
+		getTraversal: async () => new RuleTraversal(ruleFactory),
+		focusMaker,
+		mode: "apply",
+	})
 }
 
 export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {

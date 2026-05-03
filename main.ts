@@ -157,56 +157,84 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			'Redo last undone focus action',
 			() => this.redoSnapshot(),
 		)
-		this.registerEvent(
-			this.app.workspace.on("file-menu", (menu: Menu, file) => {
-				const current_settings = this.settings.focusMakerSettings
-				const focusMaker = new FocusMaker(current_settings, this.app)
-				const getTraversal = async () => {
-					const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
-					if (ruleFactory == null) {
-						return null
+			this.registerEvent(
+				this.app.workspace.on("file-menu", (menu: Menu, file) => {
+					const current_settings = this.settings.focusMakerSettings
+					const focusMaker = new FocusMaker(current_settings, this.app)
+					const getTraversal = async () => {
+						const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
+						if (ruleFactory == null) {
+							return null
+						}
+						return new RuleTraversal(ruleFactory)
 					}
-					return new RuleTraversal(ruleFactory)
-				}
-				if (file instanceof TFolder) {
-					if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
-						addMenuCommand(menu, "Move files back from the folder", "undo-2", () =>
+					if (file instanceof TFolder) {
+						if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
+							addMenuCommand(menu, "Move files back from the folder", "undo-2", () =>
+								this.runWithHistory(() =>
+									menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
+								)
+							)
+						}
+
+						addMenuCommand(menu, "Apply chain starts with every sub-file", "redo-2", () =>
 							this.runWithHistory(() =>
-								menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
+								menuItems.applyChainToFolder(this.app, file, getTraversal, focusMaker)
 							)
 						)
+						addMenuCommand(menu, "Rollback chain starts with every sub-file", "undo-2", () =>
+							this.runWithHistory(() =>
+								menuItems.rollbackChainFromFolder(this.app, file, getTraversal, focusMaker)
+							)
+						)
+
+					}
+					if (file instanceof TFile) {
+						addMenuCommand(menu, "Apply chain starts with the file", "redo-2", () =>
+							this.runWithHistory(() =>
+								menuItems.applyChainToFile(this.app, file, getTraversal, focusMaker)
+							)
+						)
+						addMenuCommand(menu, "Rollback chain starts with the file", "undo-2", () =>
+							this.runWithHistory(() =>
+								menuItems.rollbackChainFromFile(this.app, file, getTraversal, focusMaker)
+							)
+						)
+
 					}
 
-					addMenuCommand(menu, "Apply chain starts with every sub-file", "redo-2", () =>
-						this.runWithHistory(() =>
-							menuItems.applyChainToFolder(this.app, file, getTraversal, focusMaker)
-						)
-					)
-					addMenuCommand(menu, "Rollback chain starts with every sub-file", "undo-2", () =>
-						this.runWithHistory(() =>
-							menuItems.rollbackChainFromFolder(this.app, file, getTraversal, focusMaker)
-						)
-					)
+				})
+			)
+			this.registerEvent(
+				(this.app.workspace as any).on("files-menu", (menu: Menu, files: unknown[]) => {
+					const current_settings = this.settings.focusMakerSettings
+					const focusMaker = new FocusMaker(current_settings, this.app)
+					const getTraversal = async () => {
+						const ruleFactory = await selectRuleFactory(this.app, this.ruleInstances)
+						if (ruleFactory == null) {
+							return null
+						}
+						return new RuleTraversal(ruleFactory)
+					}
+					const selectedFiles = files.filter((file): file is TFile => file instanceof TFile)
+					if (!selectedFiles.length) {
+						return
+					}
 
-				}
-				if (file instanceof TFile) {
-					addMenuCommand(menu, "Apply chain starts with the file", "redo-2", () =>
+					addMenuCommand(menu, "Apply chain starts with selected files", "redo-2", () =>
 						this.runWithHistory(() =>
-							menuItems.applyChainToFile(this.app, file, getTraversal, focusMaker)
+							menuItems.applyChainToFiles(this.app, selectedFiles, getTraversal, focusMaker)
 						)
 					)
-					addMenuCommand(menu, "Rollback chain starts with the file", "undo-2", () =>
+					addMenuCommand(menu, "Rollback chain starts with selected files", "undo-2", () =>
 						this.runWithHistory(() =>
-							menuItems.rollbackChainFromFile(this.app, file, getTraversal, focusMaker)
+							menuItems.rollbackChainFromFiles(this.app, selectedFiles, getTraversal, focusMaker)
 						)
 					)
-
-				}
-
-			})
-		)
-		// Command 1: save the current filters and set #focus_on
-		addCommand(
+				})
+			)
+			// Command 1: save the current filters and set #focus_on
+			addCommand(
 			this,
 			'focus-graph',
 			'Filter graph view to show only selected files',

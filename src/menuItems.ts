@@ -38,6 +38,24 @@ export async function rollbackChainFromFile(app: App, file: TFile,
 	const derivativeNotes = await traversal.go(app, [file])
 	return (await focusMaker.reverseDependendOn(derivativeNotes)).snapshot
 }
+export async function applyChainToFiles(app: App, files: TFile[],
+	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
+	const traversal = await getTraversal()
+	if (traversal == null) {
+		return null
+	}
+	const derivativeNotes = await traversal.go(app, files)
+	return (await focusMaker.doDependendOn(derivativeNotes)).snapshot
+}
+export async function rollbackChainFromFiles(app: App, files: TFile[],
+	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
+	const traversal = await getTraversal()
+	if (traversal == null) {
+		return null
+	}
+	const derivativeNotes = await traversal.go(app, files)
+	return (await focusMaker.reverseDependendOn(derivativeNotes)).snapshot
+}
 export async function applyChainToFolder(app: App, folder: TFolder,
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
 	const traversal = await getTraversal()

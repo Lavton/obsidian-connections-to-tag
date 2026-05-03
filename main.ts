@@ -1,8 +1,8 @@
-import { Menu, Plugin, TFile, TFolder, type Command } from 'obsidian';
+import { Menu, Notice, Plugin, TFile, TFolder, type Command } from 'obsidian';
 import * as settings from 'src/settings/settings'
 import type { Connection } from 'src/connections/connections';
 import { RuleTraversal } from 'src/models/traversal';
-import { addResultTagToResultFolder, applyRuleChainToFile, applyRuleChainToSearchResults, focusGraphView, moveAllFilesBackToOriginal, moveTaggedFilesToResultFolder, removeMovedFrontmatterFromVault, removeResultTagFromVault, rollbackRuleChainFromFile } from 'src/menuCommands';
+import { addResultTagToResultFolder, applyRuleChainToFile, applyRuleChainToSearchResults, focusGraphView, moveAllFilesBackToOriginal, moveTaggedFilesToResultFolder, removeMovedFrontmatterFromVault, removeResultTagFromVault, rollbackRuleChainFromFile, snapshotRedo, snapshotUndo } from 'src/menuCommands';
 
 import * as menuItems from 'src/menuItems'
 import { FocusMaker } from 'src/service/focus_marker';
@@ -71,6 +71,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	ruleRegistry: RuleRegistry = new RuleRegistry();
 	ruleInstances: NewRuleFactory[] = [];
 	history: StateSnapshot[] = [];
+	future: StateSnapshot[] = [];
 
 	private saveHistorySnapshot(snapshot: StateSnapshot | null | void): void {
 		if (snapshot == null) {
@@ -78,11 +79,34 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		}
 		this.history.push(snapshot)
 		this.history = this.history.slice(-10)
+		this.future = []
 	}
 
 	private async runWithHistory(action: () => StateSnapshot | null | Promise<StateSnapshot | null>): Promise<void> {
 		const snapshot = await action()
 		this.saveHistorySnapshot(snapshot)
+	}
+
+	private async undoSnapshot(): Promise<void> {
+		const snapshot = this.history[this.history.length - 1]
+		if (snapshot == null) {
+			new Notice("Undo is unavailable: history depth reached")
+			return
+		}
+		await snapshotUndo(this.app, snapshot)
+		this.history.pop()
+		this.future.push(snapshot)
+	}
+
+	private async redoSnapshot(): Promise<void> {
+		const snapshot = this.future[this.future.length - 1]
+		if (snapshot == null) {
+			new Notice("Redo is unavailable: history depth reached")
+			return
+		}
+		await snapshotRedo(this.app, snapshot)
+		this.future.pop()
+		this.history.push(snapshot)
 	}
 
 	async onload() {
@@ -120,6 +144,18 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			() => this.runWithHistory(() =>
 				moveAllFilesBackToOriginal(this.app, this.settings.focusMakerSettings)
 			),
+		)
+		addCommand(
+			this,
+			'undo-snapshot',
+			'Undo last focus action',
+			() => this.undoSnapshot(),
+		)
+		addCommand(
+			this,
+			'redo-snapshot',
+			'Redo last undone focus action',
+			() => this.redoSnapshot(),
 		)
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu: Menu, file) => {

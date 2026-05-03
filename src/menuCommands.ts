@@ -1,5 +1,4 @@
-import type { App, TFile } from "obsidian";
-import { Notice } from "obsidian";
+import { Notice, TFile, type App } from "obsidian";
 import { getAllFilesInFolder, getAllFilesWithFrontmatter, removeMetaFromFile } from "src/folderUtils";
 import type { NewRuleFactory } from "src/rules/new_rule";
 import { MarkNoteMode, type FocusMakerSettings } from "src/settings/settings";
@@ -8,6 +7,34 @@ import { FocusMaker } from "src/service/focus_marker";
 import { selectRuleFactory } from "src/service/rule_factory_picker";
 import { getAllFilesWithTag } from "src/tagsUtils";
 import { StateSnapshot } from "src/cancellation";
+
+function getCurrentFilesFromSnapshot(app: App, stateSnapshot: StateSnapshot): TFile[] {
+	return stateSnapshot.history
+		.map((element) => app.vault.getAbstractFileByPath(element.current_path))
+		.filter((file): file is TFile => file instanceof TFile)
+}
+
+export async function snapshotRedo(app: App, stateSnapshot: StateSnapshot): Promise<void> {
+	const focusMaker = new FocusMaker(stateSnapshot.settings, app)
+	const currentFiles = getCurrentFilesFromSnapshot(app, stateSnapshot)
+
+	if (stateSnapshot.direction === "apply") {
+		await focusMaker.doDependendOn(currentFiles)
+		return
+	}
+	await focusMaker.reverseDependendOn(currentFiles)
+}
+
+export async function snapshotUndo(app: App, stateSnapshot: StateSnapshot): Promise<void> {
+	const focusMaker = new FocusMaker(stateSnapshot.settings, app)
+	const currentFiles = getCurrentFilesFromSnapshot(app, stateSnapshot)
+
+	if (stateSnapshot.direction === "apply") {
+		await focusMaker.reverseDependendOn(currentFiles)
+		return
+	}
+	await focusMaker.doDependendOn(currentFiles)
+}
 
 
 export async function removeResultTagFromVault(app: App, focusMakerSettings: FocusMakerSettings): Promise<StateSnapshot> {

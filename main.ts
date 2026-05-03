@@ -93,9 +93,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			new Notice("Undo is unavailable: history depth reached")
 			return
 		}
-		await snapshotUndo(this.app, snapshot)
+		const undoSnapshot = await snapshotUndo(this.app, snapshot)
 		this.history.pop()
-		this.future.push(snapshot)
+		this.future.push(undoSnapshot)
 	}
 
 	private async redoSnapshot(): Promise<void> {
@@ -104,9 +104,9 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			new Notice("Redo is unavailable: history depth reached")
 			return
 		}
-		await snapshotRedo(this.app, snapshot)
+		const redoSnapshot = await snapshotRedo(this.app, snapshot)
 		this.future.pop()
-		this.history.push(snapshot)
+		this.history.push(redoSnapshot)
 	}
 
 	async onload() {

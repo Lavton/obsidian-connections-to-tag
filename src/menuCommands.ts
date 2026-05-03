@@ -14,26 +14,24 @@ function getCurrentFilesFromSnapshot(app: App, stateSnapshot: StateSnapshot): TF
 		.filter((file): file is TFile => file instanceof TFile)
 }
 
-export async function snapshotRedo(app: App, stateSnapshot: StateSnapshot): Promise<void> {
+export async function snapshotRedo(app: App, stateSnapshot: StateSnapshot): Promise<StateSnapshot> {
 	const focusMaker = new FocusMaker(stateSnapshot.settings, app)
 	const currentFiles = getCurrentFilesFromSnapshot(app, stateSnapshot)
 
 	if (stateSnapshot.direction === "apply") {
-		await focusMaker.doDependendOn(currentFiles)
-		return
+		return (await focusMaker.reverseDependendOn(currentFiles)).snapshot
 	}
-	await focusMaker.reverseDependendOn(currentFiles)
+		return (await focusMaker.doDependendOn(currentFiles)).snapshot
 }
 
-export async function snapshotUndo(app: App, stateSnapshot: StateSnapshot): Promise<void> {
+export async function snapshotUndo(app: App, stateSnapshot: StateSnapshot): Promise<StateSnapshot> {
 	const focusMaker = new FocusMaker(stateSnapshot.settings, app)
 	const currentFiles = getCurrentFilesFromSnapshot(app, stateSnapshot)
 
 	if (stateSnapshot.direction === "apply") {
-		await focusMaker.reverseDependendOn(currentFiles)
-		return
+		return (await focusMaker.reverseDependendOn(currentFiles)).snapshot
 	}
-	await focusMaker.doDependendOn(currentFiles)
+	return (await focusMaker.doDependendOn(currentFiles)).snapshot
 }
 
 

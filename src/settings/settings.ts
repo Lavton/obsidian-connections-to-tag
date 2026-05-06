@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 		],
 	},
 	connectionConfigs: [{ type: "trivial-connection", title: "trivial", direction: "forward" }],
-	ruleConfigs: [{ type: "trivial-rule", title: "trivial", connectionTitle: "trivial" }],
+	ruleConfigs: [{ type: "trivial-rule", title: "trivial (only itself)", connectionTitle: "trivial" }],
 }
 
 

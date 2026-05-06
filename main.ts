@@ -15,10 +15,12 @@ import { ArbitraryDangerConnectionDescriptor } from 'src/connections/factories/a
 import { BetweenInTextConnectionDescriptor } from 'src/connections/factories/between_in_text';
 import { JustRegexpConnectionDescriptor } from 'src/connections/factories/just_regexp';
 import { TopInTextConnectionDescriptor } from 'src/connections/factories/top_in_text';
+import { TrivialConnectionDescriptor } from 'src/connections/factories/trivial_connection';
 import { RuleRegistry } from 'src/rules/rule_factory';
 import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
+import { TrivialRuleDescriptor } from 'src/rules/factories/trivial_rule';
 import type { NewRuleFactory } from 'src/rules/new_rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
 import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
@@ -121,12 +123,14 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			.register(BetweenInTextConnectionDescriptor)
 			.register(JustRegexpConnectionDescriptor)
 			.register(TopInTextConnectionDescriptor)
+			.register(TrivialConnectionDescriptor)
 			.register(new YamlTagConnectionDescriptor(this.app))
 			.register(PlusMinusConnectionDescriptor)
 		this.ruleRegistry
 			.register(ToTheEndRuleDescriptor)
 			.register(NStepsRuleDescriptor)
 			.register(ProbabilityRuleDescriptor)
+			.register(TrivialRuleDescriptor)
 
 		await this.loadSettings();
 

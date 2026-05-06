@@ -48,8 +48,8 @@ export const DEFAULT_SETTINGS: ConnectionsToTagSettings = {
 			// MarkNoteMode.MOVE_TO_FOLDER
 		],
 	},
-	connectionConfigs: [{type: "yaml-tag", title: "ooo", direction: "forward"}],
-	ruleConfigs: [],
+	connectionConfigs: [{ type: "trivial-connection", title: "trivial", direction: "forward" }],
+	ruleConfigs: [{ type: "trivial-rule", title: "trivial", connectionTitle: "trivial" }],
 }
 
 

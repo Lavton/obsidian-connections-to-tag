@@ -22,20 +22,42 @@ export function createMarkNoteModesSetting(
 	focusMakerSettings: FocusMakerSettings,
 	saveSettings: () => Promise<void>,
 ): void {
-	new Setting(containerEl)
+	const currentMode = focusMakerSettings.markNoteModes.includes(moveToFolderMode)
+		? moveToFolderMode
+		: addTagMode;
+
+	const setting = new Setting(containerEl)
 		.setName("Apply tag / move to folder")
-		.setDesc("What will be the result of applying chain? All notes will have specific tag or will be moved to specific folder?")
-		.addToggle(toggle => toggle
-			.setValue(focusMakerSettings.markNoteModes.contains(moveToFolderMode))
-			.onChange(async (value) => {
-				if (value) {
-					focusMakerSettings.markNoteModes = [moveToFolderMode];
-				} else {
-					focusMakerSettings.markNoteModes = [addTagMode];
-				}
-				await saveSettings();
-			})
-		);
+		.setDesc("What will be the result of applying chain? All notes will have specific tag or will be moved to specific folder?");
+	setting.controlEl.addClass("connections-to-tag-radio-group");
+
+	const radioName = "connections-to-tag-mark-note-mode";
+
+	const addRadioOption = (value: MarkNoteModeValue, labelText: string): void => {
+		const label = setting.controlEl.createEl("label", {
+			cls: "connections-to-tag-radio-option",
+		});
+		const radio = label.createEl("input", {
+			type: "radio",
+			attr: {
+				name: radioName,
+				value,
+			},
+		});
+
+		radio.checked = currentMode === value;
+		radio.addEventListener("change", async () => {
+			if (!radio.checked) return;
+
+			focusMakerSettings.markNoteModes = [value];
+			await saveSettings();
+		});
+
+		label.createSpan({ text: labelText });
+	};
+
+	addRadioOption(addTagMode, "Apply tag");
+	addRadioOption(moveToFolderMode, "Move to folder");
 }
 
 export function createResultTagSetting(

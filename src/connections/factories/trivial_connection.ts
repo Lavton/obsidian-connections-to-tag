@@ -39,7 +39,7 @@ export const TrivialConnectionDescriptor: ConnectionTypeDescriptor<TrivialConnCo
 	},
 
 	label: "Trivial connection",
-	description: "Returns no connected notes.",
+	description: "Returns no connected notes (only the selected one).",
 	editorComponent: TrivialConnectionEditor,
 
 	createDefaultConfig() {

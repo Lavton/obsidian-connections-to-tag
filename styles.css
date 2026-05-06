@@ -37,3 +37,18 @@ If your plugin does not need CSS, delete this file.
 	border-top: none;
 	padding: 4px 0 0;
 }
+
+.connections-to-tag-radio-group {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	min-width: max-content;
+}
+
+.connections-to-tag-radio-option {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}

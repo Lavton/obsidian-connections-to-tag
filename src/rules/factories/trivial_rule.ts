@@ -48,7 +48,7 @@ export class TrivialRuleConfig implements RuleConfig {
 export const TrivialRuleDescriptor: RuleTypeDescriptor<TrivialRuleConfig> = {
 	type: "trivial-rule",
 	label: "Trivial rule",
-	description: "Never follows connected notes.",
+	description: "Never follows connected notes (Returns only selected one).",
 
 	createInstance(config: TrivialRuleConfig, connection: Connection): RuleFactory {
 		return new FactoryTrivialRule(config.title, connection);

@@ -1,5 +1,5 @@
 import type { App, TFile } from "obsidian";
-import type { NewRule, NewRuleFactory } from "src/rules/new_rule";
+import type { Rule, RuleFactory } from "src/rules/rule";
 import { throwIfCancelled, type TraversalProgressOptions } from "src/service/operation_control";
 
 export interface Traversal {
@@ -21,8 +21,8 @@ export class RuleTraversal implements Traversal {
 		}
 		return res
 	}
-	ruleFactory: NewRuleFactory
-	constructor(rule: NewRuleFactory) {
+	ruleFactory: RuleFactory
+	constructor(rule: RuleFactory) {
 		this.ruleFactory = rule
 	}
 	private async oneSeedGo(
@@ -36,7 +36,7 @@ export class RuleTraversal implements Traversal {
 		const connection = this.ruleFactory.connection
 		var allNotes: string[] = []
 		var allNotesF: TFile[] = []
-		var notesQueue: [TFile, NewRule][] = []
+		var notesQueue: [TFile, Rule][] = []
 		const absPath = seed.path
 		if (!(allNotes.contains(absPath))) {
 			if (seed.extension != "md") return []

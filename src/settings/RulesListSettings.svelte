@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { emptyRuleConfig, type RuleConfig } from "src/rules/new_rule";
+	import { emptyRuleConfig, type RuleConfig } from "src/rules/rule";
 	import type { RuleRegistry } from "src/rules/rule_factory";
 	import { validateAllItems, type ValidationConfig } from "src/validation";
 	import { untrack } from "svelte";

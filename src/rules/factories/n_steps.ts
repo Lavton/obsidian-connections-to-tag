@@ -1,10 +1,10 @@
 import type { Connection } from "src/connections/connections"
-import type { NewRule, NewRuleFactory, RuleConfig } from "../new_rule"
+import type { Rule, RuleFactory, RuleConfig } from "../rule"
 import type {RuleTypeDescriptor} from '../rule_factory'
 import type { ValidationLocalRule } from "src/settings/types"
 import NStepsRuleEditor from "./NStepsRuleEditor.svelte"
 
-export class RuleNSteps implements NewRule {
+export class RuleNSteps implements Rule {
 	connection: Connection
 	steps_left: number 
 
@@ -22,7 +22,7 @@ export class RuleNSteps implements NewRule {
     }
 }
 
-export class FactoryRuleNSteps implements NewRuleFactory {
+export class FactoryRuleNSteps implements RuleFactory {
 	readonly type = "n-steps"
 	title: string
 	connection: Connection
@@ -95,10 +95,10 @@ export const NStepsRuleDescriptor: RuleTypeDescriptor<NStepsConfig> = {
 	type: "n-steps",
 	label: "N steps",
 	description: "Follows the connection for N steps from the start, then stops.",
-	createInstance(config: NStepsConfig, connection: Connection): NewRuleFactory {
+	createInstance(config: NStepsConfig, connection: Connection): RuleFactory {
 		return new FactoryRuleNSteps(config.title, connection, Number(config.total_steps))
 	},
-	createConfig(instance: NewRuleFactory): NStepsConfig {
+	createConfig(instance: RuleFactory): NStepsConfig {
 		const rule = instance as FactoryRuleNSteps
 		return new NStepsConfig(rule.title, rule.connection.title, rule.total_steps)
 	},

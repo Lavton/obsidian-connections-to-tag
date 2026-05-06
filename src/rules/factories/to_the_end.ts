@@ -1,9 +1,9 @@
 import type { Connection } from "src/connections/connections"
-import type { NewRule, NewRuleFactory, RuleConfig } from "../new_rule"
+import type { Rule, RuleFactory, RuleConfig } from "../rule"
 import type {RuleTypeDescriptor} from '../rule_factory'
 import ToTheEndRuleEditor from "./ToTheEndRuleEditor.svelte"
 
-export class RuleToTheEnd implements NewRule {
+export class RuleToTheEnd implements Rule {
 	connection: Connection
 
 	constructor(connection: Connection) {
@@ -19,7 +19,7 @@ export class RuleToTheEnd implements NewRule {
     }
 }
 
-export class FactoryRuleToTheEnd implements NewRuleFactory {
+export class FactoryRuleToTheEnd implements RuleFactory {
 	readonly type = "to-the-end"
 	title: string
 	connection: Connection
@@ -47,10 +47,10 @@ export const ToTheEndRuleDescriptor: RuleTypeDescriptor<ToTheEndConfig> = {
     type: 'to-the-end',
     label: "go to the end",
     description: "Follows the connection to the end while possible.",
-    createInstance(config: ToTheEndConfig, connection: Connection): NewRuleFactory {
+    createInstance(config: ToTheEndConfig, connection: Connection): RuleFactory {
         return new FactoryRuleToTheEnd(config.title, connection)
     },
-    createConfig(instance: NewRuleFactory): ToTheEndConfig {
+    createConfig(instance: RuleFactory): ToTheEndConfig {
         return new ToTheEndConfig(instance.title, instance.connection.title)
     },
     createDefaultConfig(): ToTheEndConfig {

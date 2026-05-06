@@ -1,11 +1,11 @@
 
 import type { Connection } from "src/connections/connections"
-import type { NewRule, NewRuleFactory, RuleConfig } from "../new_rule"
+import type { Rule, RuleFactory, RuleConfig } from "../rule"
 import type {RuleTypeDescriptor} from '../rule_factory'
 import type { ValidationLocalRule } from "src/settings/types"
 import ProbabilityRuleEditor from "./ProbabilityRuleEditor.svelte"
 
-export class RuleProbability implements NewRule {
+export class RuleProbability implements Rule {
 	connection: Connection
 	probability: number 
 
@@ -23,7 +23,7 @@ export class RuleProbability implements NewRule {
     }
 }
 
-export class FactoryRuleProbability implements NewRuleFactory {
+export class FactoryRuleProbability implements RuleFactory {
 	readonly type = "probability"
 	title: string
 	connection: Connection
@@ -96,10 +96,10 @@ export const ProbabilityRuleDescriptor: RuleTypeDescriptor<ProbabilityConfig> = 
 	type: "probability",
 	label: "probability",
 	description: "Follows the connection with a specified probability.",
-	createInstance(config: ProbabilityConfig, connection: Connection): NewRuleFactory {
+	createInstance(config: ProbabilityConfig, connection: Connection): RuleFactory {
 		return new FactoryRuleProbability(config.title, connection, Number(config.probability))
 	},
-	createConfig(instance: NewRuleFactory): ProbabilityConfig {
+	createConfig(instance: RuleFactory): ProbabilityConfig {
 		const rule = instance as FactoryRuleProbability
 		return new ProbabilityConfig(rule.title, rule.connection.title, rule.probability)
 	},

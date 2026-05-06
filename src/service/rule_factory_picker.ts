@@ -1,28 +1,28 @@
 import { App, FuzzySuggestModal } from "obsidian";
-import type { NewRuleFactory } from "src/rules/new_rule";
+import type { RuleFactory } from "src/rules/rule";
 
-class RuleFactorySuggestModal extends FuzzySuggestModal<NewRuleFactory> {
+class RuleFactorySuggestModal extends FuzzySuggestModal<RuleFactory> {
 	private resolved = false;
 
 	constructor(
 		app: App,
-		private readonly rules: NewRuleFactory[],
-		private readonly resolveSelection: (ruleFactory: NewRuleFactory | null) => void,
+		private readonly rules: RuleFactory[],
+		private readonly resolveSelection: (ruleFactory: RuleFactory | null) => void,
 	) {
 		super(app);
 		this.setPlaceholder("Select rule");
 		this.emptyStateText = "No rules found";
 	}
 
-	getItems(): NewRuleFactory[] {
+	getItems(): RuleFactory[] {
 		return this.rules;
 	}
 
-	getItemText(item: NewRuleFactory): string {
+	getItemText(item: RuleFactory): string {
 		return item.title;
 	}
 
-	onChooseItem(item: NewRuleFactory): void {
+	onChooseItem(item: RuleFactory): void {
 		this.resolve(item);
 		this.close();
 	}
@@ -31,7 +31,7 @@ class RuleFactorySuggestModal extends FuzzySuggestModal<NewRuleFactory> {
 		window.setTimeout(() => this.resolve(null), 0);
 	}
 
-	private resolve(ruleFactory: NewRuleFactory | null): void {
+	private resolve(ruleFactory: RuleFactory | null): void {
 		if (this.resolved) {
 			return;
 		}
@@ -40,7 +40,7 @@ class RuleFactorySuggestModal extends FuzzySuggestModal<NewRuleFactory> {
 	}
 }
 
-export function selectRuleFactory(app: App, rules: NewRuleFactory[]): Promise<NewRuleFactory | null> {
+export function selectRuleFactory(app: App, rules: RuleFactory[]): Promise<RuleFactory | null> {
 	return new Promise((resolve) => {
 		new RuleFactorySuggestModal(app, rules.filter((rule) => !rule.title.startsWith("_")), resolve).open();
 	});

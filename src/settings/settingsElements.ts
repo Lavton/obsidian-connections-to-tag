@@ -3,7 +3,7 @@ import type { ComponentProps } from "svelte";
 import { get, type Writable } from "svelte/store";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
 import type { DirectionalConnectionConfig } from "src/connections/connections";
-import type { RuleConfig } from "src/rules/new_rule";
+import type { RuleConfig } from "src/rules/rule";
 import type { RuleRegistry } from "src/rules/rule_factory";
 import type ConnectionListSettings from "./ConnectionListSettings.svelte";
 import * as common_rules from "./common_validation_rules";

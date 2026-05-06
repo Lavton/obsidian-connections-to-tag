@@ -1,7 +1,7 @@
 import { Notice } from "obsidian";
 import type { Connection, DirectionalConnectionConfig } from "src/connections/connections";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
-import type { NewRuleFactory, RuleConfig } from "src/rules/new_rule";
+import type { RuleFactory, RuleConfig } from "src/rules/rule";
 import type { RuleRegistry } from "src/rules/rule_factory";
 import { MarkNoteMode, type FocusMakerSettings } from "src/settings/settings";
 
@@ -27,8 +27,8 @@ export function createRuleInstances(
 	ruleConfigs: RuleConfig[],
 	ruleRegistry: RuleRegistry,
 	connections: Connection[],
-): NewRuleFactory[] {
-	const currentRules: NewRuleFactory[] = []
+): RuleFactory[] {
+	const currentRules: RuleFactory[] = []
 	for (const ruleConfig of ruleConfigs) {
 		if (typeof ruleConfig.title !== "string") {
 			continue

@@ -1,5 +1,5 @@
 import type { ConnectionConfig } from "src/connections/connections";
-import type { RuleConfig } from "src/rules/new_rule";
+import type { RuleConfig } from "src/rules/rule";
 import type { ValidationAboveRule, ValidationLocalRule } from "./types";
 
 export const ruleTitleRequired: ValidationLocalRule<ConnectionConfig> = {

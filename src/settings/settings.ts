@@ -7,7 +7,7 @@ import ConnectionListSettings from "./ConnectionListSettings.svelte";
 import type { DirectionalConnectionConfig } from "src/connections/connections";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
 import RulesListSettings from "./RulesListSettings.svelte";
-import type { RuleConfig } from "src/rules/new_rule";
+import type { RuleConfig } from "src/rules/rule";
 import type { RuleRegistry } from "src/rules/rule_factory";
 import {
 	createConnectionListSettingsProps,

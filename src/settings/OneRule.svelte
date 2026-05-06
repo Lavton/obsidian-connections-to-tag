@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { RuleConfig } from "src/rules/new_rule";
-	import { emptyRuleConfig } from "src/rules/new_rule";
+	import type { RuleConfig } from "src/rules/rule";
+	import { emptyRuleConfig } from "src/rules/rule";
 	import type { RuleRegistry } from "src/rules/rule_factory";
 	import type { Readable } from "svelte/store";
 	import { emptyRowState, type RowState } from "./types";

@@ -1,11 +1,11 @@
 import type { App, TFile } from "obsidian";
-import type { NewRuleFactory } from "src/rules/new_rule";
+import type { RuleFactory } from "src/rules/rule";
 import { RuleTraversal } from "src/models/traversal";
 import type { FocusMaker } from "src/service/focus_marker";
 
 export async function applyFocusAndFindNewInitialFile(
 	app: App,
-	ruleFactory: NewRuleFactory,
+	ruleFactory: RuleFactory,
 	focusMaker: FocusMaker,
 	initialFile: TFile
 ): Promise<TFile | null> {
@@ -20,7 +20,7 @@ export async function applyFocusAndFindNewInitialFile(
 
 export async function rollbackFocusAndFindNewInitialFile(
 	app: App,
-	ruleFactory: NewRuleFactory,
+	ruleFactory: RuleFactory,
 	focusMaker: FocusMaker,
 	initialFile: TFile
 ): Promise<TFile | null> {

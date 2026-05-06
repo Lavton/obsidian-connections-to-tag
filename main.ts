@@ -21,7 +21,7 @@ import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 import { TrivialRuleDescriptor } from 'src/rules/factories/trivial_rule';
-import type { NewRuleFactory } from 'src/rules/new_rule';
+import type { RuleFactory } from 'src/rules/rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
 import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
 import type { StateSnapshot } from 'src/cancellation';
@@ -75,7 +75,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	connectionInstances: Connection[] = [];
 	connectionRegistry: ConnectionRegistry = new ConnectionRegistry();
 	ruleRegistry: RuleRegistry = new RuleRegistry();
-	ruleInstances: NewRuleFactory[] = [];
+	ruleInstances: RuleFactory[] = [];
 	history: StateSnapshot[] = [];
 	future: StateSnapshot[] = [];
 

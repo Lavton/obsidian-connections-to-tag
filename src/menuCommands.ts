@@ -1,6 +1,6 @@
 import { Notice, TFile, type App } from "obsidian";
 import { getAllFilesInFolder, getAllFilesWithFrontmatter, removeMetaFromFile } from "src/folderUtils";
-import type { NewRuleFactory } from "src/rules/new_rule";
+import type { RuleFactory } from "src/rules/rule";
 import { MarkNoteMode, type FocusMakerSettings } from "src/settings/settings";
 import { RuleTraversal } from "src/models/traversal";
 import { FocusMaker } from "src/service/focus_marker";
@@ -123,7 +123,7 @@ export async function addResultTagToResultFolder(app: App, focusMakerSettings: F
 export async function applyRuleChainToFile(
 	app: App,
 	initialFile: TFile | null | undefined,
-	ruleInstances: NewRuleFactory[],
+	ruleInstances: RuleFactory[],
 	focusMaker: FocusMaker,
 ): Promise<StateSnapshot | null> {
 	if (initialFile == null) {
@@ -146,7 +146,7 @@ export async function applyRuleChainToFile(
 export async function rollbackRuleChainFromFile(
 	app: App,
 	initialFile: TFile | null | undefined,
-	ruleInstances: NewRuleFactory[],
+	ruleInstances: RuleFactory[],
 	focusMaker: FocusMaker,
 ): Promise<StateSnapshot | null> {
 	if (initialFile == null) {
@@ -175,7 +175,7 @@ type SearchViewWithFiles = {
 
 export async function applyRuleChainToSearchResults(
 	app: App,
-	ruleInstances: NewRuleFactory[],
+	ruleInstances: RuleFactory[],
 	focusMaker: FocusMaker,
 ): Promise<StateSnapshot | null> {
 	const searchView = app.workspace.getLeavesOfType('search')[0]?.view as SearchViewWithFiles | undefined

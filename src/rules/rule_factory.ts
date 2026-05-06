@@ -1,6 +1,6 @@
 import type { Connection } from "src/connections/connections";
 import type { Issue, ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
-import type { NewRuleFactory, RuleConfig } from "src/rules/new_rule";
+import type { RuleFactory, RuleConfig } from "src/rules/rule";
 import type { Component } from "svelte";
 
 export interface RuleEditorProps<TConfig extends RuleConfig = RuleConfig> {
@@ -17,8 +17,8 @@ export interface RuleTypeDescriptor<TConfig extends RuleConfig = RuleConfig> {
 	type: string;
 	label: string; // Human-readable name for <select>.
 	description: string;
-	createInstance(config: TConfig, connection: Connection): NewRuleFactory;
-	createConfig(instance: NewRuleFactory): TConfig;
+	createInstance(config: TConfig, connection: Connection): RuleFactory;
+	createConfig(instance: RuleFactory): TConfig;
 	createDefaultConfig(): TConfig; // Needed when switching the type.
 	editorComponent: Component<RuleEditorProps<TConfig>>;
 	validateLocalRules: ValidationLocalRule<TConfig>[];
@@ -34,7 +34,7 @@ export class RuleRegistry {
 		return this;
 	}
 
-	fromConfig(config: RuleConfig, connections: Connection[]): NewRuleFactory {
+	fromConfig(config: RuleConfig, connections: Connection[]): RuleFactory {
 		const descriptor = this.descriptors.get(config.type);
 		if (!descriptor) {
 			throw new Error(`Unknown rule type: ${config.type}`);
@@ -43,7 +43,7 @@ export class RuleRegistry {
 		return descriptor.createInstance(config, connection);
 	}
 
-	toConfig(instance: NewRuleFactory): RuleConfig {
+	toConfig(instance: RuleFactory): RuleConfig {
 		const descriptor = this.descriptors.get(instance.type);
 		if (!descriptor) {
 			throw new Error(`Unknown rule type: ${instance.type}`);

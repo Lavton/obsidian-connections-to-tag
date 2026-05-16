@@ -65,9 +65,6 @@ function addEditorCommand(
 	})
 }
 
-type WorkspaceWithFilesMenu = {
-	on(name: "files-menu", callback: (menu: Menu, files: TAbstractFile[]) => unknown): EventRef;
-}
 
 export default class ConnectionsToTagPlugin extends Plugin implements settings.SettingsSaver, settings.ConnectionsHolder {
 	settings!: settings.ConnectionsToTagSettings;
@@ -213,7 +210,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 			})
 		)
 		this.registerEvent(
-			(this.app.workspace as unknown as WorkspaceWithFilesMenu).on("files-menu", (menu: Menu, files) => {
+			this.app.workspace.on("files-menu", (menu: Menu, files) => {
 				const current_settings = this.settings.focusMakerSettings
 				const focusMaker = new FocusMaker(current_settings, this.app)
 				const getTraversal = async () => {

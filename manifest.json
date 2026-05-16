@@ -1,8 +1,8 @@
 {
-	"id": "connections-to-tag",
-	"name": "Connections to Tag",
+	"id": "focus-on",
+	"name": "Focus On",
 	"version": "0.0.1",
-	"minAppVersion": "1.0.0",
+	"minAppVersion": "1.4.0",
 	"description": "highlights a substructure of notes and allows to focus on them.",
 	"author": "lavton",
 	"authorUrl": "https://github.com/Lavton",

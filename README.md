@@ -1,36 +1,104 @@
-# Connections to tag
-obsidian plugin (https://obsidian.md/).
+# Focus On
+[Obsidian.md plugin](https://obsidian.md/) for working with a part of your Vault.
 
-This plugin is used to add a hashtag to some subtree or to note neibors
+Want to focus just on one topic? This is the right plugin for it!
 
-## goal
-some plugins work with notes with common tag (ex. https://github.com/erichalldev/obsidian-smart-random-note). So by adding this tag it is easier to focus on the set of notes.
+## Goal & how to set it up
+The plugin allows you to focus on a subset of your Vault (ex: one topic with several notes).
 
-### package trio
-This package is invented as a part of the package trio:
-- https://github.com/Lavton/obsidian-connections-to-tag -- a package that can add to notes subtree and its connections a common hashtag
-- https://github.com/Lavton/obisidian-move-tag-to-folder -- a package that can move all notes with a common hashtag to a specific folder
-- https://github.com/Lavton/obsidian-ignore-filter-shortcut -- a package that can add a Ignore Filter variant to focus on the specific folder.
+Examples:
+- Your Vault is about programming, and you want to focus on software architecture notes.
+- Your Vault is about communication and you want to focus on your notes about flirting.
+- Your Vault is about personal projects, and you want to focus on one active project.
 
-So, the supposed workflow of the packages is the following: 
-1. deside that you want to focus not on the whole vault, but on the specific subject
-2. find the subtree of the subject and add a hashtag to the subtree
-3. move all notes with the hashtag (so, all notes connected to the subject) to a specific folder
-4. change the ignore filters so, that only the specific folder is not ignored
-5. focus on the subject, do whatever you want to do
-6. do reverse stuff: change ignore filters to a general one, move all notes from the specific folder to their original desitnation, remove the hashtag from the notes 
+### What does it means "to focus on notes"
 
-One another usecase is to show a set of notes in Graph view: just add a tag in graph group and to the notes!
+#### Put notes to one folder
+Collect all notes of one topic in specific folder.
 
-## settings
-- `working tag` - a hashtag that will be added to/removed from the note
-- `parents tags` - a list of frontmatter YAML tags or `dataview::`-format tags separated by comma, that identify the parent note
-- `number of neibors` - number of neibors of the note/tree that will be added to the consideration
-- `use first line as parents` - if true and note doesn't have any of the mention parent tags, the parents will be considered as: all notes on the first line, where the notes are mention (on top of the document). Usefull if you are not using tags
+![Move notes to folder](./images/move_to_folder.png)
 
-## commands
-- `Add hashtag to tree` -- add the hashtag to the tree starting of the opened note
-- `Remove hashtag from tree` -- remove the hashtag from the tree starting of the opened note
-- `Add hashtag to note and neibors` -- add the hashtag to the opened note and its neibors
-- `Remove hashtag from note and neibors` -- remove the hashtag from the opened note and its neibors
-- `Totally remove the hashtag from tree` -- remove the hashtag totally from the vault
+P.S. you can use my other plugin `Ignore Filters Boost` to add every folder exept the focus one to ignore list
+
+#### Add one tag for notes
+Mark all notes with yaml tag or hastag
+
+![Add a tag to topic](./images/tags.png)
+
+#### View marked notes in graph
+Look at graph only on the selected topics
+
+![View in graph](./images/graph.png)
+
+### How to focus on notes
+
+#### Globaly: from search
+(case: you mark you topics with hashtags or put them in folder.)
+
+![Global search](./images/global-search.png)
+
+You can put any notes directly from search results. Just create search as deep as you want
+
+
+#### Localy: from connections
+(case: your notes have a tree-like structure)
+
+![View in graph](./images/local-search.png)
+
+The main power of the plugin is to go throw connections between notes. If you use YAML tags or just mark notes inside the text, plugin will allow you to collect the topic!
+
+### How to set it up
+Plugin has two main consepts: "connections" and "rules".
+#### Connections
+![Connection](./images/connection-trivial.png)
+
+- "Connection" is a way how your notes are connected. There may be a lot of options.
+- Every connection has a title (make it unique) and direction: 
+- "forward" direction means we look of the note itself and the connections *from* the note. Example: you have a frontmatter `next` to mark next notes.
+- "backward" direction means we look at the connections *to* the note. Example: you have a frontmatter `topic` from children to parent and you start with parent to find all it children.
+
+Connection types:
+- `All links in text` -- find links in note body (not in yaml). Example: you want to get all neibors of the note
+- `All links in frontmatter` -- find links in fronmatter header. Example: you want all structural notes
+- `Arbitrary (danger)` -- put any code you want. Just create a markdown file with a code block like below.
+- `Between in text` -- find links between to text strings. Example: your "topic" is always at the end of file after `---` mark
+- `Regexp/prefix` -- finds links just after some structure. Example: you use dataview `topic:: <link>` text
+- `Top links in text` -- finds links at the top of the notes body. Example: you mark topic as the first link in the note file
+- `Trivial connection` -- put just this note, don't go throw connections. Example: you already find all notes with search and want to work only with this found notes
+- `YAML tags` -- finds links by yaml tag. Example - your topics are mark with `topic` yaml tag
+- `Combine` -- finds links based on combination of connections. Example: you want to go throw yaml tag but only if it doesn't have another tag 
+
+
+Arbitrary connection example: put such a code to .md file
+```javascript
+// Read the contents of the current file
+const content = await app.vault.read(node);
+
+// Remove frontmatter
+const contentWithoutFrontmatter = utils.removeFrontmatter(content);
+console.log("ha!")
+
+// Extract links
+const links = utils.extractLinksFromString(contentWithoutFrontmatter);
+
+// Get files from the links
+const files = utils.getFilepaths(links, node, app);
+
+// Return an array of files
+return files;
+```
+
+#### Rules
+![rule](./images/rule.png)
+- "Rule" is a rule what to do with connection
+
+Rule types:
+- `go to the end` -- go with connection to the end. Example: you want to take all the tree
+- `N steps` -- go with connection only a few steps. Example: you want to take all the notes neibors (1 step)
+- `probability` -- go with some probability. Example: you don't know what notes to add, so try to make it with some probability
+- `Trivial rule` -- ignore connection and mark just the given note.
+
+## How to use
+1. determinate what are the connecitions inside your vault. Do you use frontmatter to structure anything, `topic::` style or just mark the parent as the first link in the note
+2. set connection and rules
+3. choose a start note and run command `apply chain` or just right click on the note

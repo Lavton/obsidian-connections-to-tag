@@ -18,7 +18,7 @@
 	The plugin starts with one file/folder and distributes on links from the
 	file according to the rules you specify.
 </p>
-<p>To be flexible, plugin works with 3 abstractions:</p>
+<p>To be flexible, plugin works with 2 concepts:</p>
 <ul>
 	<li>
 		<code>Connection</code> - how to choose neighbour files from given one. Maybe

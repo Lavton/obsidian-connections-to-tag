@@ -1,37 +1,37 @@
-<h1>How it works?</h1>
+<h1>How it works</h1>
 
 <p>
-	The plugin allows you to focus on a subset of your Vault (ex: one topic with
-	several notes).
+	The plugin allows you to focus on a subset of your Vault, such as one topic
+	with several notes.
 </p>
 
 <p>
-	"to focus" means to add all choosen files to <u>specific folder</u> (so you
-	can look at them all or just apply your "Ignore Filters" to ignore
-	everything except this folder). Or it means to add to all choosen files
-	<u>specific tag</u>: to look at the tag through search or to look at Graph
-	plugin.
+	"To focus" means adding all chosen files to a <u>specific folder</u>, so you
+	can view them together or use your ignore filters to hide everything except
+	that folder. It can also mean adding a <u>specific tag</u> to all chosen
+	files, so you can find them in search or view them in the Graph plugin.
 </p>
 
 <u>How to choose notes to focus on?</u>
 <p>
-	The plugin starts with one file/folder and distributes on links from the
-	file according to the rules you specify.
+	The plugin starts with one file or folder and follows links from that file
+	according to the rules you specify.
 </p>
-<p>To be flexible, plugin works with 2 concepts:</p>
+<p>To stay flexible, the plugin uses two concepts:</p>
 <ul>
 	<li>
-		<code>Connection</code> - how to choose neighbour files from given one. Maybe
-		all links are just 'neighbour', but the link with 'parent' tag indicates structure?
+		<code>Connection</code> - how to choose neighboring files from a given file.
+		Maybe all links are neighbors, but a link with a 'parent' tag indicates
+		structure?
 	</li>
 	<li>
-		<code>Rule</code> - how deep to go from the starting file? Till the end or
+		<code>Rule</code> - how deep to go from the starting file? To the end or
 		just a few steps? Through what connection will we go?
 	</li>
 </ul>
 
 <hr />
-Table of content
+Table of contents
 <ul>
 	<li><a href="#section-focuser">What to do with found notes</a></li>
 	<li><a href="#section-chain">What rules to apply</a></li>

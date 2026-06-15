@@ -4,14 +4,14 @@ An [Obsidian.md plugin](https://obsidian.md/) for working with part of your Vaul
 Want to focus on just one topic? This is the right plugin for it!
 
 ## Goal and setup
-This plugin allows you to focus on a subset of your Vault (for example, one topic with several notes).
+The goal of the plugin is to help you work with subtopics in a clear and simple way, regardless of how you define the structure in your vault.
 
 Examples:
 - Your Vault is about programming, and you want to focus on software architecture notes.
 - Your Vault is about communication, and you want to focus on your notes about flirting.
 - Your Vault is about personal projects, and you want to focus on one active project.
 
-### What does it mean "to focus on notes"?
+### What does it mean to "focus on notes"?
 
 #### Put notes in one folder
 Collect all notes on one topic in a specific folder.
@@ -102,3 +102,9 @@ Rule types:
 1. Determine what connections exist inside your vault. Do you use frontmatter to structure anything, `topic::` style, or just mark the parent as the first link in the note?
 2. Set up connections and rules.
 3. Choose a start note and run the `apply chain` command, or just right-click the note.
+
+
+## Future plans
+- Feedback about how to identify subtopics in your Vault, what you want to do with those subtopics, and how to explain or improve the plugin concepts is warmly welcome!
+
+The goal of the plugin is to help you work with subtopics in a clear and simple way, regardless of how you define the structure in your vault. Please help improve it!

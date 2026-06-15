@@ -28,7 +28,7 @@ export function createMarkNoteModesSetting(
 
 	const setting = new Setting(containerEl)
 		.setName("Apply tag / move to folder")
-		.setDesc("What will be the result of applying chain? All notes will have specific tag or will be moved to specific folder?");
+		.setDesc("What should happen when a chain is applied? All notes can receive a specific tag or be moved to a specific folder.");
 	setting.controlEl.addClass("connections-to-tag-radio-group");
 
 	const radioName = "connections-to-tag-mark-note-mode";
@@ -67,7 +67,7 @@ export function createResultTagSetting(
 ): void {
 	new Setting(containerEl)
 		.setName("Result tag")
-		.setDesc("What tag will be applying in case of 'apply tag'? (Use #hastag to apply it in file text and without # to apply into frontamatter tags)")
+		.setDesc("Which tag should be applied in 'Apply tag' mode? Use #hashtag to add it to the file text, or omit # to add it to frontmatter tags.")
 		.addText((text) => {
 			text
 				.setPlaceholder('ex. #to_focus_on')
@@ -86,7 +86,7 @@ export function createResultFolderSetting(
 ): void {
 	new Setting(containerEl)
 		.setName("Result folder")
-		.setDesc("In what folder the notes will be moved to?")
+		.setDesc("Which folder should the notes be moved to?")
 		.addText((text) => {
 			text
 				.setPlaceholder('ex. focusNotes/')
@@ -105,7 +105,7 @@ export function createMovedNameFrontmatterSetting(
 ): void {
 	new Setting(containerEl)
 		.setName("Technical 'moved' frontmatter")
-		.setDesc("Add frontmatter that will be used to store original location of the notes when it moved to folder")
+		.setDesc("Add a frontmatter field used to store each note's original location when it is moved to a folder.")
 		.addText((text) => {
 			text
 				.setPlaceholder('ex. moved_from')

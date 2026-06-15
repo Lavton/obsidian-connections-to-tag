@@ -1,4 +1,3 @@
-import { Notice } from "obsidian";
 import type { Connection, DirectionalConnectionConfig } from "src/connections/connections";
 import type { ConnectionRegistry } from "src/connections/connection_factory";
 import type { RuleFactory, RuleConfig } from "src/rules/rule";
@@ -16,8 +15,7 @@ export function createConnectionInstances(
 		}
 		try {
 			currentConnections.push(connectionRegistry.fromConfig(connectionConfig, currentConnections))
-		} catch (error) {
-			new Notice(`Connection '${connectionConfig.title}' was ignored: ${error instanceof Error ? error.message : String(error)}`)
+		} catch {
 		}
 	}
 	return currentConnections
@@ -35,8 +33,7 @@ export function createRuleInstances(
 		}
 		try {
 			currentRules.push(ruleRegistry.fromConfig(ruleConfig, connections))
-		} catch (error) {
-			new Notice(`Rule '${ruleConfig.title}' was ignored: ${error instanceof Error ? error.message : String(error)}`)
+		} catch {
 		}
 	}
 	return currentRules

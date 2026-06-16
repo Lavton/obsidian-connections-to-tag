@@ -145,7 +145,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		addCommand(
 			this,
 			'total-move-back-files',
-			"Move all files back to their original locations",
+			"Move all notes back to their original locations",
 			() => this.runWithHistory(() =>
 				moveAllFilesBackToOriginal(this.app, this.settings.focusMakerSettings)
 			),
@@ -175,19 +175,19 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 				}
 				if (file instanceof TFolder) {
 					if (menuItems.isResultFolder(file, current_settings.resultFolder)) {
-						addMenuCommand(menu, "Move files back from the folder", "undo-2", () =>
+						addMenuCommand(menu, "Move notes back from the folder", "undo-2", () =>
 							this.runWithHistory(() =>
 								menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
 							)
 						)
 					}
 
-					addMenuCommand(menu, "Apply chain starting with every sub-file", "redo-2", () =>
+					addMenuCommand(menu, "Apply chain starting with notes in this folder", "redo-2", () =>
 						this.runWithHistory(() =>
 							menuItems.applyChainToFolder(this.app, file, getTraversal, focusMaker)
 						)
 					)
-					addMenuCommand(menu, "Roll back chain starting with every sub-file", "undo-2", () =>
+					addMenuCommand(menu, "Roll back chain starting with notes in this folder", "undo-2", () =>
 						this.runWithHistory(() =>
 							menuItems.rollbackChainFromFolder(this.app, file, getTraversal, focusMaker)
 						)
@@ -195,12 +195,12 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 
 				}
 				if (file instanceof TFile) {
-					addMenuCommand(menu, "Apply chain starting with this file", "redo-2", () =>
+					addMenuCommand(menu, "Apply chain starting with this note", "redo-2", () =>
 						this.runWithHistory(() =>
 							menuItems.applyChainToFile(this.app, file, getTraversal, focusMaker)
 						)
 					)
-					addMenuCommand(menu, "Roll back chain starting with this file", "undo-2", () =>
+					addMenuCommand(menu, "Roll back chain starting with this note", "undo-2", () =>
 						this.runWithHistory(() =>
 							menuItems.rollbackChainFromFile(this.app, file, getTraversal, focusMaker)
 						)
@@ -225,12 +225,12 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 					return
 				}
 
-				addMenuCommand(menu, "Apply chain starting with selected files", "redo-2", () =>
+				addMenuCommand(menu, "Apply chain starting with selected notes", "redo-2", () =>
 					this.runWithHistory(() =>
 						menuItems.applyChainToFiles(this.app, selectedFiles, getTraversal, focusMaker)
 					)
 				)
-				addMenuCommand(menu, "Roll back chain starting with selected files", "undo-2", () =>
+				addMenuCommand(menu, "Roll back chain starting with selected notes", "undo-2", () =>
 					this.runWithHistory(() =>
 						menuItems.rollbackChainFromFiles(this.app, selectedFiles, getTraversal, focusMaker)
 					)
@@ -241,7 +241,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		addCommand(
 			this,
 			'focus-graph',
-			'Filter graph view to show only selected files',
+			'Filter graph view to show only selected notes',
 			async () => {
 				await focusGraphView(this.app, this.settings.focusMakerSettings)
 			},
@@ -273,7 +273,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		addEditorCommand(
 			this,
 			'implement-chain',
-			'Apply rule chain starting with this file: ' + apply_name,
+			'Apply rule chain starting with this note: ' + apply_name,
 			(editor, view) => this.runWithHistory(() =>
 				applyRuleChainToFile(this.app, view.file, this.ruleInstances, focusMaker)
 			),
@@ -281,7 +281,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		addEditorCommand(
 			this,
 			'reverse-chain',
-			'Roll back rule chain starting with this file: ' + rollback_name,
+			'Roll back rule chain starting with this note: ' + rollback_name,
 			(editor, view) => this.runWithHistory(() =>
 				rollbackRuleChainFromFile(this.app, view.file, this.ruleInstances, focusMaker)
 			),
@@ -306,7 +306,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		addCommand(
 			this,
 			'move-the-tag-to-folder',
-			`Tag -> folder. Move files with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
+			`Tag -> folder. Move notes with tag '${current_settings.resultTag}' to folder ${current_settings.resultFolder}`,
 			() => this.runWithHistory(() =>
 				moveTaggedFilesToResultFolder(this.app, this.settings.focusMakerSettings)
 			),
@@ -314,7 +314,7 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 		addCommand(
 			this,
 			'add-tag-to-the-folder',
-			`Folder -> tag. Add tag ${current_settings.resultTag} to files in folder '${current_settings.resultFolder}'`,
+			`Folder -> tag. Add tag ${current_settings.resultTag} to notes in folder '${current_settings.resultFolder}'`,
 			() => this.runWithHistory(() =>
 				addResultTagToResultFolder(this.app, this.settings.focusMakerSettings)
 			),

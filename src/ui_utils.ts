@@ -44,7 +44,7 @@ export function getFocusActionNames(focusMakerSettings: FocusMakerSettings): { a
 	if (markModes.contains(MarkNoteMode.ADD_TAG) && markModes.contains(MarkNoteMode.MOVE_TO_FOLDER)) {
 		return {
 			apply_name: "add tag and move to folder",
-			rollback_name: "remove tag and return to original directory",
+			rollback_name: "remove tag and return to original folder",
 		}
 	}
 	if (markModes.contains(MarkNoteMode.ADD_TAG)) {
@@ -56,7 +56,7 @@ export function getFocusActionNames(focusMakerSettings: FocusMakerSettings): { a
 	if (markModes.contains(MarkNoteMode.MOVE_TO_FOLDER)) {
 		return {
 			apply_name: "move to folder",
-			rollback_name: "return to original directory",
+			rollback_name: "return to original folder",
 		}
 	}
 	return {

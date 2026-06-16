@@ -67,7 +67,7 @@ export function createResultTagSetting(
 ): void {
 	new Setting(containerEl)
 		.setName("Result tag")
-		.setDesc("Which tag should be applied in 'Apply tag' mode? Use #hashtag to add it to the file text, or omit # to add it to frontmatter tags.")
+		.setDesc("Which tag should be applied in 'Apply tag' mode? Use #hashtag to add it to the note text, or omit # to add it to frontmatter tags.")
 		.addText((text) => {
 			text
 				.setPlaceholder('ex. #to_focus_on')

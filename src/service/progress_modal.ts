@@ -33,7 +33,7 @@ export class OperationProgressModal extends Modal {
 		})
 		this.foundEl = this.contentEl.createEl("div", {
 			cls: "connections-to-tag-progress-found",
-			text: "Found: 0 files",
+			text: "Found: 0 notes",
 		})
 
 		this.progressWrapperEl = this.contentEl.createDiv({
@@ -68,7 +68,7 @@ export class OperationProgressModal extends Modal {
 	setTraversalFound(foundCount: number): void {
 		this.stageEl?.setText("Finding connected notes...")
 		this.detailEl?.setText("Traversal is scanning note connections.")
-		this.foundEl?.setText(`Found: ${foundCount} ${this.pluralizeFile(foundCount)}`)
+		this.foundEl?.setText(`Found: ${foundCount} ${this.pluralizeNote(foundCount)}`)
 		this.foundEl?.show()
 		this.progressWrapperEl?.hide()
 	}
@@ -82,7 +82,7 @@ export class OperationProgressModal extends Modal {
 
 	setFocusProgress(processedCount: number, totalCount: number): void {
 		const percent = totalCount === 0 ? 100 : Math.round((processedCount / totalCount) * 100)
-		this.detailEl?.setText(`${processedCount} of ${totalCount} ${this.pluralizeFile(totalCount)} processed.`)
+		this.detailEl?.setText(`${processedCount} of ${totalCount} ${this.pluralizeNote(totalCount)} processed.`)
 		this.progressBar?.setValue(percent)
 	}
 
@@ -98,11 +98,11 @@ export class OperationProgressModal extends Modal {
 		this.cancelled = true
 		this.onCancel()
 		this.stageEl?.setText("Cancelling...")
-		this.detailEl?.setText("The current file operation will finish before the action stops.")
+		this.detailEl?.setText("The current note operation will finish before the action stops.")
 		this.cancelButton?.setDisabled(true)
 	}
 
-	private pluralizeFile(count: number): string {
-		return count === 1 ? "file" : "files"
+	private pluralizeNote(count: number): string {
+		return count === 1 ? "note" : "notes"
 	}
 }

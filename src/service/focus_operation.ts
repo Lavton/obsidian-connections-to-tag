@@ -163,7 +163,7 @@ function showOperationNotice(cancelled: boolean, processedCount: number): void {
 		showCancelledNotice()
 		return
 	}
-	new Notice(`Completed. Processed ${processedCount} files`)
+	new Notice(`Completed. Processed ${processedCount} ${processedCount === 1 ? "note" : "notes"}`)
 }
 
 function showCancelledNotice(): void {

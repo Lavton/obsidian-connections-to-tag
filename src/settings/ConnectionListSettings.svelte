@@ -56,7 +56,7 @@
 				</button>
 			</div>
 			<p class="list-description">
-				A connection defines which links from a file should be followed during traversal.
+				A connection defines which links from a note should be followed during traversal.
 				Connections with titles starting with "_" are private and are not shown for selection in rules.
 			</p>
 		{/snippet}

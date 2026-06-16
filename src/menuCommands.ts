@@ -79,7 +79,7 @@ export async function moveAllFilesBackToOriginal(app: App, focusMakerSettings: F
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
 	return await runFocusOnlyOperation({
 		app,
-		title: "Move files back",
+		title: "Move notes back",
 		files: districtFiles,
 		focusMaker,
 		mode: "rollback",
@@ -100,7 +100,7 @@ export async function moveTaggedFilesToResultFolder(app: App, focusMakerSettings
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.MOVE_TO_FOLDER])
 	return await runFocusOnlyOperation({
 		app,
-		title: "Move tagged files to folder",
+		title: "Move tagged notes to folder",
 		files: districtFiles,
 		focusMaker,
 		mode: "apply",
@@ -113,7 +113,7 @@ export async function addResultTagToResultFolder(app: App, focusMakerSettings: F
 	const focusMaker = new FocusMaker(focusMakerSettings, app).withMark([MarkNoteMode.ADD_TAG])
 	return await runFocusOnlyOperation({
 		app,
-		title: "Add tag to folder files",
+		title: "Add tag to notes in folder",
 		files: districtFiles,
 		focusMaker,
 		mode: "apply",
@@ -208,7 +208,7 @@ export async function applyRuleChainToSearchResults(
 export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSettings): Promise<void> {
 	const graphOptions = getGraphOptions(app)
 	if (!graphOptions) {
-		new Notice("graph view is unavaliable")
+		new Notice("Graph view is unavailable.")
 		return
 	}
 

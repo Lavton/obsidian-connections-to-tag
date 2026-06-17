@@ -46,11 +46,11 @@ export function createMarkNoteModesSetting(
 		});
 
 		radio.checked = currentMode === value;
-		radio.addEventListener("change", async () => {
+		radio.addEventListener("change", () => {
 			if (!radio.checked) return;
 
 			focusMakerSettings.markNoteModes = [value];
-			await saveSettings();
+			void saveSettings();
 		});
 
 		label.createSpan({ text: labelText });

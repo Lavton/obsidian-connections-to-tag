@@ -272,6 +272,7 @@
 
 ### W10. Promise returned where void was expected
 
+- Status: fixed.
 - Rule: likely `@typescript-eslint/no-misused-promises`.
 - Original report location: `src/settings/settingsElements.ts:49-54`.
 - Stable locator:
@@ -289,6 +290,13 @@
     });
     ```
   - If errors should be visible, use `void saveSettings().catch(console.error)`.
+- Applied fix:
+  - Changed the DOM `change` event listener in `createMarkNoteModesSetting(...)` from an `async` callback to a synchronous callback.
+  - Explicitly discarded the save promise with `void saveSettings()`.
+- Verify:
+  ```bash
+  rg -n "addEventListener\\(\"change\", async" src/settings/settingsElements.ts
+  ```
 
 ### W11. Empty block statement
 

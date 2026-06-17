@@ -1,7 +1,7 @@
 {
 	"id": "focus-on",
 	"name": "Focus On",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"minAppVersion": "1.4.4",
 	"description": "Highlights a subset of notes (ex. a topic) to focus on it.",
 	"author": "lavton",

@@ -1,7 +1,7 @@
 {
-	"name": "connections-to-tag",
-	"version": "0.0.1",
-	"description": "plugin for move files with tag to dir",
+	"name": "focus-on",
+	"version": "0.0.2",
+	"description": "Highlights a subset of notes (ex. a topic) to focus on it.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

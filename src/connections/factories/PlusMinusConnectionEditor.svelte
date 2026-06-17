@@ -26,7 +26,16 @@
 			.join(" ");
 	}
 
-	let exprRaw = $state(toRaw(value.connections));
+	let exprRaw = $state("");
+	let lastEmittedRaw = $state<string | null>(null);
+
+	$effect(() => {
+		const nextRaw = toRaw(value.connections);
+		if (nextRaw !== lastEmittedRaw) {
+			exprRaw = nextRaw;
+			lastEmittedRaw = nextRaw;
+		}
+	});
 
 	function parseExpression(input: string): { sign: PMSign; title: string }[] {
 		const s = input.trim();
@@ -53,6 +62,7 @@
 	function handleExpr(e: Event) {
 		exprRaw = (e.target as HTMLInputElement).value;
 		const connections = parseExpression(exprRaw);
+		lastEmittedRaw = toRaw(connections);
 		onchange({ ...value, connections }, "connections");
 	}
 

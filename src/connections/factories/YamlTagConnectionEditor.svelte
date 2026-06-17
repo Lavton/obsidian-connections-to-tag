@@ -10,9 +10,20 @@
 		shouldShowIssues = () => false,
 	}: ConnectionEditorProps<YamlTagConnConfig> = $props();
 
-	let tagsRaw = $state(
-		Array.isArray(value.tags) ? (value.tags as string[]).join(', ') : ''
-	);
+	function toRaw(tags: string[] | undefined): string {
+		return Array.isArray(tags) ? tags.join(', ') : '';
+	}
+
+	let tagsRaw = $state("");
+	let lastEmittedRaw = $state<string | null>(null);
+
+	$effect(() => {
+		const nextRaw = toRaw(value.tags);
+		if (nextRaw !== lastEmittedRaw) {
+			tagsRaw = nextRaw;
+			lastEmittedRaw = nextRaw;
+		}
+	});
 
 	function handleTags(e: Event) {
 		tagsRaw = (e.target as HTMLInputElement).value;
@@ -20,6 +31,7 @@
 			.split(',')
 			.map(t => t.trim())
 			.filter(Boolean);
+		lastEmittedRaw = toRaw(tags);
 		onchange({ ...value, tags }, "tags");
 	}
 

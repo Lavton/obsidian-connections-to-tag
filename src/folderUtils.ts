@@ -6,6 +6,18 @@ function isRecord(value: unknown): value is FrontmatterRecord {
 	return typeof value === "object" && value !== null
 }
 
+function getRecordValue(record: FrontmatterRecord, key: string): unknown {
+	return record[key]
+}
+
+function setRecordValue(record: FrontmatterRecord, key: string, value: unknown): void {
+	record[key] = value
+}
+
+function deleteRecordValue(record: FrontmatterRecord, key: string): void {
+	delete record[key]
+}
+
 function getFileByPathOrCurrent(app: App, path: string, current: TFile): TFile {
 	const movedFile = app.vault.getAbstractFileByPath(path)
 	return movedFile instanceof TFile ? movedFile : current
@@ -127,7 +139,7 @@ export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory:
 	}
 	await createFolderIfNotExist(app, distDir)
 	await app.fileManager.processFrontMatter(currentFile, (frontmatter: FrontmatterRecord) => {
-		frontmatter[reverseTag] = currentFile.path
+		setRecordValue(frontmatter, reverseTag, currentFile.path)
 	})
 	// console.log("whant to", file.path, "->", distDir + file.name)
 	const newPath = await renameFileWithCheckDoublicates(app, distDir, currentFile)
@@ -166,7 +178,7 @@ export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTa
 		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return currentFile
 	}
-	const originalDist = frontmatter[reverseTag]
+	const originalDist = getRecordValue(frontmatter, reverseTag)
 	if (typeof originalDist !== "string") {
 		// new Notice(`in file ${filename} ${reverseTag} is not in frontmatter`)
 		// console.log(filename, frontmatter, reverseTag)
@@ -179,7 +191,7 @@ export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTa
 			return currentFile
 		}
 		await app.fileManager.processFrontMatter(movedFile, (frontmatter: FrontmatterRecord) => {
-			delete frontmatter[reverseTag]
+			deleteRecordValue(frontmatter, reverseTag)
 		})
 		return movedFile
 	} catch (error: unknown) {
@@ -194,12 +206,12 @@ export async function removeMetaFromFile(app: App, file: TFile, reverseTag: stri
 		return
 	}
 	var frontmatter = await folderAccessStrategy.readFrontmatter(app, currentFile)
-	if (frontmatter == null || frontmatter[reverseTag] === undefined) {
+	if (frontmatter == null || getRecordValue(frontmatter, reverseTag) === undefined) {
 		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return
 	}
 	await app.fileManager.processFrontMatter(currentFile, (frontmatter: FrontmatterRecord) => {
-		delete frontmatter[reverseTag]
+		deleteRecordValue(frontmatter, reverseTag)
 	})
 }
 

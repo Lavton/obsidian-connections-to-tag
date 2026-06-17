@@ -6,6 +6,10 @@ type MetadataCacheWithInternals = App["metadataCache"] & {
 	getBacklinksForFile?: (file: TFile) => { data?: Map<unknown, unknown> };
 }
 
+function getRecordValue(record: Record<string, unknown>, key: string): unknown {
+	return record[key]
+}
+
 const regexp = /\[\[([^|\^#]*)[\^|#]?(.*?)\]\]/
 function linkToNoteName(link: string): string | null {
 	if (!link.startsWith("[[")) {
@@ -85,9 +89,8 @@ export function getForwardFilesFromFrontmatter(app: App, initial: TFile, frontKe
 	var connectedFiles: TFile[] = []
 	if (frontmatter) {
 		for (const frontMatterKey of frontKeys) {
-			const frontmatterValue = extractLinksFromFrontmatter(frontmatter[frontMatterKey]);
+			const frontmatterValue = extractLinksFromFrontmatter(getRecordValue(frontmatter, frontMatterKey));
 			// console.log({frontmatterValue})
-			// console.log(frontmatter[frontMatterKey])
 			const newFiles = getFilepaths(frontmatterValue, initial, app)
 			connectedFiles.push(...newFiles)
 		}
@@ -103,7 +106,8 @@ export function getBackwardLinks(app: App, initial: TFile): TFile[] {
 	if (!(backlinksObj instanceof Map)) {
 		return []
 	}
-	const backlinks = [...backlinksObj.keys()].filter((key): key is string => typeof key === "string")
+	const backlinks = Array.from(backlinksObj, ([key]) => key)
+		.filter((key): key is string => typeof key === "string")
 	// var backlinks: string[] = Object.keys(backlinksObj)
 	const backFiles = backlinks.map(s => app.vault.getAbstractFileByPath(s)).filter(item => item !== null)
 	return backFiles.filter(item => item instanceof TFile)

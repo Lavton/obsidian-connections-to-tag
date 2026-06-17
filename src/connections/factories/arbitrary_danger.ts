@@ -15,7 +15,8 @@ type ArbitraryDangerUtils = {
 type ArbitraryDangerExecutor = (app: App, node: TFile, utils: ArbitraryDangerUtils) => Promise<unknown>
 type AsyncFunctionConstructor = new (...args: string[]) => ArbitraryDangerExecutor
 
-const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor as AsyncFunctionConstructor;
+const functionPrototype = async function () { };
+const AsyncFunction = Object.getPrototypeOf(functionPrototype).constructor as AsyncFunctionConstructor;
 
 export class ArbitraryDangerConnection implements Connection {
 	readonly type = 'arbitrary-danger';

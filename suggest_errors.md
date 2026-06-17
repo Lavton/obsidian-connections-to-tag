@@ -165,6 +165,7 @@
 
 ### W6. Unsafe member access on an `error` or `any` typed value
 
+- Status: fixed.
 - Rule: `@typescript-eslint/no-unsafe-member-access`.
 - Original report locations: `src/connections/factories/arbitrary_danger.ts:18`, `src/folderUtils.ts:122`, `src/folderUtils.ts:174`, `src/folderUtils.ts:194`, `src/menuCommands.ts:217`, `src/menuCommands.ts:219`, `src/menuCommands.ts:229`, `src/menuCommands.ts:236`, `src/menuCommands.ts:238`, `src/menuCommands.ts:242`, `src/menuCommands.ts:243`, `src/menuCommands.ts:244`, `src/menuCommands.ts:248`, `src/menuCommands.ts:255`, `src/tagsUtils.ts:147`, `src/tagsUtils.ts:148`, `src/tagsUtils.ts:151`, `src/tagsUtils.ts:153`, `src/tagsUtils.ts:153`, `src/tagsUtils.ts:156`, `src/tagsUtils.ts:157`, `src/tagsUtils.ts:170`, `src/tagsUtils.ts:170`, `src/tagsUtils.ts:177`, `src/tagsUtils.ts:177`, `src/tagsUtils.ts:181`, `src/tagsUtils.ts:182`, `src/utils.ts:96`, `src/utils.ts:101`.
 - Stable locator:
@@ -181,6 +182,17 @@
     type GraphView = { dataEngine?: { options?: GraphOptions; setOptions(options: GraphOptions): void } };
     ```
   - For backlinks, cast through `unknown` and validate that `data` is a `Map` before calling `.keys()`.
+- Applied fix:
+  - Replaced direct dynamic frontmatter reads/writes with typed `Record<string, unknown>` helper functions.
+  - Replaced direct `fm.tags` access with tag-specific helper functions in `tagsUtils.ts`.
+  - Kept Graph access behind local `GraphOptions`, `GraphView`, `GraphDataEngine`, and `AppWithInternalPlugins` types.
+  - Replaced backlink `.keys()` access with `Array.from(backlinksObj, ...)` after validating `data` is a `Map`.
+  - Moved async function constructor discovery behind a typed constructor boundary without `Object.getPrototypeOf(async...)`.
+- Verify:
+  ```bash
+  rg -n "\\bany\\b|as any|catch \\(error: any\\)" src main.ts
+  ```
+  The older broad locator may still show typed Graph internals in `menuCommands.ts`; those accesses are no longer through `any`.
 
 ### W7. Unsafe call of an `error` or `any` typed value
 

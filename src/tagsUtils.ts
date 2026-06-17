@@ -17,6 +17,18 @@ function normalizeTags(value: unknown): string[] {
 	return []
 }
 
+function getFrontmatterTags(record: FrontmatterRecord): string[] {
+	return normalizeTags(record["tags"])
+}
+
+function setFrontmatterTags(record: FrontmatterRecord, tags: string[]): void {
+	record["tags"] = tags
+}
+
+function deleteFrontmatterTags(record: FrontmatterRecord): void {
+	delete record["tags"]
+}
+
 
 
 export async function addTagToFileIfNeeded(app: App, file: TFile, tag: string): Promise<TFile> {
@@ -161,15 +173,15 @@ async function addTagToFileFronmatter(app: App, file: TFile, tag: string): Promi
 		// const tagValue = tag.stagetAllFilesWithTagrtsWith('#') ? tag.substring(1) : tag;
 
 		// If the 'tags' property does not exist, create it as an array with one tag
-		const tags = normalizeTags(fm.tags)
+		const tags = getFrontmatterTags(fm)
 		if (tags.length === 0) {
-			fm.tags = [tag];
+			setFrontmatterTags(fm, [tag]);
 		} else {
 			// Add the new tag if it is not already present
 			if (!tags.includes(tag)) {
 				tags.push(tag);
 			}
-			fm.tags = tags;
+			setFrontmatterTags(fm, tags);
 		}
 	});
 	return currentFile
@@ -181,7 +193,7 @@ async function removeTagFromFileFrontmatter(app: App, file: TFile, tag: string):
 
 	await app.fileManager.processFrontMatter(currentFile, (fm: FrontmatterRecord) => {
 		// If the 'tags' property does not exist or is not an array, do nothing
-		const tags = normalizeTags(fm.tags)
+		const tags = getFrontmatterTags(fm)
 		if (tags.length === 0) {
 			return;
 		}
@@ -190,12 +202,12 @@ async function removeTagFromFileFrontmatter(app: App, file: TFile, tag: string):
 
 		// Filter the array and remove the requested tag
 		const updatedTags = tags.filter((t) => t !== tag);
-		fm.tags = updatedTags;
+		setFrontmatterTags(fm, updatedTags);
 
 		// If the tags array is empty after filtering,
 		// remove the 'tags' property from YAML.
 		if (updatedTags.length === 0) {
-			delete fm.tags;
+			deleteFrontmatterTags(fm);
 		}
 	});
 	return currentFile

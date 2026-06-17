@@ -8,7 +8,7 @@ export interface Traversal {
 
 export class RuleTraversal implements Traversal {
 	async go(app: App, seed: TFile[], options?: TraversalProgressOptions): Promise<TFile[]> {
-		const res = []
+		const res: TFile[] = []
 		let foundCount = 0
 		const onFound = (file: TFile) => {
 			foundCount++
@@ -16,7 +16,7 @@ export class RuleTraversal implements Traversal {
 		}
 		for (const s of seed) {
 			throwIfCancelled(options?.signal)
-			const oneSeedRes: TFile[] = await this.oneSeedGo(app, s, options, onFound)
+			const oneSeedRes: TFile[] = await this.oneSeedGo(app, s, res, options, onFound)
 			res.push(...oneSeedRes)
 		}
 		return res
@@ -28,13 +28,14 @@ export class RuleTraversal implements Traversal {
 	private async oneSeedGo(
 		app: App,
 		seed: TFile,
+		previousResults: readonly TFile[],
 		options: TraversalProgressOptions | undefined,
 		onFound: (file: TFile) => void,
 	): Promise<TFile[]> {
 		throwIfCancelled(options?.signal)
 		const rule = this.ruleFactory.getRule()
 		const connection = this.ruleFactory.connection
-		const allNotes: string[] = []
+		const allNotes: string[] = previousResults.map((file) => file.path)
 		const allNotesF: TFile[] = []
 		const notesQueue: [TFile, Rule][] = []
 		const absPath = seed.path

@@ -18,7 +18,7 @@ async function checkAboveRules<T>(
     const specificRules = validationConfig.getItemRules?.(item) ?? { local: [], above: [] };
     const allAbove = [...validationConfig.validationCommonAboveRules,...specificRules.above];
 
-    const aboveResults = await Promise.all(allAbove.map((rule) => rule.run(item, titlesAbove)));
+    const aboveResults = await Promise.all(allAbove.map((rule) => Promise.resolve(rule.run(item, titlesAbove))));
     const issues = aboveResults.filter((issue): issue is Issue => issue !== null)
     return {above:{valid: issues.length === 0, issues }, local: null};
 }
@@ -31,7 +31,7 @@ async function checkItem<T>(
     const specificRules = validationConfig.getItemRules?.(item) ?? { local: [], above: [] };
     const allLocal = [...validationConfig.validationCommonLocalRules,...specificRules.local];
 
-    const localResults = await Promise.all(allLocal.map((rule) => rule.run(item)));
+    const localResults = await Promise.all(allLocal.map((rule) => Promise.resolve(rule.run(item))));
     const localIssues = localResults.filter((issue): issue is Issue => issue !== null);
 
     if (localIssues.length > 0) {

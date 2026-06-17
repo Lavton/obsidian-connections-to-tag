@@ -347,6 +347,7 @@
 
 ### W13. Non-Promise values passed to promise aggregator
 
+- Status: fixed.
 - Rule: likely `@typescript-eslint/await-thenable` or related promise aggregator rule.
 - Original report locations: `src/validation.ts:21`, `src/validation.ts:34`.
 - Stable locator:
@@ -357,6 +358,13 @@
 - Suggested fix:
   - If validation rules are synchronous, replace both `await Promise.all(...)` blocks with direct `.map(...)`.
   - If validation rules should support async later, update `ValidationLocalRule` and `ValidationAboveRule` types so `run` returns `Issue | null | Promise<Issue | null>`.
+- Applied fix:
+  - Kept support for async validation rules.
+  - Wrapped each `rule.run(...)` result in `Promise.resolve(...)` before passing it to `Promise.all(...)`.
+- Verify:
+  ```bash
+  rg -n "Promise\\.all\\(all(Above|Local)\\.map\\(\\(rule\\) => rule\\.run" src/validation.ts
+  ```
 
 ## Recommendations
 

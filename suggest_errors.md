@@ -88,6 +88,7 @@
 
 ### W3. Unexpected `any`
 
+- Status: fixed.
 - Rule: `@typescript-eslint/no-explicit-any`.
 - Original report locations: `src/connections/connection_factory.ts:12`, `src/folderUtils.ts:23`, `src/folderUtils.ts:29`, `src/folderUtils.ts:58`, `src/folderUtils.ts:94`, `src/folderUtils.ts:177`, `src/link_utils.ts:37`, `src/link_utils.ts:44`, `src/menuCommands.ts:228`, `src/menuCommands.ts:241`, `src/menuCommands.ts:242`, `src/menuCommands.ts:248`, `src/rules/rule_factory.ts:13`, `src/tagsUtils.ts:73`.
 - Stable locator:
@@ -104,9 +105,20 @@
   - Use `unknown` in recursive parsing helpers and narrow with `typeof`, `Array.isArray`, and object guards.
   - Change `catch (error: any)` to `catch (error: unknown)`.
   - For plugin registries, avoid `any` in aliases or keep one local cast at the descriptor boundary with a comment.
+- Applied fix:
+  - Replaced registry descriptor aliases with concrete config descriptor aliases.
+  - Changed frontmatter/YAML helper types from `any` to `Record<string, unknown>` / `unknown` plus guards.
+  - Changed recursive frontmatter link extraction from `any` to `unknown`.
+  - Replaced Graph internals `as any` with local `GraphOptions`, `GraphView`, and `AppWithInternalPlugins` types.
+  - Changed `catch (error: any)` to `catch (error: unknown)`.
+- Verify:
+  ```bash
+  rg -n "\\bany\\b|catch \\(error: any\\)" src main.ts
+  ```
 
 ### W4. Unsafe return from typed code
 
+- Status: fixed.
 - Rule: `@typescript-eslint/no-unsafe-return`.
 - Original report locations: `src/connections/connection_factory.ts:67`, `src/connections/connection_factory.ts:76`, `src/connections/factories/arbitrary_danger.ts:27`, `src/folderUtils.ts:64`, `src/menuCommands.ts:23-29`, `src/menuCommands.ts:31-37`, `src/menuCommands.ts:45-51`, `src/menuCommands.ts:53-59`, `src/menuCommands.ts:67-73`, `src/menuCommands.ts:80-86`, `src/menuCommands.ts:101-107`, `src/menuCommands.ts:114-120`, `src/menuCommands.ts:136-143`, `src/menuCommands.ts:159-166`, `src/menuCommands.ts:198-205`, `src/menuItems.ts:21-27`, `src/menuItems.ts:32-39`, `src/menuItems.ts:43-50`, `src/menuItems.ts:54-61`, `src/menuItems.ts:65-72`, `src/menuItems.ts:77-84`, `src/menuItems.ts:89-96`, `src/rules/rule_factory.ts:51`, `src/rules/rule_factory.ts:60`, `src/tagsModifier.ts:17`, `src/tagsModifier.ts:19`, `src/tagsUtils.ts:79`.
 - Stable locator:
@@ -119,6 +131,17 @@
   - Remove unnecessary `return await` in simple forwarding functions if the linter flags it through unsafe generic inference.
   - For `parseYaml`, store into `unknown`, validate object shape, then return `FrontmatterRecord | null`.
   - For `menuCommands.ts` and `menuItems.ts`, make wrapper functions return exactly the called function type and avoid returning `any` from callback helpers.
+- Applied fix:
+  - Removed unnecessary `return await` from proxy functions in `menuCommands.ts`, `menuItems.ts`, `tagsUtils.ts`, `folderUtils.ts`, and focus-stage helpers.
+  - Added explicit `Promise<FocusResult>` return types to focus-stage helpers.
+  - Changed `ConnectionRegistry.toConfig()` to return an explicitly typed `DirectionalConnectionConfig`.
+  - Changed registry `all()` methods to return explicitly typed descriptor arrays.
+  - Kept YAML parsing behind `unknown` plus object guards from W1/W3.
+  - Returned the dynamic arbitrary-code result through an explicitly typed `TFile[]` variable after runtime narrowing.
+- Verify:
+  ```bash
+  rg -n "return await|return \\{ \\.\\.\\.baseConfig|return parseYaml|return frontmatterTagInfo2|return \\[frontmatterTagInfo2\\]" src
+  ```
 
 ### W5. Unexpected empty array pattern
 

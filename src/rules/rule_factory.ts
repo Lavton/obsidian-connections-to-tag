@@ -57,7 +57,8 @@ export class RuleRegistry {
 
 	// Convenient for <select>.
 	all(): RuleTypeDescriptor[] {
-		return Array.from(this.descriptors.values());
+		const descriptors: RuleTypeDescriptor[] = [...this.descriptors.values()];
+		return descriptors;
 	}
 
 	private findConnection(config: RuleConfig, connections: Connection[]): Connection {

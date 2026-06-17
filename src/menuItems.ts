@@ -18,7 +18,7 @@ export async function moveBackFromFolder(app: App, dirpath: string, movingTag: s
 							// menuItems.moveBackFromFolder(this.app, current_settings.resultFolder, current_settings.movedNameFrontmatter, focusMaker)
 
 	const districtFiles: TFile[] = getAllFilesInFolderWithFrontmatter(app, dirpath, movingTag)
-	return await runFocusOnlyOperation({
+	return runFocusOnlyOperation({
 		app,
 		title: "Move files back from folder",
 		files: districtFiles,
@@ -29,7 +29,7 @@ export async function moveBackFromFolder(app: App, dirpath: string, movingTag: s
 
 export async function applyChainToFile(app: App, file: TFile,
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
-	return await runTraversalFocusOperation({
+	return runTraversalFocusOperation({
 		app,
 		title: "Apply rule chain",
 		seed: [file],
@@ -40,7 +40,7 @@ export async function applyChainToFile(app: App, file: TFile,
 }
 export async function rollbackChainFromFile(app: App, file: TFile,
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
-	return await runTraversalFocusOperation({
+	return runTraversalFocusOperation({
 		app,
 		title: "Rollback rule chain",
 		seed: [file],
@@ -51,7 +51,7 @@ export async function rollbackChainFromFile(app: App, file: TFile,
 }
 export async function applyChainToFiles(app: App, files: TFile[],
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
-	return await runTraversalFocusOperation({
+	return runTraversalFocusOperation({
 		app,
 		title: "Apply rule chain",
 		seed: files,
@@ -62,7 +62,7 @@ export async function applyChainToFiles(app: App, files: TFile[],
 }
 export async function rollbackChainFromFiles(app: App, files: TFile[],
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
-	return await runTraversalFocusOperation({
+	return runTraversalFocusOperation({
 		app,
 		title: "Rollback rule chain",
 		seed: files,
@@ -74,7 +74,7 @@ export async function rollbackChainFromFiles(app: App, files: TFile[],
 export async function applyChainToFolder(app: App, folder: TFolder,
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
 	const initial = getAllMarkdownFiles(folder)
-	return await runTraversalFocusOperation({
+	return runTraversalFocusOperation({
 		app,
 		title: "Apply rule chain",
 		seed: initial,
@@ -86,7 +86,7 @@ export async function applyChainToFolder(app: App, folder: TFolder,
 export async function rollbackChainFromFolder(app: App, folder: TFolder,
 	getTraversal: () => Promise<Traversal | null>, focusMaker: FocusMaker): Promise<StateSnapshot | null> {
 	const initial = getAllMarkdownFiles(folder)
-	return await runTraversalFocusOperation({
+	return runTraversalFocusOperation({
 		app,
 		title: "Rollback rule chain",
 		seed: initial,

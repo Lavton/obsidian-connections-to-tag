@@ -1,7 +1,7 @@
 import { Notice, type App, type TFile } from "obsidian";
 import type { StateSnapshot } from "src/cancellation";
 import type { Traversal } from "src/models/traversal";
-import type { FocusMaker } from "src/service/focus_marker";
+import type { FocusMaker, FocusResult } from "src/service/focus_marker";
 import { DeferredProgressController } from "./deferred_progress";
 import { OperationCancelled } from "./operation_control";
 
@@ -136,16 +136,16 @@ async function runFocusStageWithProgress(
 	focusMaker: FocusMaker,
 	files: TFile[],
 	mode: FocusMode,
-) {
+): Promise<FocusResult> {
 	progress.startFocus(files.length)
 	if (mode === "apply") {
-		return await focusMaker.doDependendOn(files, {
+		return focusMaker.doDependendOn(files, {
 			signal: progress,
 			onProcessed: (_file, processedCount, totalCount) =>
 				progress.setFocusProgress(processedCount, totalCount),
 		})
 	}
-	return await focusMaker.reverseDependendOn(files, {
+	return focusMaker.reverseDependendOn(files, {
 		signal: progress,
 		onProcessed: (_file, processedCount, totalCount) =>
 			progress.setFocusProgress(processedCount, totalCount),
@@ -156,11 +156,11 @@ async function runFocusStage(
 	focusMaker: FocusMaker,
 	files: TFile[],
 	mode: FocusMode,
-) {
+): Promise<FocusResult> {
 	if (mode === "apply") {
-		return await focusMaker.doDependendOn(files)
+		return focusMaker.doDependendOn(files)
 	}
-	return await focusMaker.reverseDependendOn(files)
+	return focusMaker.reverseDependendOn(files)
 }
 
 function showOperationNotice(cancelled: boolean, processedCount: number): void {

@@ -14,12 +14,11 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
     if (frontmatterTagInfo2 != null) {
         // Search in frontmatter
         if (Array.isArray(frontmatterTagInfo2)) {
-            return frontmatterTagInfo2.filter((item): item is string => typeof item === "string")
+            const tagValues = frontmatterTagInfo2.filter((item): item is string => typeof item === "string")
+            return tagValues
         } else if (typeof frontmatterTagInfo2 === "string") {
-            return [frontmatterTagInfo2]
-            // if (typeof frontmatterTagInfo2 == 'string') {
-            //     return frontmatterTagInfo2.split(",").map(f => f.trim())
-            // }
+            const tagValues = [frontmatterTagInfo2]
+            return tagValues
 		}
         return null
     } else {

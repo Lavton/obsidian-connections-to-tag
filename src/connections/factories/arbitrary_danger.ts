@@ -34,7 +34,8 @@ export class ArbitraryDangerConnection implements Connection {
 			);
 			const result: unknown = await executorFunction(app, node, this.utils);
 			if (Array.isArray(result) && result.every(item => item instanceof TFile)) {
-				return result;
+				const files: TFile[] = result;
+				return files;
 			}
 			return [];
 		} catch (error) {

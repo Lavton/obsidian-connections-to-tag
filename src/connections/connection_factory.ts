@@ -64,7 +64,8 @@ export class ConnectionRegistry {
             throw new Error(`Unknown connection type: ${instance.type}`);
         }
 		const baseConfig = descriptor.createConfig(instance);
-		return { ...baseConfig, direction };
+		const config: DirectionalConnectionConfig = { ...baseConfig, direction };
+		return config;
     }
 
     get(type: string): ConnectionTypeDescriptor | undefined {
@@ -73,7 +74,8 @@ export class ConnectionRegistry {
 
     // Convenient for <select>.
     all(): ConnectionTypeDescriptor[] {
-        return Array.from(this.descriptors.values());
+        const descriptors: ConnectionTypeDescriptor[] = [...this.descriptors.values()];
+        return descriptors;
     }
 }
 

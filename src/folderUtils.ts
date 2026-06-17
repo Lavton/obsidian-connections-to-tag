@@ -100,7 +100,7 @@ class DiskCheckedFolderAccessStrategy implements FolderAccessStrategy {
 	}
 
 	async readFrontmatter(app: App, file: TFile): Promise<FrontmatterRecord | null> {
-		return await this.readFrontmatterFromDisk(app, file)
+		return this.readFrontmatterFromDisk(app, file)
 	}
 
 	async rename(app: App, file: TFile, newPath: string): Promise<void> {

@@ -21,16 +21,16 @@ function normalizeTags(value: unknown): string[] {
 
 export async function addTagToFileIfNeeded(app: App, file: TFile, tag: string): Promise<TFile> {
 	if (tag.startsWith("#")) {
-		return await addTagToFileText(app, file, tag)
+		return addTagToFileText(app, file, tag)
 	}
-	return await addTagToFileFronmatter(app, file, tag)
+	return addTagToFileFronmatter(app, file, tag)
 }
 
 export async function removeTagFromFileIfNeeded(app: App, file: TFile, tag: string): Promise<TFile> {
 	if (tag.startsWith("#")) {
-		return await removeTagFromFileText(app, file, tag)
+		return removeTagFromFileText(app, file, tag)
 	}
-	return await removeTagFromFileFrontmatter(app, file, tag)
+	return removeTagFromFileFrontmatter(app, file, tag)
 }
 
 function getCurrentFile(app: App, file: TFile): TFile | null {

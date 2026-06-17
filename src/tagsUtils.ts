@@ -1,6 +1,22 @@
 
 import { TFile, App, getAllTags, parseYaml } from "obsidian";
 
+type FrontmatterRecord = Record<string, unknown>
+
+function isRecord(value: unknown): value is FrontmatterRecord {
+	return typeof value === "object" && value !== null
+}
+
+function normalizeTags(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.filter((item): item is string => typeof item === "string")
+	}
+	if (typeof value === "string") {
+		return value.split(/, ?/).map(t => t.trim()).filter(t => t.length > 0)
+	}
+	return []
+}
+
 
 
 export async function addTagToFileIfNeeded(app: App, file: TFile, tag: string): Promise<TFile> {
@@ -70,13 +86,14 @@ class DiskCheckedTagsAccessStrategy implements TagsAccessStrategy {
 		return null
 	}
 
-	private async readFrontmatterFromDisk(app: App, file: TFile): Promise<Record<string, any> | null> {
+	private async readFrontmatterFromDisk(app: App, file: TFile): Promise<FrontmatterRecord | null> {
 		const content = await app.vault.read(file)
 		const frontmatterBlock = this.getFrontmatterBlock(content)
 		if (frontmatterBlock == null) {
 			return null
 		}
-		return parseYaml(frontmatterBlock) ?? null
+		const frontmatter: unknown = parseYaml(frontmatterBlock)
+		return isRecord(frontmatter) ? frontmatter : null
 	}
 
 	async shouldAddTextTag(app: App, file: TFile, tag: string): Promise<boolean> {
@@ -91,12 +108,12 @@ class DiskCheckedTagsAccessStrategy implements TagsAccessStrategy {
 
 	async shouldAddFrontmatterTag(app: App, file: TFile, tag: string): Promise<boolean> {
 		const frontmatter = await this.readFrontmatterFromDisk(app, file)
-		return !frontmatter?.tags || !Array.isArray(frontmatter.tags) || !frontmatter.tags.includes(tag)
+		return !normalizeTags(frontmatter?.tags).includes(tag)
 	}
 
 	async shouldRemoveFrontmatterTag(app: App, file: TFile, tag: string): Promise<boolean> {
 		const frontmatter = await this.readFrontmatterFromDisk(app, file)
-		return Boolean(frontmatter?.tags && Array.isArray(frontmatter.tags) && frontmatter.tags.includes(tag))
+		return normalizeTags(frontmatter?.tags).includes(tag)
 	}
 
 	isFileMatchedByTag(app: App, file: TFile, tag: string): boolean {
@@ -139,23 +156,20 @@ async function addTagToFileFronmatter(app: App, file: TFile, tag: string): Promi
 	if (currentFile == null) { return file }
 	if (!(await tagsAccessStrategy.shouldAddFrontmatterTag(app, currentFile, tag))) { return currentFile }
 	// Use the API to work safely with the YAML section
-	await app.fileManager.processFrontMatter(currentFile, (fm) => {
+	await app.fileManager.processFrontMatter(currentFile, (fm: FrontmatterRecord) => {
 		// YAML stores tags without the '#' symbol
 		// const tagValue = tag.stagetAllFilesWithTagrtsWith('#') ? tag.substring(1) : tag;
 
 		// If the 'tags' property does not exist, create it as an array with one tag
-		if (!fm.tags) {
+		const tags = normalizeTags(fm.tags)
+		if (tags.length === 0) {
 			fm.tags = [tag];
 		} else {
-			// If 'tags' already exists, make sure it is an array
-			if (!Array.isArray(fm.tags)) {
-				// If it is not an array (for example, just a string), convert it to an array
-				fm.tags = String(fm.tags).split(/, ?/).map(t => t.trim());
-			}
 			// Add the new tag if it is not already present
-			if (!fm.tags.includes(tag)) {
-				fm.tags.push(tag);
+			if (!tags.includes(tag)) {
+				tags.push(tag);
 			}
+			fm.tags = tags;
 		}
 	});
 	return currentFile
@@ -165,20 +179,22 @@ async function removeTagFromFileFrontmatter(app: App, file: TFile, tag: string):
 	if (currentFile == null) { return file }
 	if (!(await tagsAccessStrategy.shouldRemoveFrontmatterTag(app, currentFile, tag))) { return currentFile }
 
-	await app.fileManager.processFrontMatter(currentFile, (fm) => {
+	await app.fileManager.processFrontMatter(currentFile, (fm: FrontmatterRecord) => {
 		// If the 'tags' property does not exist or is not an array, do nothing
-		if (!fm.tags || !Array.isArray(fm.tags)) {
+		const tags = normalizeTags(fm.tags)
+		if (tags.length === 0) {
 			return;
 		}
 
 		// const tagValue = tag.startsWith('#') ? tag.substring(1) : tag;
 
 		// Filter the array and remove the requested tag
-		fm.tags = fm.tags.filter((t: string) => t !== tag);
+		const updatedTags = tags.filter((t) => t !== tag);
+		fm.tags = updatedTags;
 
 		// If the tags array is empty after filtering,
 		// remove the 'tags' property from YAML.
-		if (fm.tags.length === 0) {
+		if (updatedTags.length === 0) {
 			delete fm.tags;
 		}
 	});

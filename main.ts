@@ -1,6 +1,6 @@
 import { Menu, Notice, Plugin, TFile, TFolder, type Command, type EventRef, type TAbstractFile } from 'obsidian';
 import * as settings from 'src/settings/settings'
-import type { Connection } from 'src/connections/connections';
+import type { Connection, DirectionalConnectionConfig } from 'src/connections/connections';
 import { RuleTraversal } from 'src/models/traversal';
 import { addResultTagToResultFolder, applyRuleChainToFile, applyRuleChainToSearchResults, focusGraphView, moveAllFilesBackToOriginal, moveTaggedFilesToResultFolder, removeMovedFrontmatterFromVault, removeResultTagFromVault, rollbackRuleChainFromFile, snapshotRedo, snapshotUndo } from 'src/menuCommands';
 
@@ -21,7 +21,7 @@ import { ToTheEndRuleDescriptor } from 'src/rules/factories/to_the_end';
 import { NStepsRuleDescriptor } from 'src/rules/factories/n_steps';
 import { ProbabilityRuleDescriptor } from 'src/rules/factories/probability';
 import { TrivialRuleDescriptor } from 'src/rules/factories/trivial_rule';
-import type { RuleFactory } from 'src/rules/rule';
+import type { RuleConfig, RuleFactory } from 'src/rules/rule';
 import { selectRuleFactory } from 'src/service/rule_factory_picker';
 import { createConnectionInstances, createRuleInstances, getFocusActionNames } from 'src/ui_utils';
 import type { StateSnapshot } from 'src/cancellation';
@@ -63,6 +63,53 @@ function addEditorCommand(
 		name,
 		editorCallback,
 	})
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null
+}
+
+function isMarkNoteMode(value: unknown): value is settings.MarkNoteMode {
+	return value === settings.MarkNoteMode.ADD_TAG || value === settings.MarkNoteMode.MOVE_TO_FOLDER
+}
+
+function isDirectionalConnectionConfig(value: unknown): value is DirectionalConnectionConfig {
+	return isRecord(value)
+		&& typeof value.type === "string"
+		&& typeof value.title === "string"
+		&& (value.direction === "forward" || value.direction === "backward" || value.direction === "both")
+}
+
+function isRuleConfig(value: unknown): value is RuleConfig {
+	return isRecord(value)
+		&& typeof value.type === "string"
+		&& typeof value.title === "string"
+		&& typeof value.connectionTitle === "string"
+}
+
+function loadPluginSettings(data: unknown): settings.ConnectionsToTagSettings {
+	const source = isRecord(data) ? data : {}
+	const focusSource = isRecord(source.focusMakerSettings) ? source.focusMakerSettings : {}
+	const defaultFocus = settings.DEFAULT_SETTINGS.focusMakerSettings
+
+	return {
+		focusMakerSettings: {
+			resultTag: typeof focusSource.resultTag === "string" ? focusSource.resultTag : defaultFocus.resultTag,
+			resultFolder: typeof focusSource.resultFolder === "string" ? focusSource.resultFolder : defaultFocus.resultFolder,
+			movedNameFrontmatter: typeof focusSource.movedNameFrontmatter === "string"
+				? focusSource.movedNameFrontmatter
+				: defaultFocus.movedNameFrontmatter,
+			markNoteModes: Array.isArray(focusSource.markNoteModes)
+				? focusSource.markNoteModes.filter(isMarkNoteMode)
+				: [...defaultFocus.markNoteModes],
+		},
+		connectionConfigs: Array.isArray(source.connectionConfigs)
+			? source.connectionConfigs.filter(isDirectionalConnectionConfig)
+			: [...settings.DEFAULT_SETTINGS.connectionConfigs],
+		ruleConfigs: Array.isArray(source.ruleConfigs)
+			? source.ruleConfigs.filter(isRuleConfig)
+			: [...settings.DEFAULT_SETTINGS.ruleConfigs],
+	}
 }
 
 
@@ -253,7 +300,8 @@ export default class ConnectionsToTagPlugin extends Plugin implements settings.S
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, settings.DEFAULT_SETTINGS, await this.loadData());
+		const storedSettings: unknown = await this.loadData()
+		this.settings = loadPluginSettings(storedSettings);
 	}
 
 	async saveSettings() {

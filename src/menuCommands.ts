@@ -173,6 +173,34 @@ type SearchViewWithFiles = {
 	};
 };
 
+type GraphOptions = {
+	search?: string;
+}
+
+type GraphDataEngine = {
+	options?: GraphOptions;
+	setOptions(options: GraphOptions): void;
+}
+
+type GraphView = {
+	dataEngine?: GraphDataEngine;
+}
+
+type GraphPlugin = {
+	enabled?: boolean;
+	instance?: {
+		options?: GraphOptions;
+	};
+}
+
+type AppWithInternalPlugins = App & {
+	internalPlugins?: {
+		plugins?: {
+			graph?: GraphPlugin;
+		};
+	};
+}
+
 export async function applyRuleChainToSearchResults(
 	app: App,
 	ruleInstances: RuleFactory[],
@@ -225,8 +253,9 @@ export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSet
 		return
 	}
 
-	const graphView = graphLeaf.view as any
-	const currentFilters = graphView.dataEngine?.options
+	const graphView = graphLeaf.view as unknown as GraphView
+	const dataEngine = graphView.dataEngine
+	const currentFilters = dataEngine?.options
 	if (!currentFilters) {
 		return
 	}
@@ -235,17 +264,16 @@ export async function focusGraphView(app: App, focusMakerSettings: FocusMakerSet
 		...currentFilters,
 		search: graphOptions.search
 	}
-	graphView.dataEngine.setOptions(newFilters)
+	dataEngine.setOptions(newFilters)
 }
 
-export function getGraphOptions(app: App): any {
-	const internal = (app as any).internalPlugins
-	const graph = internal?.plugins?.graph?.instance
-	return graph?.options
+export function getGraphOptions(app: App): GraphOptions | null {
+	const graph = (app as AppWithInternalPlugins).internalPlugins?.plugins?.graph?.instance
+	return graph?.options ?? null
 }
 
 export function checkGraphPlugin(app: App): boolean {
-	const graphPlugin = (app as any).internalPlugins?.plugins?.graph
+	const graphPlugin = (app as AppWithInternalPlugins).internalPlugins?.plugins?.graph
 
 	if (!graphPlugin) {
 		new Notice('Core plugin "Graph" was not found')

@@ -9,7 +9,7 @@ export interface ConnectionEditorProps<TConfig extends ConnectionConfig = Connec
     issues?: (Issue & { scope: "local" | "above" })[];
     shouldShowIssues?: (path: string) => boolean;
 }
-type AnyDescriptor = ConnectionTypeDescriptor<any>;
+type AnyDescriptor = ConnectionTypeDescriptor<ConnectionConfig>;
 // Type descriptor: keeps everything for a type in one place.
 export interface ConnectionTypeDescriptor<TConfig extends ConnectionConfig = ConnectionConfig> {
     type: string;
@@ -29,8 +29,8 @@ export class ConnectionRegistry {
     private descriptors = new Map<string, AnyDescriptor>();
 
     register<TConfig extends ConnectionConfig>(descriptor: ConnectionTypeDescriptor<TConfig>): ConnectionRegistry {
-        this.descriptors.set(descriptor.type, descriptor);
-		return this
+        this.descriptors.set(descriptor.type, descriptor as unknown as AnyDescriptor);
+			return this
     }
 
     fromConfig(config: DirectionalConnectionConfig, above_connections: Connection[]): Connection {

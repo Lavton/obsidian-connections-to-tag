@@ -1,5 +1,11 @@
 import { TFile, TFolder, Vault, parseYaml, type App, type EventRef } from "obsidian"
 
+type FrontmatterRecord = Record<string, unknown>
+
+function isRecord(value: unknown): value is FrontmatterRecord {
+	return typeof value === "object" && value !== null
+}
+
 function getFileByPathOrCurrent(app: App, path: string, current: TFile): TFile {
 	const movedFile = app.vault.getAbstractFileByPath(path)
 	return movedFile instanceof TFile ? movedFile : current
@@ -20,14 +26,15 @@ function getCurrentFile(app: App, file: TFile): TFile | null {
 }
 
 interface FolderAccessStrategy {
-	readFrontmatter(app: App, file: TFile): Promise<Record<string, any> | null>
+	readFrontmatter(app: App, file: TFile): Promise<FrontmatterRecord | null>
 	rename(app: App, file: TFile, newPath: string): Promise<void>
 	isFrontmatterInFile(app: App, file: TFile, frontmatter: string): boolean
 }
 
 class CachedFolderAccessStrategy implements FolderAccessStrategy {
-	async readFrontmatter(app: App, file: TFile): Promise<Record<string, any> | null> {
-		return app.metadataCache.getFileCache(file)?.frontmatter ?? null
+	async readFrontmatter(app: App, file: TFile): Promise<FrontmatterRecord | null> {
+		const frontmatter: unknown = app.metadataCache.getFileCache(file)?.frontmatter
+		return isRecord(frontmatter) ? frontmatter : null
 	}
 
 	async rename(app: App, file: TFile, newPath: string): Promise<void> {
@@ -55,13 +62,14 @@ class DiskCheckedFolderAccessStrategy implements FolderAccessStrategy {
 		return null
 	}
 
-	private async readFrontmatterFromDisk(app: App, file: TFile): Promise<Record<string, any> | null> {
+	private async readFrontmatterFromDisk(app: App, file: TFile): Promise<FrontmatterRecord | null> {
 		const content = await app.vault.read(file)
 		const frontmatterBlock = this.getFrontmatterBlock(content)
 		if (frontmatterBlock == null) {
 			return null
 		}
-		return parseYaml(frontmatterBlock) ?? null
+		const frontmatter: unknown = parseYaml(frontmatterBlock)
+		return isRecord(frontmatter) ? frontmatter : null
 	}
 
 	private waitForVaultRename(app: App, oldPath: string, newPath: string): Promise<void> {
@@ -91,7 +99,7 @@ class DiskCheckedFolderAccessStrategy implements FolderAccessStrategy {
 		await renameWait
 	}
 
-	async readFrontmatter(app: App, file: TFile): Promise<Record<string, any> | null> {
+	async readFrontmatter(app: App, file: TFile): Promise<FrontmatterRecord | null> {
 		return await this.readFrontmatterFromDisk(app, file)
 	}
 
@@ -118,7 +126,7 @@ export async function moveFileToAndAddMeta(app: App, file: TFile, distDirectory:
 		return currentFile
 	}
 	await createFolderIfNotExist(app, distDir)
-	await app.fileManager.processFrontMatter(currentFile, (frontmatter) => {
+	await app.fileManager.processFrontMatter(currentFile, (frontmatter: FrontmatterRecord) => {
 		frontmatter[reverseTag] = currentFile.path
 	})
 	// console.log("whant to", file.path, "->", distDir + file.name)
@@ -140,9 +148,9 @@ async function renameFileWithCheckDoublicates(app: App, distDir: string, current
 }
 
 async function createFolderIfNotExist(app: App, distDirectory: string) {
-	// @ts-ignore
-	var isExists = await app.vault.exists(distDirectory)
-	if (!(isExists)) {
+	const folderPath = distDirectory.endsWith("/") ? distDirectory.slice(0, -1) : distDirectory
+	const existingFolder = app.vault.getAbstractFileByPath(folderPath)
+	if (!(existingFolder instanceof TFolder)) {
 		await app.vault.createFolder(distDirectory)
 	}
 }
@@ -158,8 +166,8 @@ export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTa
 		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return currentFile
 	}
-	var originalDist: string = frontmatter[reverseTag]
-	if (originalDist == null) {
+	const originalDist = frontmatter[reverseTag]
+	if (typeof originalDist !== "string") {
 		// new Notice(`in file ${filename} ${reverseTag} is not in frontmatter`)
 		// console.log(filename, frontmatter, reverseTag)
 		return currentFile
@@ -170,11 +178,11 @@ export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTa
 		if (movedFile == null) {
 			return currentFile
 		}
-		await app.fileManager.processFrontMatter(movedFile, (frontmatter) => {
+		await app.fileManager.processFrontMatter(movedFile, (frontmatter: FrontmatterRecord) => {
 			delete frontmatter[reverseTag]
 		})
 		return movedFile
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.log(error)
 		// new Notice(`cant move ${filename}\nback to ${originalDist}. \nMaybe original folder was deleted?`)
 		return currentFile
@@ -190,7 +198,7 @@ export async function removeMetaFromFile(app: App, file: TFile, reverseTag: stri
 		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return
 	}
-	await app.fileManager.processFrontMatter(currentFile, (frontmatter) => {
+	await app.fileManager.processFrontMatter(currentFile, (frontmatter: FrontmatterRecord) => {
 		delete frontmatter[reverseTag]
 	})
 }

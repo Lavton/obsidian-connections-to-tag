@@ -1,26 +1,27 @@
 import { TFile, App } from "obsidian";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null
+}
+
 // deprecate
 export async function tagData(app: App, file: TFile, tag: string): Promise<string[] | null> {
     if (!(file.path.endsWith(".md"))) {
         return null
     }
-    var frontmatterTagInfo = app.metadataCache.getFileCache(file)?.frontmatter
-    if (frontmatterTagInfo != null) {
-        var frontmatterTagInfo2 = frontmatterTagInfo[tag]
-    } else {
-        var frontmatterTagInfo2 = null
-    }
+    var frontmatterTagInfo: unknown = app.metadataCache.getFileCache(file)?.frontmatter
+    const frontmatterTagInfo2 = isRecord(frontmatterTagInfo) ? frontmatterTagInfo[tag] : null
     if (frontmatterTagInfo2 != null) {
         // Search in frontmatter
         if (Array.isArray(frontmatterTagInfo2)) {
-            return frontmatterTagInfo2
-        } else {
+            return frontmatterTagInfo2.filter((item): item is string => typeof item === "string")
+        } else if (typeof frontmatterTagInfo2 === "string") {
             return [frontmatterTagInfo2]
             // if (typeof frontmatterTagInfo2 == 'string') {
             //     return frontmatterTagInfo2.split(",").map(f => f.trim())
             // }
-        }
+		}
+        return null
     } else {
         // Search in the full file
         var content: string = await app.vault.cachedRead(file)

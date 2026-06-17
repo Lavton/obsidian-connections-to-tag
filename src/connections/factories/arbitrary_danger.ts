@@ -6,6 +6,17 @@ import type { ConnectionTypeDescriptor } from "../connection_factory";
 import ArbitraryDangerConnectionEditor from "./ArbitraryDangerConnectionEditor.svelte";
 import type { ValidationAboveRule, ValidationLocalRule } from "src/settings/types";
 
+type ArbitraryDangerUtils = {
+	removeFrontmatter: typeof removeFrontmatter;
+	extractLinksFromString: typeof extractLinksFromString;
+	getFilepaths: typeof getFilepaths;
+}
+
+type ArbitraryDangerExecutor = (app: App, node: TFile, utils: ArbitraryDangerUtils) => Promise<unknown>
+type AsyncFunctionConstructor = new (...args: string[]) => ArbitraryDangerExecutor
+
+const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor as AsyncFunctionConstructor;
+
 export class ArbitraryDangerConnection implements Connection {
 	readonly type = 'arbitrary-danger';
 	title: string;
@@ -15,14 +26,13 @@ export class ArbitraryDangerConnection implements Connection {
 		try {
 			const code = await this.get_code(app);
 			if (code.length == 0) { return [] }
-			const AsyncFunction = Object.getPrototypeOf(async function() { }).constructor;
 			const executorFunction = new AsyncFunction(
 				'app',
 				'node',
 				'utils',
 				code
 			);
-			const result = await executorFunction(app, node, this.utils);
+			const result: unknown = await executorFunction(app, node, this.utils);
 			if (Array.isArray(result) && result.every(item => item instanceof TFile)) {
 				return result;
 			}
@@ -34,7 +44,7 @@ export class ArbitraryDangerConnection implements Connection {
 	}
 
 	filepath: string;
-	utils = {
+	utils: ArbitraryDangerUtils = {
 		removeFrontmatter,
 		extractLinksFromString,
 		getFilepaths

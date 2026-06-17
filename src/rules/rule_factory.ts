@@ -10,7 +10,7 @@ export interface RuleEditorProps<TConfig extends RuleConfig = RuleConfig> {
 	shouldShowIssues?: (path: string) => boolean;
 }
 
-type AnyDescriptor = RuleTypeDescriptor<any>;
+type AnyDescriptor = RuleTypeDescriptor<RuleConfig>;
 
 // Type descriptor: keeps everything for a type in one place.
 export interface RuleTypeDescriptor<TConfig extends RuleConfig = RuleConfig> {
@@ -30,7 +30,7 @@ export class RuleRegistry {
 	private descriptors = new Map<string, AnyDescriptor>();
 
 	register<TConfig extends RuleConfig>(descriptor: RuleTypeDescriptor<TConfig>): RuleRegistry {
-		this.descriptors.set(descriptor.type, descriptor);
+		this.descriptors.set(descriptor.type, descriptor as unknown as AnyDescriptor);
 		return this;
 	}
 

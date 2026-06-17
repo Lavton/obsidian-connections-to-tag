@@ -123,8 +123,13 @@ const focusOperationStrategy: FocusOperationStrategy = USE_MODAL_PROGRESS_OPERAT
 	? new ModalFocusOperationStrategy()
 	: new SimpleFocusOperationStrategy()
 
-export const runTraversalFocusOperation = focusOperationStrategy.runTraversalFocusOperation.bind(focusOperationStrategy)
-export const runFocusOnlyOperation = focusOperationStrategy.runFocusOnlyOperation.bind(focusOperationStrategy)
+export function runTraversalFocusOperation(params: RunTraversalFocusOperationParams): Promise<StateSnapshot | null> {
+	return focusOperationStrategy.runTraversalFocusOperation(params)
+}
+
+export function runFocusOnlyOperation(params: RunFocusOnlyOperationParams): Promise<StateSnapshot> {
+	return focusOperationStrategy.runFocusOnlyOperation(params)
+}
 
 async function runFocusStageWithProgress(
 	progress: DeferredProgressController,

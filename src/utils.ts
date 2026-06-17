@@ -1,6 +1,11 @@
 import { App, TFile } from "obsidian"
 import { extractLinksFromFrontmatter, getFilepaths } from "./link_utils"
 
+type MetadataCacheWithInternals = App["metadataCache"] & {
+	getCachedFiles?: () => string[];
+	getBacklinksForFile?: (file: TFile) => { data?: Map<unknown, unknown> };
+}
+
 const regexp = /\[\[([^|\^#]*)[\^|#]?(.*?)\]\]/
 function linkToNoteName(link: string): string | null {
 	if (!link.startsWith("[[")) {
@@ -36,8 +41,8 @@ export function getNotePaths(linksCandidates: string[], initfilePath: string, ap
 }
 
 export function getAllFilesWithTag(app: App, tag: string): string[] {
-	// @ts-ignore
-	var fileCollection: string[] = app.metadataCache.getCachedFiles()
+	const metadataCache = app.metadataCache as unknown as MetadataCacheWithInternals
+	var fileCollection: string[] = metadataCache.getCachedFiles?.() ?? []
 	return fileCollection.filter(f => {
 		var tags = app.metadataCache.getCache(f)?.tags?.map(t => t.tag)
 		return tags?.contains(tag)
@@ -92,13 +97,13 @@ export function getForwardFilesFromFrontmatter(app: App, initial: TFile, frontKe
 }
 
 export function getBackwardLinks(app: App, initial: TFile): TFile[] {
-	// @ts-ignore
-	const backlinksObj = app.metadataCache.getBacklinksForFile(initial)?.data
+	const metadataCache = app.metadataCache as unknown as MetadataCacheWithInternals
+	const backlinksObj = metadataCache.getBacklinksForFile?.(initial)?.data
 	// console.log({ backlinksObj })
-	if (backlinksObj == undefined) {
+	if (!(backlinksObj instanceof Map)) {
 		return []
 	}
-	const backlinks: string[] = [...backlinksObj.keys()]
+	const backlinks = [...backlinksObj.keys()].filter((key): key is string => typeof key === "string")
 	// var backlinks: string[] = Object.keys(backlinksObj)
 	const backFiles = backlinks.map(s => app.vault.getAbstractFileByPath(s)).filter(item => item !== null)
 	return backFiles.filter(item => item instanceof TFile)

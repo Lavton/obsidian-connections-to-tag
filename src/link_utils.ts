@@ -34,21 +34,21 @@ export function extractLinksFromString(text: string): string[] {
 	// remove dublicates
 	return [...new Set(links)];
 }
-export function extractLinksFromFrontmatter(frontmatter: any): string[] {
+export function extractLinksFromFrontmatter(frontmatter: unknown): string[] {
 	if (!frontmatter) {
 		return [];
 	}
 
 	const links: Set<string> = new Set();
 
-	function processValue(value: any): void {
+	function processValue(value: unknown): void {
 		if (typeof value === 'string') {
 			const foundLinks = extractLinksFromString(value);
 			foundLinks.forEach(link => links.add(link));
 		} else if (Array.isArray(value)) {
 			value.forEach(item => processValue(item));
 		} else if (typeof value === 'object' && value !== null) {
-			Object.values(value).forEach(val => processValue(val));
+			Object.values(value as Record<string, unknown>).forEach(val => processValue(val));
 		}
 	}
 

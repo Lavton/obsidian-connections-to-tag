@@ -47,7 +47,10 @@ async function checkElementsAfter<T extends { title: string }>(
     changedElementIndex: number,
     validationConfig: ValidationConfig<T>
 ): Promise<(ScopeValidationResult)[]> {
-    const results: (ScopeValidationResult)[] = Array(items.length).fill({local: null, above: null});
+    const results: (ScopeValidationResult)[] = Array.from(
+        { length: items.length },
+        () => ({local: null, above: null}),
+    );
 
     for (let i = changedElementIndex+1; i < items.length; i++) {
         const item = items[i];

@@ -245,6 +245,7 @@
 
 ### W9. Passes unsafe values into typed parameters
 
+- Status: fixed.
 - Rule: `@typescript-eslint/no-unsafe-argument`.
 - Original report location: `src/link_utils.ts:51`.
 - Stable locator:
@@ -260,6 +261,14 @@
       for (const child of Object.values(value as Record<string, unknown>)) processValue(child);
     }
     ```
+- Applied fix:
+  - `extractLinksFromFrontmatter(...)` and its recursive `processValue(...)` now accept `unknown`.
+  - Added an `isRecord(...)` guard before object traversal.
+  - Replaced the old `Object.values(value as Record<string, unknown>).forEach(...)` cast/callback pattern with guarded `for...of`.
+- Verify:
+  ```bash
+  rg -n "frontmatter: any|value: any|Object\\.values\\(value as Record" src/link_utils.ts
+  ```
 
 ### W10. Promise returned where void was expected
 

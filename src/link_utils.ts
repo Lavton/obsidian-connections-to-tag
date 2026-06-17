@@ -1,6 +1,10 @@
 
 import { App, TFile } from "obsidian";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
+}
+
 export function extractLinksFromString(text: string): string[] {
 	const links: string[] = [];
 
@@ -47,8 +51,10 @@ export function extractLinksFromFrontmatter(frontmatter: unknown): string[] {
 			foundLinks.forEach(link => links.add(link));
 		} else if (Array.isArray(value)) {
 			value.forEach(item => processValue(item));
-		} else if (typeof value === 'object' && value !== null) {
-			Object.values(value as Record<string, unknown>).forEach(val => processValue(val));
+		} else if (isRecord(value)) {
+			for (const child of Object.values(value)) {
+				processValue(child);
+			}
 		}
 	}
 

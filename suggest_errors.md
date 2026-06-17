@@ -321,6 +321,7 @@
 
 ### W12. Unnecessary escape character: `\^`
 
+- Status: fixed.
 - Rule: likely `no-useless-escape`.
 - Original report location: `src/utils.ts:4`.
 - Stable locator:
@@ -337,6 +338,12 @@
     ```ts
     /\[\[([^|^#]*)[|^#]?(.*?)\]\]/
     ```
+- Applied fix:
+  - Removed unnecessary `\^` escapes from the wikilink regex in `src/utils.ts`.
+- Verify:
+  ```bash
+  rg -n "\\\\\\^" src/utils.ts
+  ```
 
 ### W13. Non-Promise values passed to promise aggregator
 

@@ -10,7 +10,7 @@ function getRecordValue(record: Record<string, unknown>, key: string): unknown {
 	return record[key]
 }
 
-const regexp = /\[\[([^|\^#]*)[\^|#]?(.*?)\]\]/
+const regexp = /\[\[([^|^#]*)[|^#]?(.*?)\]\]/
 function linkToNoteName(link: string): string | null {
 	if (!link.startsWith("[[")) {
 		return null

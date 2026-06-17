@@ -145,6 +145,7 @@
 
 ### W5. Unexpected empty array pattern
 
+- Status: fixed.
 - Rule: likely `no-empty-pattern` or parser warning caused by `[] = []`.
 - Original report locations: `src/connections/factories/all_in_text.ts:54`, `src/connections/factories/all_in_text.ts:55`, `src/connections/factories/all_yaml.ts:61`, `src/connections/factories/all_yaml.ts:62`, `src/connections/factories/between_in_text.ts:85`, `src/connections/factories/between_in_text.ts:86`, `src/connections/factories/just_regexp.ts:155`, `src/connections/factories/top_in_text.ts:71`, `src/connections/factories/top_in_text.ts:72`.
 - Stable locator:
@@ -155,6 +156,12 @@
 - Suggested fix:
   - Replace every `validateLocalRules: [] = []` with `validateLocalRules: []`.
   - Replace every `validateAboveRules: [] = []` with `validateAboveRules: []`.
+- Applied fix:
+  - Replaced all empty-array assignment patterns in connection descriptors with plain empty arrays.
+- Verify:
+  ```bash
+  rg -n "validate(Local|Above)Rules: \\[\\] = \\[\\]" src/connections/factories
+  ```
 
 ### W6. Unsafe member access on an `error` or `any` typed value
 

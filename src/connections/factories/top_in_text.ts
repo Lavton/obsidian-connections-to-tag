@@ -68,6 +68,6 @@ export const TopInTextConnectionDescriptor: ConnectionTypeDescriptor<TopInTextCo
 	createDefaultConfig() {
 		return { type: 'top-in-text', title: '' };
 	},
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
+	validateLocalRules: [],
+	validateAboveRules: [],
 };

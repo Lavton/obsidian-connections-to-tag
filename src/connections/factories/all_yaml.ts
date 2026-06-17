@@ -58,6 +58,6 @@ export const AllYamlConnectionDescriptor: ConnectionTypeDescriptor<AllYamlConnCo
     createDefaultConfig() {
         return { type: 'all-yaml', title: '' };
     },
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
+	validateLocalRules: [],
+	validateAboveRules: [],
 };

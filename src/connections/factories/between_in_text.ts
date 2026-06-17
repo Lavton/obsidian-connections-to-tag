@@ -82,6 +82,6 @@ export const BetweenInTextConnectionDescriptor: ConnectionTypeDescriptor<Between
 			end_to_find: null,
 		};
 	},
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
+	validateLocalRules: [],
+	validateAboveRules: [],
 };

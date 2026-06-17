@@ -152,5 +152,5 @@ export const JustRegexpConnectionDescriptor: ConnectionTypeDescriptor<JustRegexp
 	validateLocalRules: [
 		{ run: validateJustRegexpToFind },
 	],
-	validateAboveRules: [] = [],
+	validateAboveRules: [],
 };

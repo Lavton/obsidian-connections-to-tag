@@ -51,6 +51,6 @@ export const AllInTextConnectionDescriptor: ConnectionTypeDescriptor<AllInTextCo
 	createDefaultConfig() {
 		return { type: 'all-in-text', title: '' };
 	},
-	validateLocalRules: [] = [],
-	validateAboveRules: [] = [],
+	validateLocalRules: [],
+	validateAboveRules: [],
 };

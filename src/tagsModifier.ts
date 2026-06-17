@@ -9,7 +9,7 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
     if (!(file.path.endsWith(".md"))) {
         return null
     }
-    var frontmatterTagInfo: unknown = app.metadataCache.getFileCache(file)?.frontmatter
+    const frontmatterTagInfo: unknown = app.metadataCache.getFileCache(file)?.frontmatter
     const frontmatterTagInfo2 = isRecord(frontmatterTagInfo) ? frontmatterTagInfo[tag] : null
     if (frontmatterTagInfo2 != null) {
         // Search in frontmatter
@@ -23,10 +23,10 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
         return null
     } else {
         // Search in the full file
-        var content: string = await app.vault.cachedRead(file)
-        var lines = content.split("\n")
-        var tagStart = `${tag}::`
-        var lineIndex = -1 
+        const content: string = await app.vault.cachedRead(file)
+        const lines = content.split("\n")
+        const tagStart = `${tag}::`
+        let lineIndex = -1 
         for (let i=0; i < lines.length; i++) {
             if (lines[i].startsWith(tagStart)) {
                 lineIndex = i
@@ -37,23 +37,18 @@ export async function tagData(app: App, file: TFile, tag: string): Promise<strin
             return null
         }
         return getTagOnWholeFile(file, app, lineIndex)
-        // var linesWithTag = lines.filter(l => l.startsWith(tagStart)).map(l => l.slice(tagStart.length))
-        // if (linesWithTag.length == 0) {
-            // return null
-        // }
-        // return linesWithTag.join(", ").split(",").map(l => l.trim()) // TODO: this does not handle notes with ',' in the name!
     }
     // return null
 }
 
 function getTagOnWholeFile(file: TFile, app: App, lineIndex: number): string[] {
-    var inFileLinks = app.metadataCache.getFileCache(file)?.links
+    const inFileLinks = app.metadataCache.getFileCache(file)?.links
     if (inFileLinks == undefined) {
         return []
     }
-    var lines: number[] = inFileLinks.map(l => l.position.start.line)
-    var links: string[] = inFileLinks.map(l => l.original)
-    var parents: string[] = []
+    const lines: number[] = inFileLinks.map(l => l.position.start.line)
+    const links: string[] = inFileLinks.map(l => l.original)
+    const parents: string[] = []
     for(let i=0; i < lines.length; i++) {
         if (lines[i] == lineIndex) {
             parents.push(links[i])
@@ -67,11 +62,11 @@ export async function addTagForFile(app: App, filepath: string, tag: string) {
     if (!(filepath.endsWith(".md"))) {
         return
     }
-    var file = app.vault.getAbstractFileByPath(filepath)
+    const file = app.vault.getAbstractFileByPath(filepath)
     if (!(file instanceof TFile)) {
         return
     }
-    var content: string = await app.vault.read(file)
+    let content: string = await app.vault.read(file)
     if (content.includes(tag)) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
         return
     }
@@ -83,21 +78,21 @@ export async function removeTagFromFile(app: App, filepath: string, tag: string)
     if (!(filepath.endsWith(".md"))) {
         return
     }
-    var file = app.vault.getAbstractFileByPath(filepath)
+    const file = app.vault.getAbstractFileByPath(filepath)
     if (!(file instanceof TFile)) {
         return
     }
-    var content: string = await app.vault.read(file)
+    const content: string = await app.vault.read(file)
     if (!(content.includes(tag))) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
         return
     }
-    var lines = content.split("\n")
-    var newLines: string[] = []
+    const lines = content.split("\n")
+    const newLines: string[] = []
     lines.forEach(line => {
         if (!(line.includes(tag))) {
             newLines.push(line)
         } else {
-            var modifiedLine = line.replace(tag, "")
+            const modifiedLine = line.replace(tag, "")
             if (modifiedLine.trim().length != 0) { // there is some content besides tag
                 newLines.push(modifiedLine)
             }

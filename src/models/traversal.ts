@@ -34,9 +34,9 @@ export class RuleTraversal implements Traversal {
 		throwIfCancelled(options?.signal)
 		const rule = this.ruleFactory.getRule()
 		const connection = this.ruleFactory.connection
-		var allNotes: string[] = []
-		var allNotesF: TFile[] = []
-		var notesQueue: [TFile, Rule][] = []
+		const allNotes: string[] = []
+		const allNotesF: TFile[] = []
+		const notesQueue: [TFile, Rule][] = []
 		const absPath = seed.path
 		if (!(allNotes.includes(absPath))) {
 			if (seed.extension != "md") return []

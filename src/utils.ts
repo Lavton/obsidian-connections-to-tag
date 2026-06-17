@@ -19,7 +19,7 @@ function linkToNoteName(link: string): string | null {
 		return null
 	}
 	// return getLinkpath(link.slice(2, link.length-2))
-	var match = link.match(regexp)
+	const match = link.match(regexp)
 	if (match == null) {
 		return null
 	}
@@ -46,9 +46,9 @@ export function getNotePaths(linksCandidates: string[], initfilePath: string, ap
 
 export function getAllFilesWithTag(app: App, tag: string): string[] {
 	const metadataCache = app.metadataCache as unknown as MetadataCacheWithInternals
-	var fileCollection: string[] = metadataCache.getCachedFiles?.() ?? []
+	const fileCollection: string[] = metadataCache.getCachedFiles?.() ?? []
 	return fileCollection.filter(f => {
-		var tags = app.metadataCache.getCache(f)?.tags?.map(t => t.tag)
+		const tags = app.metadataCache.getCache(f)?.tags?.map(t => t.tag)
 		return tags?.includes(tag)
 	})
 }
@@ -86,7 +86,7 @@ export function getForwardFilesFromFrontmatter(app: App, initial: TFile, frontKe
 	const frontmatter = fileCache?.frontmatter;
 	// console.log({initial, frontKeys})
 
-	var connectedFiles: TFile[] = []
+	const connectedFiles: TFile[] = []
 	if (frontmatter) {
 		for (const frontMatterKey of frontKeys) {
 			const frontmatterValue = extractLinksFromFrontmatter(getRecordValue(frontmatter, frontMatterKey));
@@ -108,7 +108,6 @@ export function getBackwardLinks(app: App, initial: TFile): TFile[] {
 	}
 	const backlinks = Array.from(backlinksObj, ([key]) => key)
 		.filter((key): key is string => typeof key === "string")
-	// var backlinks: string[] = Object.keys(backlinksObj)
 	const backFiles = backlinks.map(s => app.vault.getAbstractFileByPath(s)).filter(item => item !== null)
 	return backFiles.filter(item => item instanceof TFile)
 }

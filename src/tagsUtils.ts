@@ -147,14 +147,14 @@ async function removeTagFromFileText(app: App, file: TFile, tag: string): Promis
 	const currentFile = getCurrentFile(app, file)
 	if (currentFile == null) { return file }
 	if (!(await tagsAccessStrategy.shouldRemoveTextTag(app, currentFile, tag))) { return currentFile }
-	var content: string = await app.vault.read(currentFile)
-	var lines = content.split("\n")
-	var newLines: string[] = []
+	const content: string = await app.vault.read(currentFile)
+	const lines = content.split("\n")
+	const newLines: string[] = []
 	lines.forEach(line => {
 		if (!(line.includes(tag))) {
 			newLines.push(line)
 		} else {
-			var modifiedLine = line.replace(tag, "")
+			const modifiedLine = line.replace(tag, "")
 			if (modifiedLine.trim().length != 0) { // there is some content besides tag
 				newLines.push(modifiedLine)
 			}

@@ -173,7 +173,7 @@ export async function moveFileFromAndRemoveMeta(app: App, file: TFile, reverseTa
 	if (currentFile == null) {
 		return file
 	}
-	var frontmatter = await folderAccessStrategy.readFrontmatter(app, currentFile)
+	const frontmatter = await folderAccessStrategy.readFrontmatter(app, currentFile)
 	if (frontmatter == null) {
 		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return currentFile
@@ -205,7 +205,7 @@ export async function removeMetaFromFile(app: App, file: TFile, reverseTag: stri
 	if (currentFile == null) {
 		return
 	}
-	var frontmatter = await folderAccessStrategy.readFrontmatter(app, currentFile)
+	const frontmatter = await folderAccessStrategy.readFrontmatter(app, currentFile)
 	if (frontmatter == null || getRecordValue(frontmatter, reverseTag) === undefined) {
 		// new Notice(`in file ${filename} no frontmatter exisist`)
 		return

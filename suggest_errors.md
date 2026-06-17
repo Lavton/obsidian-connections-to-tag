@@ -222,6 +222,7 @@
 
 ### W8. Unexpected `var`, use `let` or `const`
 
+- Status: fixed.
 - Rule: likely `no-var`.
 - Original report locations: `src/folderUtils.ts:144`, `src/folderUtils.ts:156`, `src/folderUtils.ts:161`, `src/folderUtils.ts:188`, `src/models/traversal.ts:37`, `src/models/traversal.ts:38`, `src/models/traversal.ts:39`, `src/tagsModifier.ts:8`, `src/tagsModifier.ts:10`, `src/tagsModifier.ts:12`, `src/tagsModifier.ts:26`, `src/tagsModifier.ts:27`, `src/tagsModifier.ts:28`, `src/tagsModifier.ts:29`, `src/tagsModifier.ts:50`, `src/tagsModifier.ts:54`, `src/tagsModifier.ts:55`, `src/tagsModifier.ts:56`, `src/tagsModifier.ts:70`, `src/tagsModifier.ts:74`, `src/tagsModifier.ts:86`, `src/tagsModifier.ts:90`, `src/tagsModifier.ts:94`, `src/tagsModifier.ts:95`, `src/tagsModifier.ts:100`, `src/tagsUtils.ts:121`, `src/tagsUtils.ts:122`, `src/tagsUtils.ts:123`, `src/tagsUtils.ts:128`, `src/utils.ts:13`, `src/utils.ts:40`, `src/utils.ts:42`, `src/utils.ts:80`.
 - Stable locator:
@@ -233,6 +234,14 @@
   - Use `const` when the binding is never reassigned.
   - Use `let` only for bindings that are reassigned.
   - Be careful with repeated `var frontmatterTagInfo2` in different branches of `tagsModifier.ts`; declare once as `const frontmatterTagInfo2 = frontmatterTagInfo?.[tag] ?? null`.
+- Applied fix:
+  - Replaced TypeScript `var` declarations with `const` or `let` in `folderUtils.ts`, `traversal.ts`, `tagsModifier.ts`, `tagsUtils.ts`, and `utils.ts`.
+  - Removed old commented `var` examples from `tagsModifier.ts` / `utils.ts`.
+  - Kept CSS `var(...)` usages in Svelte files unchanged.
+- Verify:
+  ```bash
+  rg -n "\\bvar\\b" -g "*.ts" src
+  ```
 
 ### W9. Passes unsafe values into typed parameters
 

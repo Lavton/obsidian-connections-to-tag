@@ -15,7 +15,8 @@ export function createConnectionInstances(
 		}
 		try {
 			currentConnections.push(connectionRegistry.fromConfig(connectionConfig, currentConnections))
-		} catch {
+		} catch (_error: unknown) {
+			// Invalid saved connection configs are skipped so the rest of the settings can load.
 		}
 	}
 	return currentConnections
@@ -33,7 +34,8 @@ export function createRuleInstances(
 		}
 		try {
 			currentRules.push(ruleRegistry.fromConfig(ruleConfig, connections))
-		} catch {
+		} catch (_error: unknown) {
+			// Invalid saved rule configs are skipped so the rest of the settings can load.
 		}
 	}
 	return currentRules

@@ -300,6 +300,7 @@
 
 ### W11. Empty block statement
 
+- Status: fixed.
 - Rule: likely `no-empty`.
 - Original report locations: `src/ui_utils.ts:18-19`, `src/ui_utils.ts:36-37`.
 - Stable locator:
@@ -310,6 +311,13 @@
 - Suggested fix:
   - If ignore is intentional, add a short comment inside the block.
   - Better: catch `unknown` and log a debug-level message, or remove the try/catch if the failure should surface.
+- Applied fix:
+  - Added explicit `catch (_error: unknown)` blocks with comments explaining that invalid saved configs are skipped.
+  - Kept the existing behavior of loading the remaining valid settings.
+- Verify:
+  ```bash
+  rg -n "catch \\{\\s*\\}" src/ui_utils.ts
+  ```
 
 ### W12. Unnecessary escape character: `\^`
 

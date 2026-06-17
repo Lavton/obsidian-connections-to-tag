@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Plugin } from "obsidian";
+import { App, PluginSettingTab, Plugin, Setting } from "obsidian";
 
 import { mount } from "svelte";
 import { writable } from "svelte/store";
@@ -82,18 +82,18 @@ export class ConnectionsToTagSettingTab extends PluginSettingTab {
 			props: {
 			}
 		});
-		const section1 = containerEl.createDiv({ cls: 'settings-section' });
-		section1.id = 'section-focuser';
-		section1.createEl('h2', { text: 'What to do with found notes' });
+			const section1 = containerEl.createDiv({ cls: 'settings-section' });
+			section1.id = 'section-focuser';
+			new Setting(section1).setName('What to do with found notes').setHeading();
 
 		createMarkNoteModesSetting(containerEl, this.plugin.settings.focusMakerSettings,() => this.plugin.saveSettings());
 		createResultTagSetting(containerEl, this.plugin.settings.focusMakerSettings, () => this.plugin.saveSettings());
 		createResultFolderSetting(containerEl, this.plugin.settings.focusMakerSettings, () => this.plugin.saveSettings());
 		createMovedNameFrontmatterSetting(containerEl, this.plugin.settings.focusMakerSettings, () => this.plugin.saveSettings());
 		
-		const section2 = containerEl.createDiv({ cls: 'settings-section' });
-		section2.id = 'section-chain';
-		section2.createEl('h2', { text: 'What rules to apply' });
+			const section2 = containerEl.createDiv({ cls: 'settings-section' });
+			section2.id = 'section-chain';
+			new Setting(section2).setName('What rules to apply').setHeading();
 		let listContainer = section2.createDiv();
 
 		const registry = this.connectionHolder.connectionRegistry

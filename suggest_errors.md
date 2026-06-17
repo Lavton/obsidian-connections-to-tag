@@ -196,6 +196,7 @@
 
 ### W7. Unsafe call of an `error` or `any` typed value
 
+- Status: fixed.
 - Rule: `@typescript-eslint/no-unsafe-call`.
 - Original report locations: `src/connections/factories/arbitrary_danger.ts:19-24`, `src/connections/factories/arbitrary_danger.ts:25`, `src/folderUtils.ts:144`, `src/menuCommands.ts:23`, `src/menuCommands.ts:31`, `src/menuCommands.ts:45`, `src/menuCommands.ts:53`, `src/menuCommands.ts:67`, `src/menuCommands.ts:80`, `src/menuCommands.ts:101`, `src/menuCommands.ts:114`, `src/menuCommands.ts:136`, `src/menuCommands.ts:159`, `src/menuCommands.ts:198`, `src/menuCommands.ts:238`, `src/menuItems.ts:21`, `src/menuItems.ts:32`, `src/menuItems.ts:43`, `src/menuItems.ts:54`, `src/menuItems.ts:65`, `src/menuItems.ts:77`, `src/menuItems.ts:89`, `src/tagsUtils.ts:156`, `src/tagsUtils.ts:157`, `src/tagsUtils.ts:177`, `src/utils.ts:40`, `src/utils.ts:96`, `src/utils.ts:101`.
 - Stable locator:
@@ -208,6 +209,16 @@
   - Remove `// @ts-ignore` around `vault.exists`; current Obsidian types include `exists(...)`.
   - Type Graph view before calling `dataEngine.setOptions(...)`.
   - Type dynamic executor from `new AsyncFunction` before calling it.
+- Applied fix:
+  - Replaced all non-standard `.contains(...)` calls with standard `.includes(...)`.
+  - Removed the old `vault.exists(...)` call while fixing W1 by checking `getAbstractFileByPath(...)` instead.
+  - Kept `dataEngine.setOptions(...)` behind local `GraphDataEngine` / `GraphView` types.
+  - Kept dynamic executor calls behind the typed `ArbitraryDangerExecutor` boundary.
+  - `runFocusOnlyOperation(...)` and `runTraversalFocusOperation(...)` are now typed wrapper functions from W1/W4.
+- Verify:
+  ```bash
+  rg -n "\\.contains\\(|vault\\.exists|as any|\\bany\\b" src main.ts
+  ```
 
 ### W8. Unexpected `var`, use `let` or `const`
 

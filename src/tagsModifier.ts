@@ -72,7 +72,7 @@ export async function addTagForFile(app: App, filepath: string, tag: string) {
         return
     }
     var content: string = await app.vault.read(file)
-    if (content.contains(tag)) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
+    if (content.includes(tag)) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
         return
     }
     content += "\n"+tag
@@ -88,13 +88,13 @@ export async function removeTagFromFile(app: App, filepath: string, tag: string)
         return
     }
     var content: string = await app.vault.read(file)
-    if (!(content.contains(tag))) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
+    if (!(content.includes(tag))) { // TODO: it may be a problem: #tag_something still return true. But I don't know how to parse tag without cache...
         return
     }
     var lines = content.split("\n")
     var newLines: string[] = []
     lines.forEach(line => {
-        if (!(line.contains(tag))) {
+        if (!(line.includes(tag))) {
             newLines.push(line)
         } else {
             var modifiedLine = line.replace(tag, "")

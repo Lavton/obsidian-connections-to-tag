@@ -49,7 +49,7 @@ export function getAllFilesWithTag(app: App, tag: string): string[] {
 	var fileCollection: string[] = metadataCache.getCachedFiles?.() ?? []
 	return fileCollection.filter(f => {
 		var tags = app.metadataCache.getCache(f)?.tags?.map(t => t.tag)
-		return tags?.contains(tag)
+		return tags?.includes(tag)
 	})
 }
 

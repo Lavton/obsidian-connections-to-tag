@@ -38,7 +38,7 @@ export class RuleTraversal implements Traversal {
 		var allNotesF: TFile[] = []
 		var notesQueue: [TFile, Rule][] = []
 		const absPath = seed.path
-		if (!(allNotes.contains(absPath))) {
+		if (!(allNotes.includes(absPath))) {
 			if (seed.extension != "md") return []
 			allNotes.push(absPath)
 			allNotesF.push(seed)
@@ -59,7 +59,7 @@ export class RuleTraversal implements Traversal {
 			for (const file of filesToLookAt) {
 				throwIfCancelled(options?.signal)
 				if (file.extension != "md") continue
-		        if (allNotes.contains(file.path)) continue
+		        if (allNotes.includes(file.path)) continue
 				if (await currentRule.needToGo()) {
 					throwIfCancelled(options?.signal)
 					notesQueue.push([file, await currentRule.go()])
